@@ -1,0 +1,108 @@
+"use client";
+
+import Image from "next/image";
+import { IndexSlideList } from "@/components/slider/index-slide-list";
+import { ClipReveal } from "@/components/slider/clip-reveal";
+import {
+  IndexSlideBody,
+  IndexSlideTitle,
+} from "@/components/slider/index-slide-layout";
+import type { SlideBlock } from "@/types/slide-content";
+import { formatSlideText } from "@/lib/text-case";
+
+interface IndexSlideBlockProps {
+  block: SlideBlock;
+  align?: "left" | "center";
+  onGoToSlide?: (index: number) => void;
+}
+
+function wrapReveal(
+  content: React.ReactNode,
+  reveal?: boolean,
+  revealDelay?: number,
+) {
+  if (!reveal) return content;
+  return <ClipReveal delay={revealDelay}>{content}</ClipReveal>;
+}
+
+export function IndexSlideBlock({
+  block,
+  align = "left",
+  onGoToSlide,
+}: IndexSlideBlockProps) {
+  const textAlign = align === "center" ? "text-center" : "text-left";
+  const blockClass =
+    align === "center"
+      ? `index-slide-block w-auto max-w-full ${textAlign}`
+      : `index-slide-block w-full ${textAlign}`;
+
+  let element: React.ReactNode;
+  const text =
+    block.type === "title" || block.type === "body"
+      ? formatSlideText(block)
+      : null;
+
+  switch (block.type) {
+    case "title":
+      element = (
+        <IndexSlideTitle
+          as={block.as}
+          typography={block.typography}
+          className={[block.className, textAlign].filter(Boolean).join(" ")}
+          fontSize={block.fontSize}
+        >
+          {wrapReveal(text, block.reveal, block.revealDelay)}
+        </IndexSlideTitle>
+      );
+      break;
+    case "body":
+      element = (
+        <IndexSlideBody
+          as={block.as}
+          className={[block.className, textAlign].filter(Boolean).join(" ")}
+          fontSize={block.fontSize}
+        >
+          {wrapReveal(text, block.reveal, block.revealDelay)}
+        </IndexSlideBody>
+      );
+      break;
+    case "list":
+      element = <IndexSlideList block={block} onGoToSlide={onGoToSlide} />;
+      break;
+    case "image": {
+      const isGif = block.src.toLowerCase().endsWith(".gif");
+      const imageAlignClass =
+        block.align === "right"
+          ? "flex justify-end"
+          : block.align === "center"
+            ? "flex justify-center"
+            : "";
+      element = (
+        <Image
+          src={block.src}
+          alt={block.alt}
+          width={block.width ?? 1200}
+          height={block.height ?? 720}
+          unoptimized={isGif}
+          className={block.className ?? "h-auto w-full max-w-full object-contain"}
+        />
+      );
+      return (
+        <div
+          data-slide-block={block.id}
+          className={[blockClass, imageAlignClass].filter(Boolean).join(" ")}
+        >
+          {element}
+        </div>
+      );
+    }
+    default:
+      return null;
+  }
+
+  return (
+    <div data-slide-block={block.id} className={blockClass}>
+      {element}
+    </div>
+  );
+}
