@@ -17,7 +17,7 @@ export function IndexSlideList({ block, onGoToSlide }: IndexSlideListProps) {
           id: item.id,
           type: "title",
           text: item.label,
-          textCase: "sentence",
+          textCase: "preserve",
         });
         const rowClass = "index-slide-row group w-full text-left";
 

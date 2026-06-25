@@ -1,7 +1,7 @@
 import { FLASHBACK_STORY_COUNT } from "@/lib/flashback-stories";
 
-/** Slide index for `slide-8` (Kalash iOS prototype) on the index deck. */
-export const KALASH_SLIDE_INDEX = 8;
+/** Former deck index for Kalash iOS — Kalash now lives under `/dev/kalash-*` routes. */
+export const KALASH_SLIDE_INDEX = 13;
 
 export const KALASH_STORY_COUNT = FLASHBACK_STORY_COUNT;
 
@@ -12,7 +12,7 @@ function readSearchParam(key: string): string | null {
   return new URLSearchParams(window.location.search).get(key);
 }
 
-/** `?slide=8` — jump the deck to a specific slide on load. */
+/** `?slide=N` — jump the deck to a specific slide on load (0-based index). */
 export function getDevSlideIndex(frameCount: number): number | null {
   const raw = readSearchParam("slide");
   if (raw === null) return null;

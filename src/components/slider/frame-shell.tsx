@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { getFrameDisplayNumber } from "@/lib/slide-display";
 import { getFramePanelStyle } from "@/lib/frame-size";
 import { getCursorSurfaceForFrame } from "@/lib/cursor-surface";
 import type { Frame } from "@/types";
@@ -38,9 +39,15 @@ export function FrameShell({
     <motion.article
       tabIndex={0}
       data-variant={frame.variant}
-      className="frame-panel outline-none select-none"
+      className="frame-panel relative overflow-visible outline-none select-none"
       style={getFramePanelStyle(index, frame, trackHeight)}
     >
+      <span
+        className="index-slide-about-title pointer-events-none absolute bottom-full left-0 mb-3 text-[14px] font-normal leading-none tracking-tight text-white/55"
+        aria-hidden
+      >
+        {getFrameDisplayNumber(frame.id, index)}
+      </span>
       <div
         data-sheet
         data-cursor-surface={getCursorSurfaceForFrame(frame.backgroundColor)}

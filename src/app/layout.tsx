@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Inter, Libre_Franklin, Red_Hat_Mono } from "next/font/google";
+import { saltmineMockupFont } from "@/lib/saltmine-mockup-font";
 import { Analytics } from "@vercel/analytics/next";
 import CacheManager from "@/components/CacheManager";
 import { SiteEntryAnalytics } from "@/components/site-entry-analytics";
@@ -27,14 +28,14 @@ const inter = Inter({
 const libreFranklin = Libre_Franklin({
   variable: "--font-libre-franklin",
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["400", "500", "700"],
   display: "swap",
 });
 
 const redHatMono = Red_Hat_Mono({
   variable: "--font-red-hat-mono",
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["400", "500", "700"],
   display: "swap",
 });
 
@@ -50,7 +51,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${inter.variable} ${libreFranklin.variable} ${redHatMono.variable} bg-background`}>
+    <html lang="en" className={`${geistSans.variable} ${inter.variable} ${libreFranklin.variable} ${redHatMono.variable} ${saltmineMockupFont.variable} bg-background`}>
       <head>
         <link rel="preconnect" href={BLOB_CDN_ORIGIN} crossOrigin="anonymous" />
       </head>

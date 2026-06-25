@@ -3,7 +3,12 @@
 import { IndexSlideBlock } from "@/components/slider/index-slide-block";
 import { IndexSlideLayout } from "@/components/slider/index-slide-layout";
 import { ManifestStintsLayout } from "@/components/slider/manifest-stints-layout";
+import { SaltmineBentoSlideLayout } from "@/components/slider/saltmine-bento-slide-layout";
+import { SaltmineExampleSlideLayout } from "@/components/slider/saltmine-example-slide-layout";
+import { SaltmineProblemSlideLayout } from "@/components/slider/saltmine-problem-slide-layout";
+import { SaltmineSyncSlideLayout } from "@/components/slider/saltmine-sync-slide-layout";
 import { KalashIphoneHomeLayout } from "@/components/slider/kalash-iphone-home-layout";
+import { VerticalSplitSlideLayout } from "@/components/slider/vertical-split-slide-layout";
 import { FrameShell } from "@/components/slider/frame-shell";
 import type { Frame } from "@/types";
 import type { SlideDefinition } from "@/types/slide-content";
@@ -36,17 +41,32 @@ export function IndexSlidePanel({
         <ManifestStintsLayout />
       ) : slide.layout === "iphone-home" ? (
         <KalashIphoneHomeLayout />
+      ) : slide.layout === "saltmine-sync" ? (
+        <SaltmineSyncSlideLayout />
+      ) : slide.layout === "saltmine-bento" ? (
+        <SaltmineBentoSlideLayout />
+      ) : slide.layout === "vertical-split" ? (
+        <VerticalSplitSlideLayout split={slide.verticalSplit} />
+      ) : slide.layout === "saltmine-problem" ? (
+        <SaltmineProblemSlideLayout
+          content={slide.problemSplit}
+          backgroundColor={slide.backgroundColor}
+        />
+      ) : slide.layout === "saltmine-example" ? (
+        <SaltmineExampleSlideLayout content={slide.exampleBento} />
       ) : (
         <IndexSlideLayout
           align={slide.align}
           blockGap={slide.blockGap}
           className={slide.className}
+          coverImage={slide.coverImage}
         >
           {slide.blocks.map((block) => (
             <IndexSlideBlock
               key={block.id}
               block={block}
               align={slide.align}
+              slideIndex={index}
               onGoToSlide={onGoToSlide}
             />
           ))}

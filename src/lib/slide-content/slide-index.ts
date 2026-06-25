@@ -1,8 +1,8 @@
 import type { SlideDefinition } from "@/types/slide-content";
 
 const INDEX_ENTRIES = [
-  { id: "entry-kalash", label: "Kalash", slideIndex: 5 },
-  { id: "entry-about", label: "Saltmine Sync", slideIndex: 1 },
+  { id: "entry-kalash", label: "Saltmine - Sync", slideIndex: 5 },
+  { id: "entry-about", label: "Project 2", slideIndex: 1 },
   { id: "entry-slide-6", label: "Project 4", slideIndex: 6 },
 ] as const;
 

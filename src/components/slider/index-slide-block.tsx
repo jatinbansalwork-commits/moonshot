@@ -2,6 +2,10 @@
 
 import Image from "next/image";
 import { IndexSlideList } from "@/components/slider/index-slide-list";
+import {
+  SaltmineDashboardSlideCard,
+  SaltmineSignInCard,
+} from "@/components/slider/saltmine-sign-in-card";
 import { ClipReveal } from "@/components/slider/clip-reveal";
 import {
   IndexSlideBody,
@@ -14,6 +18,7 @@ interface IndexSlideBlockProps {
   block: SlideBlock;
   align?: "left" | "center";
   onGoToSlide?: (index: number) => void;
+  slideIndex?: number;
 }
 
 function wrapReveal(
@@ -29,6 +34,7 @@ export function IndexSlideBlock({
   block,
   align = "left",
   onGoToSlide,
+  slideIndex,
 }: IndexSlideBlockProps) {
   const textAlign = align === "center" ? "text-center" : "text-left";
   const blockClass =
@@ -70,28 +76,66 @@ export function IndexSlideBlock({
       element = <IndexSlideList block={block} onGoToSlide={onGoToSlide} />;
       break;
     case "image": {
-      const isGif = block.src.toLowerCase().endsWith(".gif");
       const imageAlignClass =
         block.align === "right"
           ? "flex justify-end"
           : block.align === "center"
             ? "flex justify-center"
             : "";
-      element = (
-        <Image
-          src={block.src}
-          alt={block.alt}
-          width={block.width ?? 1200}
-          height={block.height ?? 720}
-          unoptimized={isGif}
-          className={block.className ?? "h-auto w-full max-w-full object-contain"}
-        />
-      );
+
+      if (block.placeholder) {
+        const placeholderFrameClass =
+          block.className ??
+          "mx-auto h-[530px] w-[880px] max-w-full overflow-hidden rounded-[20px] border border-black/10 bg-white";
+
+        element =
+          block.placeholderVariant === "sign-in" ? (
+            <div className={placeholderFrameClass}>
+              <SaltmineSignInCard />
+            </div>
+          ) : block.placeholderVariant === "dashboard" ? (
+            <div className={placeholderFrameClass}>
+              <SaltmineDashboardSlideCard
+                preset="deck"
+                initialActiveNav={block.dashboardInitialNav ?? "bookings"}
+              />
+            </div>
+          ) : (
+            <div
+              role="img"
+              aria-label={block.alt}
+              className={
+                block.className ??
+                "aspect-video w-full max-w-4xl rounded-[20px] bg-[#E8EDFF]"
+              }
+            />
+          );
+      } else {
+        const isGif = block.src?.toLowerCase().endsWith(".gif") ?? false;
+        element = (
+          <Image
+            src={block.src ?? ""}
+            alt={block.alt}
+            width={block.width ?? 1200}
+            height={block.height ?? 720}
+            unoptimized={isGif}
+            className={
+              block.className ?? "h-auto w-full max-w-full object-contain"
+            }
+          />
+        );
+      }
+
+      const imageBlockClass = [
+        "index-slide-block w-full max-w-4xl",
+        align === "center" ? "mx-auto text-center" : textAlign,
+        imageAlignClass,
+      ]
+        .filter(Boolean)
+        .join(" ");
+
       return (
-        <div
-          data-slide-block={block.id}
-          className={[blockClass, imageAlignClass].filter(Boolean).join(" ")}
-        >
+        <div data-slide-block={block.id} className={imageBlockClass}>
           {element}
         </div>
       );

@@ -1,37 +1,34 @@
 import type { SlideDefinition } from "@/types/slide-content";
-import { INDEX_SLIDE_ABOUT_BODY_SIZE_PX } from "@/lib/index-typography";
+import { INDEX_SLIDE_ABOUT_BODY_SIZE_PX, INDEX_SLIDE_ABOUT_TITLE } from "@/lib/index-typography";
 
 export const slide5: SlideDefinition = {
   id: "slide-5",
   label: "Kalash Year-End Recap",
-  backgroundColor: "#184546",
-  className: "text-white",
+  backgroundColor: "#F2F0F6",
+  className: "text-black",
   blockGap: "gap-10",
+  coverImage: {
+    src: "https://vpocozyaql1wuw3p.public.blob.vercel-storage.com/A_deck/slat1.svg",
+    alt: "Saltmine Sync cover artwork",
+    fullBleedRight: true,
+  },
   blocks: [
     {
       id: "slide-5-lead",
       type: "body",
-      text: "Kalash Year-End Recap",
-      fontSize: INDEX_SLIDE_ABOUT_BODY_SIZE_PX,
-      className: "index-slide-about-body !text-white",
+      text: "Saltmine-Sync",
+      fontSize: INDEX_SLIDE_ABOUT_BODY_SIZE_PX * 1.5,
+      className: "index-slide-about-body !text-black",
       textCase: "preserve",
     },
     {
       id: "slide-5-detail",
       type: "title",
-      text: "Turning a year of investing into a story worth revisiting.",
+      text: "Saltmine is a B2B SaaS company helping organizations manage their workspaces efficiently.",
       as: "h6",
       fontSize: 24,
-      className: "font-normal !text-white",
-      textCase: "preserve",
-    },
-    {
-      id: "slide-5-challenge",
-      type: "title",
-      text: "Kalash serves over 2.5 million users who invest, save, earn rewards, and build better financial habits.",
-      as: "h6",
-      fontSize: 24,
-      className: "font-normal !text-white",
+      typography: INDEX_SLIDE_ABOUT_TITLE,
+      className: "relative z-10 max-w-[780px] !leading-snug font-normal !text-black",
       textCase: "preserve",
     },
   ],

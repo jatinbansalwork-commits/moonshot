@@ -35,12 +35,17 @@ export interface SlideBodyBlock extends SlideBlockBase {
 
 export interface SlideImageBlock extends SlideBlockBase {
   type: "image";
-  src: string;
+  src?: string;
   alt: string;
   width?: number;
   height?: number;
   className?: string;
   align?: "left" | "center" | "right";
+  /** Render a 16:9 placeholder frame instead of loading `src`. */
+  placeholder?: boolean;
+  placeholderVariant?: "sign-in" | "dashboard";
+  /** Initial sidebar item when `placeholderVariant` is `dashboard`. */
+  dashboardInitialNav?: string;
 }
 
 export interface SlideListItem {
@@ -60,7 +65,70 @@ export type SlideBlock =
   | SlideImageBlock
   | SlideListBlock;
 
-export type SlideLayout = "default" | "stints-three-column" | "iphone-home";
+export type SlideLayout =
+  | "default"
+  | "stints-three-column"
+  | "iphone-home"
+  | "saltmine-sync"
+  | "saltmine-bento"
+  | "vertical-split"
+  | "saltmine-problem"
+  | "saltmine-example";
+
+/** Colours for `vertical-split` layout columns. */
+export interface VerticalSplitSlideContent {
+  leftColor: string;
+  rightColor: string;
+  showDivider?: boolean;
+  leftText?: string;
+  rightText?: string;
+  visionCardText?: string;
+  leftImage?: {
+    src: string;
+    alt: string;
+  };
+  rightImage?: {
+    src: string;
+    alt: string;
+  };
+}
+
+export interface SlideCoverImage {
+  src: string;
+  alt: string;
+  className?: string;
+  /** Fill column height and pin artwork to the slide's right edge. */
+  fullBleedRight?: boolean;
+  /** Extra rendered height for the cover artwork (px), added to column height. */
+  heightExtra?: number;
+}
+
+/** Copy for `saltmine-example` bento layout. */
+export interface ExampleBentoSlideContent {
+  eyebrow: string;
+  statement: string;
+  topQuestion: string;
+  bottomQuestion: string;
+  colors?: {
+    main?: string;
+    topRight?: string;
+    bottomRight?: string;
+  };
+}
+
+/** Copy for `saltmine-problem` split slides. */
+export interface ProblemSplitSlideContent {
+  leftLabel: string;
+  /** Optional line rendered below `leftStatement` (body copy). */
+  leftLabelBelow?: string;
+  leftStatement: string;
+  /** Tailwind max-width class for `leftStatement` — default `max-w-xl`. */
+  leftStatementMaxWidth?: string;
+  rightLabel?: string;
+  rightLabelBold?: boolean;
+  rightBullets?: string[];
+  showRightColumn?: boolean;
+}
 
 /** One slide — each block is a separate sibling in the layout. */
 export interface SlideDefinition {
@@ -69,11 +137,19 @@ export interface SlideDefinition {
   backgroundColor?: string;
   align?: "left" | "center";
   /** Tailwind gap class between blocks — default `gap-20` (80px). */
-  blockGap?: "gap-10" | "gap-20";
+  blockGap?: "gap-4" | "gap-6" | "gap-10" | "gap-20";
   /** Extra classes on the padded slide layout wrapper (e.g. `text-white` on dark slides). */
   className?: string;
+  /** Optional hero artwork shown beside the text column. */
+  coverImage?: SlideCoverImage;
   /** Full-bleed layout variant — bypasses default padded block stack. */
   layout?: SlideLayout;
+  /** Copy overrides for `saltmine-problem` layout. */
+  problemSplit?: ProblemSplitSlideContent;
+  /** Column colours for `vertical-split` layout. */
+  verticalSplit?: VerticalSplitSlideContent;
+  /** Copy for `saltmine-example` layout. */
+  exampleBento?: ExampleBentoSlideContent;
   /** Override default deck frame size (1200×720) for portrait or custom panels. */
   frameSize?: { width: number; height: number };
   blocks: SlideBlock[];
