@@ -26,8 +26,16 @@ import {
   SALTMINE_BOOKINGS_DASHBOARD_CONTENT,
   type DashboardNavIcon,
 } from "@/lib/saltmine-bookings-dashboard-content";
-import { MyTeamsMainView } from "@/components/slider/saltmine-teams-view";
+import { OfficePresencePanel } from "@/components/slider/saltmine-office-presence-panel";
+import { DeckBookingDetailPanel } from "@/components/slider/saltmine-deck-booking-detail-panel";
+import { DeckMonthlyCalendar } from "@/components/slider/saltmine-deck-monthly-calendar";
 import { FindASpaceMainView } from "@/components/slider/saltmine-find-space-view";
+import { MyTeamsMainView } from "@/components/slider/saltmine-teams-view";
+import {
+  officePresencePeople,
+  officePresenceSummary,
+  OFFICE_PRESENCE_OFFICE_NAME,
+} from "@/lib/saltmine-office-presence-data";
 import { InboxDetailPanel, InboxMainView } from "@/components/slider/saltmine-inbox-view";
 import { getInboxNotificationById, INBOX_NOTIFICATIONS } from "@/lib/saltmine-inbox-data";
 import {
@@ -35,17 +43,20 @@ import {
 } from "@/components/slider/saltmine-deck-bookings-view";
 import {
   DECK_FILTER_DEFAULTS,
-  DECK_DAY_TITLES,
   DECK_BOOKING_TYPE_OPTIONS,
   DECK_CALENDAR,
   DECK_OFFICE_AVATARS,
   DECK_TEAM_OPTIONS,
-  DECK_TODAY_BOOKINGS,
+  DECK_TIMELINE_DAYS,
+  deckTimelineDaysForMonth,
+  findDeckBooking,
+  findDeckTimelineDay,
   filterAvatarsByTeam,
   filterBookingsByKind,
   resolveTeamNameFromFilter,
   teamOccupancyLabel,
 } from "@/lib/saltmine-deck-bookings-data";
+import { DECK_MONTHLY_TODAY } from "@/lib/saltmine-deck-monthly-calendar-data";
 import { DEFAULT_CHECKED_MEMBER_IDS } from "@/lib/saltmine-teams-data";
 import {
   CALENDAR_MONTHS,
@@ -822,6 +833,7 @@ export function SaltmineBookingsDashboard({
   initialAddedBookings,
   variant = "onboarding",
   initialActiveNav = "bookings",
+  initialViewMode,
 }: {
   displayName: string;
   initialAddedBookings?: Record<DayId, string[]>;
@@ -829,13 +841,17 @@ export function SaltmineBookingsDashboard({
   variant?: "onboarding" | "deck";
   /** Sidebar item selected on first render (deck slides). */
   initialActiveNav?: string;
+  /** Bookings calendar mode on first render (deck slides). */
+  initialViewMode?: ViewMode;
 }) {
   const isDeckVariant = variant === "deck";
   const reducedMotion = useReducedMotion();
   const initial = displayName.charAt(0).toUpperCase();
   const { toast, showToast, dismissToast } = useToast();
 
-  const [viewMode, setViewMode] = useState<ViewMode>(content.defaultViewMode);
+  const [viewMode, setViewMode] = useState<ViewMode>(
+    initialViewMode ?? content.defaultViewMode,
+  );
   const [activeNav, setActiveNav] = useState(initialActiveNav);
   const [checkedTeamMemberIds, setCheckedTeamMemberIds] = useState<Set<string>>(
     () => new Set(DEFAULT_CHECKED_MEMBER_IDS),
@@ -873,6 +889,12 @@ export function SaltmineBookingsDashboard({
   const [calendarDay, setCalendarDay] = useState<number>(
     isDeckVariant ? DECK_CALENDAR.selectedDay : content.calendar.selectedDay,
   );
+  const [selectedTimelineDayId, setSelectedTimelineDayId] = useState<string | null>(
+    isDeckVariant ? "today" : null,
+  );
+  const timelineScrollRef = useRef<HTMLDivElement>(null);
+  const [presencePanelDayId, setPresencePanelDayId] = useState<string | null>(null);
+  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
   const [monthMenuOpen, setMonthMenuOpen] = useState(false);
   const [openFilter, setOpenFilter] = useState<string | null>(null);
   const [openLocationDay, setOpenLocationDay] = useState<DayId | null>(null);
@@ -924,6 +946,8 @@ export function SaltmineBookingsDashboard({
     setOpenSecondary(null);
     setSearchOpen(false);
     setMonthMenuOpen(false);
+    setPresencePanelDayId(null);
+    setSelectedBookingId(null);
   }, []);
 
   useEffect(() => {
@@ -933,6 +957,15 @@ export function SaltmineBookingsDashboard({
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [closeAllOverlays]);
+
+  useEffect(() => {
+    if (!presencePanelDayId) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setPresencePanelDayId(null);
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [presencePanelDayId]);
 
   function daysInMonth(monthIndex: number): number[] {
     const days: number[] = [];
@@ -950,18 +983,8 @@ export function SaltmineBookingsDashboard({
     return days[0] ?? 1;
   }
 
-  function selectMonth(index: number) {
-    setCalendarMonthIndex(index);
-    setCalendarDay((current) => clampCalendarDay(index, current));
-    setMonthMenuOpen(false);
-  }
-
   const teamFilter = filterValues.team ?? DECK_TEAM_OPTIONS[0];
   const bookingTypeFilter = filterValues["booking-type"] ?? "Show all";
-
-  const deckFilteredBookings = isDeckVariant
-    ? filterBookingsByKind(DECK_TODAY_BOOKINGS, bookingTypeFilter)
-    : [];
 
   const deckFilteredAvatars = isDeckVariant
     ? filterAvatarsByTeam(DECK_OFFICE_AVATARS, teamFilter)
@@ -973,6 +996,32 @@ export function SaltmineBookingsDashboard({
       ? "No-one's in!"
       : teamOccupancyLabel(deckFilteredAvatars.length, deckTeamName)
     : "";
+
+  const presencePanelDay = presencePanelDayId
+    ? DECK_TIMELINE_DAYS.find((day) => day.id === presencePanelDayId)
+    : null;
+  const presencePanelPeople =
+    presencePanelDay && isDeckVariant
+      ? officePresencePeople(teamFilter, presencePanelDay)
+      : [];
+  const presencePanelSummary =
+    presencePanelDay && isDeckVariant
+      ? officePresenceSummary(teamFilter, presencePanelDay, presencePanelPeople)
+      : "";
+
+  const selectedBookingDetail =
+    selectedBookingId && isDeckVariant ? findDeckBooking(selectedBookingId) : null;
+  const bookingsRailOpen = Boolean(presencePanelDayId || selectedBookingDetail);
+
+  const openMonthlyCalendar = useCallback(() => {
+    closeAllOverlays();
+    setSelectedBookingId(null);
+    setPresencePanelDayId(null);
+    setCalendarMonthIndex(DECK_MONTHLY_TODAY.monthIndex);
+    setCalendarDay(DECK_MONTHLY_TODAY.day);
+    setSelectedTimelineDayId("today");
+    setViewMode("Monthly");
+  }, [closeAllOverlays]);
 
   const showTeamCoworkers = isDeckVariant || teamFilter === "London Design";
   const occupancyLabel = isDeckVariant
@@ -1010,17 +1059,66 @@ export function SaltmineBookingsDashboard({
   const isFindSpaceView = isDeckVariant && activeNav === "find-space";
   const isInboxView = activeNav === "inbox";
   const isBookingsView = !isTeamsView && !isFindSpaceView && !isInboxView;
+  const showBookingsCalendarRail =
+    isBookingsView && viewMode === "Daily" && !bookingsRailOpen;
 
-  const handleAddBooking = (dayId: DayId, dayTitle: string) => {
+  const handleAddBooking = (dayId: string, dayTitle: string) => {
     const type = filterValues["booking-type"] ?? "Desk";
     const label =
       type === "Show all" ? "Desk — Floor 21" : `${type} — Floor 21`;
     setAddedBookings((prev) => ({
       ...prev,
-      [dayId]: [...prev[dayId], label],
+      [dayId]: [...(prev[dayId as DayId] ?? []), label],
     }));
     showToast(`${content.addedBookingToast} ${dayTitle}`);
   };
+
+  const scrollToTimelineDay = useCallback(
+    (dayId: string) => {
+      requestAnimationFrame(() => {
+        const section = timelineScrollRef.current?.querySelector(
+          `[data-timeline-day="${dayId}"]`,
+        );
+        section?.scrollIntoView({
+          behavior: reducedMotion ? "auto" : "smooth",
+          block: "nearest",
+        });
+      });
+    },
+    [reducedMotion],
+  );
+
+  const handleSelectCalendarDay = useCallback(
+    (day: number) => {
+      setCalendarDay(day);
+      if (!isDeckVariant) return;
+      const match = findDeckTimelineDay(calendarMonthIndex, day);
+      setSelectedTimelineDayId(match?.id ?? null);
+      if (match) {
+        scrollToTimelineDay(match.id);
+        return;
+      }
+      const monthName = CALENDAR_MONTHS[calendarMonthIndex]?.label.split(" ")[0] ?? "";
+      showToast(`No bookings scheduled for ${day} ${monthName}`);
+    },
+    [calendarMonthIndex, isDeckVariant, scrollToTimelineDay, showToast],
+  );
+
+  const deckCalendarBookingDays = isDeckVariant
+    ? deckTimelineDaysForMonth(calendarMonthIndex)
+    : [];
+
+  function selectMonth(index: number) {
+    const nextDay = clampCalendarDay(index, calendarDay);
+    setCalendarMonthIndex(index);
+    setCalendarDay(nextDay);
+    setMonthMenuOpen(false);
+    if (isDeckVariant) {
+      const match = findDeckTimelineDay(index, nextDay);
+      setSelectedTimelineDayId(match?.id ?? null);
+      if (match) scrollToTimelineDay(match.id);
+    }
+  }
 
   return (
     <div
@@ -1321,7 +1419,7 @@ export function SaltmineBookingsDashboard({
       </aside>
 
       <div className="flex min-w-0 flex-1">
-        <main className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[#F4F6F8] px-3 py-2.5">
+        <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-[#F4F6F8] px-3 py-2.5">
           <div className={`flex items-center justify-between gap-2 ${isFindSpaceView ? "mb-1" : "mb-1.5"}`}>
             <div className="min-w-0">
               <h1
@@ -1342,7 +1440,7 @@ export function SaltmineBookingsDashboard({
                 value={viewMode}
                 onChange={(mode) => {
                   closeAllOverlays();
-                  if (isDeckVariant && mode !== "Daily") {
+                  if (isDeckVariant && mode === "Weekly") {
                     showToast("Demo view");
                   }
                   setViewMode(mode);
@@ -1419,58 +1517,93 @@ export function SaltmineBookingsDashboard({
                 showToast={showToast}
               />
             ) : (
-            <div className="h-full space-y-2 overflow-y-auto overscroll-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div
+              ref={isDeckVariant && viewMode === "Daily" ? timelineScrollRef : undefined}
+              className={
+                isDeckVariant
+                  ? viewMode === "Monthly"
+                    ? "flex h-full min-h-0 flex-col overflow-hidden"
+                    : "h-full min-h-0 space-y-2 overflow-y-auto overscroll-y-contain pr-0.5 [scrollbar-width:thin] [scrollbar-color:rgba(145,158,171,0.45)_transparent] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[rgba(145,158,171,0.45)]"
+                  : "h-full space-y-2 overflow-y-auto overscroll-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              }
+              role="region"
+              aria-label={
+                isDeckVariant
+                  ? viewMode === "Monthly"
+                    ? "Monthly bookings calendar"
+                    : "Booking timeline"
+                  : "Bookings"
+              }
+            >
               {viewMode === "Daily" ? (
                 isDeckVariant ? (
-                  <>
-                    <DeckDaySection
-                      dayKey="today"
-                      weatherLabel="14°"
-                      weatherIcon="cloud"
-                      coworkers={coworkers}
-                      occupancyLabel={occupancyLabel}
-                      bookings={deckFilteredBookings}
-                      isToday
-                      showCommutePill
-                      filterEmptyMessage={
-                        deckFilteredBookings.length === 0 &&
-                        DECK_TODAY_BOOKINGS.length > 0
-                          ? "No bookings match this filter"
-                          : undefined
-                      }
-                      onView={() =>
-                        showToast(`${content.viewDetailToast} St Mary Axe`)
-                      }
-                      onAddBooking={() => handleAddBooking("today", DECK_DAY_TITLES.today)}
-                      onBookingAction={(label) => showToast(`${label} — demo`)}
-                      onExternalLink={() => showToast(content.externalLinkToast)}
-                    />
-                    <div
-                      className="h-px"
-                      style={{ backgroundColor: HAIRLINE }}
-                      aria-hidden
-                    />
-                    <DeckDaySection
-                      dayKey="tomorrow"
-                      weatherLabel="12°"
-                      weatherIcon="sun"
-                      coworkers={coworkers}
-                      occupancyLabel={occupancyLabel}
-                      bookings={[]}
-                      isEmptyTomorrow
-                      onView={() =>
-                        showToast(`${content.viewDetailToast} St Mary Axe`)
-                      }
-                      onAddBooking={() =>
-                        handleAddBooking("tomorrow", DECK_DAY_TITLES.tomorrow)
-                      }
-                      onBookingAction={(label) => showToast(`${label} — demo`)}
-                      onExternalLink={() => showToast(content.externalLinkToast)}
-                      onRepeatDesk={() =>
-                        showToast("Desk 21.P3.2 repeated for tomorrow")
-                      }
-                    />
-                  </>
+                  DECK_TIMELINE_DAYS.map((day, index) => {
+                    const filteredBookings = filterBookingsByKind(
+                      day.bookings,
+                      bookingTypeFilter,
+                    );
+                    const dayCoworkers =
+                      day.occupancyHighlight && deckFilteredAvatars.length > 0
+                        ? filterAvatarsByTeam(DECK_OFFICE_AVATARS, teamFilter).map(
+                            (avatar) => ({
+                              initials: avatar.initials,
+                              color: avatar.color,
+                            }),
+                          )
+                        : coworkers;
+
+                    return (
+                      <div key={day.id} data-timeline-day={day.id}>
+                        {index > 0 ? (
+                          <div
+                            className="h-px"
+                            style={{ backgroundColor: HAIRLINE }}
+                            aria-hidden
+                          />
+                        ) : null}
+                        <DeckDaySection
+                          title={day.title}
+                          weatherLabel={day.weatherLabel}
+                          weatherIcon={day.weatherIcon}
+                          coworkers={dayCoworkers}
+                          occupancyLabel={deckOccupancyLabel}
+                          bookings={filteredBookings}
+                          isToday={day.isToday}
+                          isCalendarSelected={selectedTimelineDayId === day.id}
+                          showCommutePill={day.showCommutePill}
+                          presenceMode={day.presenceMode}
+                          occupancyHighlight={day.occupancyHighlight}
+                          emptyState={day.emptyState}
+                          filterEmptyMessage={
+                            day.isToday &&
+                            day.bookings.length > 0 &&
+                            filteredBookings.length === 0
+                              ? "No bookings match this filter"
+                              : undefined
+                          }
+                          onView={() => {
+                            setSelectedBookingId(null);
+                            setPresencePanelDayId((current) =>
+                              current === day.id ? null : day.id,
+                            );
+                          }}
+                          onAddBooking={() => handleAddBooking(day.id, day.title)}
+                          onBookingAction={(label) => showToast(`${label} — demo`)}
+                          onBookingSelect={(bookingId) => {
+                            setPresencePanelDayId(null);
+                            setSelectedBookingId((current) =>
+                              current === bookingId ? null : bookingId,
+                            );
+                          }}
+                          onMeetingSelect={openMonthlyCalendar}
+                          onExternalLink={() => showToast(content.externalLinkToast)}
+                          onRepeatDesk={() =>
+                            showToast("Desk 21.P3.2 repeated for tomorrow")
+                          }
+                        />
+                      </div>
+                    );
+                  })
                 ) : (
                 INITIAL_DAYS.map((day, index) => (
                     <div key={day.id}>
@@ -1482,7 +1615,6 @@ export function SaltmineBookingsDashboard({
                         />
                       ) : null}
                       <DeckDaySection
-                        dayKey={day.id}
                         title={day.title}
                         weatherLabel={day.weatherLabel}
                         weatherIcon={day.weatherIcon}
@@ -1542,7 +1674,37 @@ export function SaltmineBookingsDashboard({
               ) : null}
               {viewMode === "Monthly" ? (
                 isDeckVariant ? (
-                  <DeckDemoSkeleton label="Monthly" />
+                  <DeckMonthlyCalendar
+                    monthIndex={calendarMonthIndex}
+                    selectedDay={calendarDay}
+                    bookingTypeFilter={bookingTypeFilter}
+                    monthMenuOpen={monthMenuOpen}
+                    onPrevMonth={() => {
+                      const next = Math.max(0, calendarMonthIndex - 1);
+                      selectMonth(next);
+                    }}
+                    onNextMonth={() => {
+                      const next = Math.min(CALENDAR_MONTHS.length - 1, calendarMonthIndex + 1);
+                      selectMonth(next);
+                    }}
+                    onToggleMonthMenu={() => {
+                      setMonthMenuOpen((open) => !open);
+                      setOpenFilter(null);
+                      setOpenLocationDay(null);
+                    }}
+                    onCloseMonthMenu={() => setMonthMenuOpen(false)}
+                    onSelectMonth={selectMonth}
+                    onSelectDay={(day) => {
+                      setCalendarDay(day);
+                      const timelineDay = findDeckTimelineDay(calendarMonthIndex, day);
+                      setSelectedTimelineDayId(timelineDay?.id ?? null);
+                    }}
+                    onToday={() => {
+                      setCalendarMonthIndex(DECK_MONTHLY_TODAY.monthIndex);
+                      setCalendarDay(DECK_MONTHLY_TODAY.day);
+                      setSelectedTimelineDayId("today");
+                    }}
+                  />
                 ) : (
                   <MonthlyView />
                 )
@@ -1558,7 +1720,7 @@ export function SaltmineBookingsDashboard({
           </div>
         </main>
 
-        {isBookingsView ? (
+        {showBookingsCalendarRail ? (
         <aside
           className="flex shrink-0 flex-col border-l bg-white px-2 py-2.5"
           style={{
@@ -1570,10 +1732,10 @@ export function SaltmineBookingsDashboard({
           <MiniCalendar
             monthIndex={calendarMonthIndex}
             selectedDay={calendarDay}
-            bookingDays={isDeckVariant ? DECK_CALENDAR.bookingDays : []}
+            bookingDays={deckCalendarBookingDays}
             todayDay={
-              isDeckVariant && calendarMonthIndex === DECK_CALENDAR.monthIndex
-                ? DECK_CALENDAR.selectedDay
+              isDeckVariant && calendarMonthIndex === DECK_CALENDAR.todayMonthIndex
+                ? DECK_CALENDAR.todayDay
                 : !isDeckVariant && calendarMonthIndex === content.calendar.defaultMonthIndex
                   ? content.calendar.selectedDay
                   : undefined
@@ -1594,7 +1756,7 @@ export function SaltmineBookingsDashboard({
             }}
             onCloseMonthMenu={() => setMonthMenuOpen(false)}
             onSelectMonth={selectMonth}
-            onSelectDay={setCalendarDay}
+            onSelectDay={handleSelectCalendarDay}
             reducedMotion={reducedMotion}
           />
           <button
@@ -1615,6 +1777,71 @@ export function SaltmineBookingsDashboard({
             />
             {content.helpButtonLabel}
           </button>
+        </aside>
+        ) : null}
+        {isBookingsView && selectedBookingDetail && isDeckVariant ? (
+        <aside
+          className="flex shrink-0 flex-col border-l bg-white px-2 py-2.5"
+          style={{
+            width: DASHBOARD_RAIL_WIDTH,
+            borderColor: HAIRLINE,
+          }}
+          aria-label={content.bookingDetailPanelLabel}
+        >
+          <div className="min-h-0 flex-1">
+            <DeckBookingDetailPanel
+              booking={selectedBookingDetail.booking}
+              day={selectedBookingDetail.day}
+              onClose={() => setSelectedBookingId(null)}
+              onAction={(label) => {
+                showToast(`${label} — demo`);
+                setSelectedBookingId(null);
+              }}
+              onMap={() =>
+                showToast(
+                  `${content.bookingDetailMapToast} ${selectedBookingDetail.booking.title}`,
+                )
+              }
+              onShare={() =>
+                showToast(
+                  `${content.bookingDetailShareToast} ${selectedBookingDetail.booking.title}`,
+                )
+              }
+            />
+          </div>
+        </aside>
+        ) : null}
+        {isBookingsView && presencePanelDay && isDeckVariant ? (
+        <aside
+          className="flex shrink-0 flex-col border-l bg-white px-2 py-2.5"
+          style={{
+            width: DASHBOARD_RAIL_WIDTH,
+            borderColor: HAIRLINE,
+          }}
+          aria-label={content.officePresencePanelLabel}
+        >
+          <p
+            className={`mb-1.5 px-0.5 font-bold uppercase tracking-[0.08em] ${TEXT_MICRO}`}
+            style={{ color: SALTMINE.textMuted }}
+          >
+            {content.officePresencePanelLabel}
+          </p>
+          <div className="min-h-0 flex-1">
+            <OfficePresencePanel
+              officeName={OFFICE_PRESENCE_OFFICE_NAME}
+              teamName={deckTeamName}
+              dayTitle={presencePanelDay.title}
+              summary={presencePanelSummary}
+              people={presencePanelPeople}
+              onClose={() => setPresencePanelDayId(null)}
+              onFloorPlan={() => {
+                showToast(
+                  `${content.officePresenceFloorPlanToast} ${OFFICE_PRESENCE_OFFICE_NAME}`,
+                );
+                setPresencePanelDayId(null);
+              }}
+            />
+          </div>
         </aside>
         ) : null}
         {isInboxView && inboxDetailOpen ? (

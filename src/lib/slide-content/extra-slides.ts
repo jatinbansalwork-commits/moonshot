@@ -13,6 +13,7 @@ import { slide16 } from "@/lib/slide-content/slide-16";
 import { slide17 } from "@/lib/slide-content/slide-17";
 import { slide18 } from "@/lib/slide-content/slide-18";
 import { slide19 } from "@/lib/slide-content/slide-19";
+import { slide20 } from "@/lib/slide-content/slide-20";
 
 const EXTRA_SLIDE_BACKGROUNDS = ["#ffffff", "#F6FE03", "#F6FE03"] as const;
 
@@ -75,6 +76,10 @@ export const extraSlides: SlideDefinition[] = [
 
     if (slideNumber === 19) {
       return slide19;
+    }
+
+    if (slideNumber === 20) {
+      return slide20;
     }
 
     return {

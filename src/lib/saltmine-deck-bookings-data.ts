@@ -1,5 +1,5 @@
 /**
- * Populated My bookings data for slide 18 (Navigation: You are here).
+ * Populated My bookings data for slide 19 (Booking Timeline).
  * Does not affect the onboarding empty-state dashboard.
  */
 
@@ -58,6 +58,13 @@ export const DECK_OFFICE_AVATARS: readonly DeckOfficeAvatar[] = [
 
 export type DeckBookingKind = "parking" | "desk" | "meeting";
 export type DeckBookingStatus = "active" | "upcoming" | "completed";
+export type DeckAttendeeStatus = "accepted" | "declined" | "tentative";
+
+export interface DeckBookingAttendee {
+  letter: string;
+  color: string;
+  status?: DeckAttendeeStatus;
+}
 
 export interface DeckBookingItem {
   id: string;
@@ -70,67 +77,266 @@ export interface DeckBookingItem {
   status: DeckBookingStatus;
   teamId: string;
   action: "check-out" | "check-in";
-  attendees?: readonly { letter: string; color: string }[];
+  attendees?: readonly DeckBookingAttendee[];
 }
 
-export const DECK_TODAY_BOOKINGS: readonly DeckBookingItem[] = [
+export type DeckWeatherIcon = "cloud" | "sun" | "rain";
+
+export interface DeckTimelineDay {
+  id: string;
+  title: string;
+  /** Maps this row to the mini calendar (month index in `CALENDAR_MONTHS`). */
+  calendar: { monthIndex: number; day: number };
+  weatherLabel: string;
+  weatherIcon: DeckWeatherIcon;
+  bookings: readonly DeckBookingItem[];
+  isToday?: boolean;
+  showCommutePill?: boolean;
+  /** Uses a single ghost avatar in the presence strip. */
+  presenceMode?: "team" | "ghost";
+  /** Replaces the team count label (e.g. “Best day for the office!”). */
+  occupancyHighlight?: string;
+  emptyState?: "repeat-desk";
+}
+
+const DESIGN_REVIEW_ATTENDEES: readonly DeckBookingAttendee[] = [
+  { letter: "J", color: "#006FEC", status: "accepted" },
+  { letter: "S", color: "#4D9BF7", status: "accepted" },
+  { letter: "A", color: "#637381", status: "accepted" },
+  { letter: "C", color: "#22C55E", status: "accepted" },
+  { letter: "D", color: "#F59E0B", status: "accepted" },
+  { letter: "W", color: "#8B5CF6", status: "accepted" },
+];
+
+const Q2_SALES_ATTENDEES: readonly DeckBookingAttendee[] = [
+  { letter: "J", color: "#006FEC", status: "accepted" },
+  { letter: "S", color: "#4D9BF7", status: "declined" },
+  { letter: "A", color: "#637381", status: "accepted" },
+  { letter: "C", color: "#22C55E", status: "tentative" },
+  { letter: "D", color: "#F59E0B", status: "accepted" },
+  { letter: "W", color: "#8B5CF6", status: "declined" },
+  { letter: "B", color: "#EC4899", status: "accepted" },
+];
+
+const ACCOUNTS_SYNC_ATTENDEES: readonly DeckBookingAttendee[] = [
+  { letter: "J", color: "#006FEC", status: "accepted" },
+  { letter: "S", color: "#4D9BF7", status: "accepted" },
+  { letter: "A", color: "#637381", status: "accepted" },
+  { letter: "C", color: "#22C55E", status: "accepted" },
+  { letter: "M", color: "#0EA5E9", status: "accepted" },
+];
+
+export const DECK_TIMELINE_DAYS: readonly DeckTimelineDay[] = [
   {
-    id: "parking-b2",
-    kind: "parking",
-    title: "Car Park B2.113",
-    time: "09:00 AM",
-    duration: "All day",
-    location: "Basement 2",
-    floor: "Basement 2",
-    status: "active",
-    teamId: SALTMINE_PROJECT_SYNC.id,
-    action: "check-out",
+    id: "today",
+    title: "Today—Mon 30 Jan",
+    calendar: { monthIndex: 0, day: 30 },
+    weatherLabel: "14°",
+    weatherIcon: "cloud",
+    isToday: true,
+    showCommutePill: true,
+    bookings: [
+      {
+        id: "parking-b2",
+        kind: "parking",
+        title: "Car Park B2.113",
+        time: "09:00 AM",
+        duration: "All day",
+        location: "Basement 2",
+        floor: "Basement 2",
+        status: "active",
+        teamId: SALTMINE_PROJECT_SYNC.id,
+        action: "check-out",
+      },
+      {
+        id: "desk-21",
+        kind: "desk",
+        title: "Desk 21.P3.2",
+        time: "09:00 AM",
+        duration: "All day",
+        location: "Floor 21",
+        floor: "Floor 21",
+        status: "active",
+        teamId: SALTMINE_PROJECT_SYNC.id,
+        action: "check-out",
+      },
+      {
+        id: "meeting-design",
+        kind: "meeting",
+        title: "Design Review",
+        time: "10:30 AM",
+        duration: "1h",
+        location: "Meeting Room 21.12",
+        floor: "Floor 21",
+        status: "upcoming",
+        teamId: SALTMINE_PROJECT_SYNC.id,
+        action: "check-in",
+        attendees: DESIGN_REVIEW_ATTENDEES,
+      },
+    ],
   },
   {
-    id: "desk-21",
-    kind: "desk",
-    title: "Desk 21.P3.2",
-    time: "09:00 AM",
-    duration: "All day",
-    location: "Floor 21",
-    floor: "Floor 21",
-    status: "active",
-    teamId: SALTMINE_PROJECT_SYNC.id,
-    action: "check-out",
+    id: "tomorrow",
+    title: "Tomorrow—Tue 31 Jan",
+    calendar: { monthIndex: 0, day: 31 },
+    weatherLabel: "12°",
+    weatherIcon: "sun",
+    bookings: [
+      {
+        id: "meeting-q2",
+        kind: "meeting",
+        title: "Q2 Sales Review",
+        time: "11:30 AM",
+        duration: "1h 30m",
+        location: "Teams",
+        floor: "Virtual",
+        status: "upcoming",
+        teamId: SALTMINE_PROJECT_SYNC.id,
+        action: "check-in",
+        attendees: Q2_SALES_ATTENDEES,
+      },
+    ],
   },
   {
-    id: "meeting-design",
-    kind: "meeting",
-    title: "Design Review",
-    time: "10:30 AM",
-    duration: "1h",
-    location: "Meeting Room 21.12",
-    floor: "Floor 21",
-    status: "upcoming",
-    teamId: SALTMINE_PROJECT_SYNC.id,
-    action: "check-in",
-    attendees: [
-      { letter: "J", color: "#006FEC" },
-      { letter: "S", color: "#4D9BF7" },
-      { letter: "A", color: "#637381" },
-      { letter: "C", color: "#22C55E" },
-      { letter: "D", color: "#F59E0B" },
-      { letter: "W", color: "#8B5CF6" },
+    id: "wed-1",
+    title: "Wed 1 Feb",
+    calendar: { monthIndex: 1, day: 1 },
+    weatherLabel: "14°",
+    weatherIcon: "rain",
+    presenceMode: "ghost",
+    bookings: [
+      {
+        id: "meeting-aipac",
+        kind: "meeting",
+        title: "Accounts Sync – AIPAC",
+        time: "12:30 PM",
+        duration: "1h 30m",
+        location: "Teams",
+        floor: "Virtual",
+        status: "upcoming",
+        teamId: SALTMINE_PROJECT_SYNC.id,
+        action: "check-in",
+        attendees: ACCOUNTS_SYNC_ATTENDEES,
+      },
+    ],
+  },
+  {
+    id: "thu-2",
+    title: "Thu 2 Feb",
+    calendar: { monthIndex: 1, day: 2 },
+    weatherLabel: "13°",
+    weatherIcon: "cloud",
+    bookings: [],
+    emptyState: "repeat-desk",
+  },
+  {
+    id: "sat-4",
+    title: "Sat 4 Feb",
+    calendar: { monthIndex: 1, day: 4 },
+    weatherLabel: "14°",
+    weatherIcon: "cloud",
+    bookings: [],
+  },
+  {
+    id: "sun-5",
+    title: "Sun 5 Feb",
+    calendar: { monthIndex: 1, day: 5 },
+    weatherLabel: "11°",
+    weatherIcon: "sun",
+    bookings: [],
+  },
+  {
+    id: "mon-6",
+    title: "Mon 6 Feb",
+    calendar: { monthIndex: 1, day: 6 },
+    weatherLabel: "14°",
+    weatherIcon: "cloud",
+    occupancyHighlight: "👍 Best day for the office!",
+    bookings: [
+      {
+        id: "parking-b2-mon",
+        kind: "parking",
+        title: "Car Park B2.113",
+        time: "09:00 AM",
+        duration: "All day",
+        location: "Basement 2",
+        floor: "Basement 2",
+        status: "upcoming",
+        teamId: SALTMINE_PROJECT_SYNC.id,
+        action: "check-in",
+      },
+      {
+        id: "desk-21-mon",
+        kind: "desk",
+        title: "Desk 21.P3.2",
+        time: "09:00 AM",
+        duration: "All day",
+        location: "Floor 21",
+        floor: "Floor 21",
+        status: "upcoming",
+        teamId: SALTMINE_PROJECT_SYNC.id,
+        action: "check-in",
+      },
     ],
   },
 ];
 
+/** @deprecated Use `DECK_TIMELINE_DAYS[0].bookings` */
+export const DECK_TODAY_BOOKINGS = DECK_TIMELINE_DAYS[0].bookings;
+
 export const DECK_DAY_TITLES = {
-  today: "Today—Mon 30 Jan",
-  tomorrow: "Tomorrow—Tue 31 Jan",
+  today: DECK_TIMELINE_DAYS[0].title,
+  tomorrow: DECK_TIMELINE_DAYS[1].title,
 } as const;
 
 /** Calendar defaults for the deck variant (Mon 30 Jan). */
 export const DECK_CALENDAR = {
   monthIndex: 0,
   selectedDay: 30,
-  bookingDays: [30] as readonly number[],
+  todayMonthIndex: 0,
+  todayDay: 30,
 } as const;
+
+export function findDeckTimelineDay(
+  monthIndex: number,
+  day: number,
+): DeckTimelineDay | undefined {
+  return DECK_TIMELINE_DAYS.find(
+    (entry) => entry.calendar.monthIndex === monthIndex && entry.calendar.day === day,
+  );
+}
+
+/** Days in a month that appear on the booking timeline (for calendar dots). */
+export function deckTimelineDaysForMonth(monthIndex: number): readonly number[] {
+  return DECK_TIMELINE_DAYS.filter((entry) => entry.calendar.monthIndex === monthIndex).map(
+    (entry) => entry.calendar.day,
+  );
+}
+
+/** Days in a month that have at least one booking (solid dot emphasis). */
+export function deckBookingDaysForMonth(monthIndex: number): readonly number[] {
+  return DECK_TIMELINE_DAYS.filter(
+    (entry) => entry.calendar.monthIndex === monthIndex && entry.bookings.length > 0,
+  ).map((entry) => entry.calendar.day);
+}
+
+export function deckDayDateBadge(day: DeckTimelineDay): { weekday: string; dayNumber: string } {
+  const match = day.title.match(/—(\w{3})\s+(\d+)/);
+  return {
+    weekday: match?.[1] ?? "Mon",
+    dayNumber: match?.[2] ?? String(day.calendar.day),
+  };
+}
+
+export function findDeckBooking(
+  bookingId: string,
+): { day: DeckTimelineDay; booking: DeckBookingItem } | null {
+  for (const day of DECK_TIMELINE_DAYS) {
+    const booking = day.bookings.find((entry) => entry.id === bookingId);
+    if (booking) return { day, booking };
+  }
+  return null;
+}
 
 const KIND_TO_FILTER_LABEL: Record<DeckBookingKind, string> = {
   parking: "Car park",
@@ -157,7 +363,7 @@ export function filterAvatarsByTeam(
   if (teamFilter.includes(SALTMINE_PROJECT_SYNC.name)) {
     return avatars
       .filter((avatar) => avatar.teamId === SALTMINE_PROJECT_SYNC.id)
-      .slice(0, 6);
+      .slice(0, 10);
   }
   return [...avatars];
 }

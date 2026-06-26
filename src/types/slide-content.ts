@@ -72,8 +72,58 @@ export type SlideLayout =
   | "saltmine-sync"
   | "saltmine-bento"
   | "vertical-split"
+  | "horizontal-split"
   | "saltmine-problem"
   | "saltmine-example";
+
+/** Half content for nested splits. */
+export interface SplitSlideHalfContent {
+  color: string;
+  text?: string;
+  title?: string;
+  body?: string;
+  image?: {
+    src: string;
+    alt: string;
+    width?: number;
+    height?: number;
+  };
+  /** Embedded Saltmine mockup frame (matches index slide image blocks). */
+  placeholder?: boolean;
+  placeholderVariant?: "sign-in" | "dashboard";
+  dashboardInitialNav?: string;
+  dashboardInitialViewMode?: "Daily" | "Weekly" | "Monthly";
+  placeholderClassName?: string;
+}
+
+/** Colours for `horizontal-split` layout rows. */
+export interface HorizontalSplitSlideContent {
+  topColor: string;
+  bottomColor: string;
+  showDivider?: boolean;
+  topText?: string;
+  topTitle?: string;
+  topBody?: string;
+  topImage?: {
+    src: string;
+    alt: string;
+    width?: number;
+    height?: number;
+  };
+  bottomText?: string;
+  bottomImage?: {
+    src: string;
+    alt: string;
+    width?: number;
+    height?: number;
+  };
+  /** Split the bottom row into equal left/right columns. */
+  bottomVerticalSplit?: {
+    left: SplitSlideHalfContent;
+    right: SplitSlideHalfContent;
+    showDivider?: boolean;
+  };
+}
 
 /** Colours for `vertical-split` layout columns. */
 export interface VerticalSplitSlideContent {
@@ -146,6 +196,8 @@ export interface SlideDefinition {
   layout?: SlideLayout;
   /** Copy overrides for `saltmine-problem` layout. */
   problemSplit?: ProblemSplitSlideContent;
+  /** Row colours for `horizontal-split` layout. */
+  horizontalSplit?: HorizontalSplitSlideContent;
   /** Column colours for `vertical-split` layout. */
   verticalSplit?: VerticalSplitSlideContent;
   /** Copy for `saltmine-example` layout. */

@@ -1435,10 +1435,12 @@ export function SaltmineDashboardSlideCard({
   /** Deck slide 18 uses a populated demo; onboarding ends on an empty My bookings screen. */
   preset = "onboarding",
   initialActiveNav = "bookings",
+  initialViewMode,
 }: {
   displayName?: string;
   preset?: "onboarding" | "deck";
   initialActiveNav?: string;
+  initialViewMode?: "Daily" | "Weekly" | "Monthly";
 }) {
   return (
     <div className="flex h-full flex-col overflow-hidden bg-white">
@@ -1446,6 +1448,7 @@ export function SaltmineDashboardSlideCard({
         displayName={displayName}
         variant={preset === "deck" ? "deck" : "onboarding"}
         initialActiveNav={initialActiveNav}
+        initialViewMode={initialViewMode}
       />
     </div>
   );

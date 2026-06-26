@@ -8,6 +8,7 @@ import { SaltmineExampleSlideLayout } from "@/components/slider/saltmine-example
 import { SaltmineProblemSlideLayout } from "@/components/slider/saltmine-problem-slide-layout";
 import { SaltmineSyncSlideLayout } from "@/components/slider/saltmine-sync-slide-layout";
 import { KalashIphoneHomeLayout } from "@/components/slider/kalash-iphone-home-layout";
+import { HorizontalSplitSlideLayout } from "@/components/slider/horizontal-split-slide-layout";
 import { VerticalSplitSlideLayout } from "@/components/slider/vertical-split-slide-layout";
 import { FrameShell } from "@/components/slider/frame-shell";
 import type { Frame } from "@/types";
@@ -47,6 +48,8 @@ export function IndexSlidePanel({
         <SaltmineBentoSlideLayout />
       ) : slide.layout === "vertical-split" ? (
         <VerticalSplitSlideLayout split={slide.verticalSplit} />
+      ) : slide.layout === "horizontal-split" ? (
+        <HorizontalSplitSlideLayout split={slide.horizontalSplit} />
       ) : slide.layout === "saltmine-problem" ? (
         <SaltmineProblemSlideLayout
           content={slide.problemSplit}

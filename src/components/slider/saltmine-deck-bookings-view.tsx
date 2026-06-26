@@ -5,6 +5,8 @@ import {
   Car,
   Check,
   ChevronDown,
+  Cloud,
+  CloudRain,
   ExternalLink,
   Home,
   MapPin,
@@ -13,15 +15,16 @@ import {
   Repeat,
   Sun,
   Video,
-  Cloud,
+  X,
 } from "lucide-react";
 import { FOCUS_RING } from "@/lib/a11y";
 import { SALTMINE_BOOKINGS_DASHBOARD_CONTENT } from "@/lib/saltmine-bookings-dashboard-content";
 import {
-  DECK_DAY_TITLES,
   DECK_OFFICE_PRESENCE,
+  type DeckBookingAttendee,
   type DeckBookingItem,
   type DeckBookingKind,
+  type DeckWeatherIcon,
 } from "@/lib/saltmine-deck-bookings-data";
 import {
   SALTMINE,
@@ -38,6 +41,50 @@ const TEXT_XS = "text-[9px] leading-[13px]";
 const TEXT_2XS = "text-[8px] leading-[11px]";
 const TEXT_MICRO = "text-[7px] leading-[10px]";
 const ATTENDEE_SIZE = 16;
+
+const WEATHER_ICONS: Record<DeckWeatherIcon, typeof Cloud> = {
+  cloud: Cloud,
+  sun: Sun,
+  rain: CloudRain,
+};
+
+function AttendeeStatusBadge({ status }: { status: DeckBookingAttendee["status"] }) {
+  if (status === "declined") {
+    return (
+      <span
+        className="absolute -bottom-px -right-px inline-flex h-2 w-2 items-center justify-center rounded-full border border-white"
+        style={{ backgroundColor: "#EF4444" }}
+        aria-hidden
+      >
+        <X className="h-1.5 w-1.5 text-white" strokeWidth={3} />
+      </span>
+    );
+  }
+
+  if (status === "tentative") {
+    return (
+      <span
+        className="absolute -bottom-px -right-px inline-flex h-2 w-2 items-center justify-center rounded-full border border-white text-[6px] font-bold text-white"
+        style={{ backgroundColor: "#94A3B8" }}
+        aria-hidden
+      >
+        ?
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className="absolute -bottom-px -right-px inline-flex h-2 w-2 items-center justify-center rounded-full border border-white"
+      style={{ backgroundColor: "#22C55E" }}
+      aria-hidden
+    >
+      <Check className="h-1.5 w-1.5 text-white" strokeWidth={3} />
+    </span>
+  );
+}
+
+const ALL_DAY_DETAIL_KINDS = new Set<DeckBookingKind>(["parking", "desk"]);
 
 const KIND_ICONS: Record<DeckBookingKind, typeof Car> = {
   parking: Car,
@@ -112,12 +159,18 @@ function DeckAvatarStack({
 function DeckBookingCard({
   booking,
   onAction,
+  onSelect,
+  onMeetingSelect,
 }: {
   booking: DeckBookingItem;
   onAction: (label: string) => void;
+  onSelect?: () => void;
+  onMeetingSelect?: () => void;
 }) {
   const KindIcon = KIND_ICONS[booking.kind];
   const isMeeting = booking.kind === "meeting";
+  const isSelectable = ALL_DAY_DETAIL_KINDS.has(booking.kind) && Boolean(onSelect);
+  const isMeetingSelectable = isMeeting && Boolean(onMeetingSelect);
   const accentColor = isMeeting ? "#F59E0B" : "#EF4444";
   const titleColor = isMeeting ? "#F59E0B" : SALTMINE.text;
   const actionLabel = booking.action === "check-out" ? "Check out" : "Check in";
@@ -140,60 +193,47 @@ function DeckBookingCard({
       style={{ borderColor: HAIRLINE, boxShadow: "0 1px 2px rgba(145, 158, 171, 0.06)" }}
     >
       <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <div className="mb-0.5 flex min-w-0 items-center gap-1">
-            <span
-              className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px]"
-              style={{ backgroundColor: `${accentColor}18`, color: accentColor }}
-              aria-hidden
-            >
-              <KindIcon className="h-2.5 w-2.5" strokeWidth={ICON_STROKE} />
-            </span>
-            <span
-              className={`inline-flex min-w-0 items-center gap-0.5 truncate font-bold tracking-[-0.015em] ${TEXT_XS}`}
-              style={{ color: titleColor }}
-            >
-              {booking.title}
-            </span>
+        {isSelectable ? (
+          <button
+            type="button"
+            aria-label={`${content.bookingDetailOpenLabel} ${booking.title}`}
+            onClick={onSelect}
+            className={`min-w-0 flex-1 rounded-[4px] text-left ${FOCUS_RING}`}
+          >
+            <BookingCardBody
+              KindIcon={KindIcon}
+              booking={booking}
+              isMeeting={isMeeting}
+              accentColor={accentColor}
+              titleColor={titleColor}
+            />
+          </button>
+        ) : isMeetingSelectable ? (
+          <button
+            type="button"
+            aria-label={`${content.monthlyCalendarOpenLabel} ${booking.title}`}
+            onClick={onMeetingSelect}
+            className={`min-w-0 flex-1 rounded-[4px] text-left ${FOCUS_RING}`}
+          >
+            <BookingCardBody
+              KindIcon={KindIcon}
+              booking={booking}
+              isMeeting={isMeeting}
+              accentColor={accentColor}
+              titleColor={titleColor}
+            />
+          </button>
+        ) : (
+          <div className="min-w-0 flex-1">
+            <BookingCardBody
+              KindIcon={KindIcon}
+              booking={booking}
+              isMeeting={isMeeting}
+              accentColor={accentColor}
+              titleColor={titleColor}
+            />
           </div>
-          <p className={`m-0 font-medium ${TEXT_2XS}`} style={{ color: SALTMINE.textMuted }}>
-            {booking.time} • {booking.duration} • {booking.location}
-          </p>
-          {booking.attendees?.length ? (
-            <div className="mt-1.5 flex items-center">
-              {booking.attendees.map((person, index) => (
-                <span
-                  key={`${person.letter}-${index}`}
-                  className="relative inline-flex"
-                  style={{
-                    marginLeft: index === 0 ? 0 : -6,
-                    zIndex: booking.attendees!.length - index,
-                  }}
-                  aria-hidden
-                >
-                  <span
-                    className="inline-flex items-center justify-center rounded-full border-[1.5px] border-white font-bold leading-none text-white"
-                    style={{
-                      width: ATTENDEE_SIZE,
-                      height: ATTENDEE_SIZE,
-                      fontSize: ATTENDEE_SIZE * 0.5,
-                      backgroundColor: person.color,
-                      lineHeight: 1,
-                    }}
-                  >
-                    <span className="block translate-y-px leading-none">{person.letter}</span>
-                  </span>
-                  <span
-                    className="absolute -bottom-px -right-px inline-flex h-2 w-2 items-center justify-center rounded-full border border-white"
-                    style={{ backgroundColor: "#22C55E" }}
-                  >
-                    <Check className="h-1.5 w-1.5 text-white" strokeWidth={3} />
-                  </span>
-                </span>
-              ))}
-            </div>
-          ) : null}
-        </div>
+        )}
         <button
           type="button"
           aria-label={`${actionLabel} for ${booking.title}`}
@@ -208,14 +248,86 @@ function DeckBookingCard({
   );
 }
 
+function BookingCardBody({
+  KindIcon,
+  booking,
+  isMeeting,
+  accentColor,
+  titleColor,
+}: {
+  KindIcon: typeof Car;
+  booking: DeckBookingItem;
+  isMeeting: boolean;
+  accentColor: string;
+  titleColor: string;
+}) {
+  return (
+    <>
+      <div className="mb-0.5 flex min-w-0 items-center gap-1">
+        <span
+          className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px]"
+          style={{ backgroundColor: `${accentColor}18`, color: accentColor }}
+          aria-hidden
+        >
+          <KindIcon className="h-2.5 w-2.5" strokeWidth={ICON_STROKE} />
+        </span>
+        <span
+          className={`inline-flex min-w-0 items-center gap-0.5 truncate font-bold tracking-[-0.015em] ${TEXT_XS}`}
+          style={{ color: titleColor }}
+        >
+          {booking.title}
+        </span>
+      </div>
+      <p className={`m-0 font-medium ${TEXT_2XS}`} style={{ color: SALTMINE.textMuted }}>
+        {booking.time} • {booking.duration} • {booking.location}
+      </p>
+      {booking.attendees?.length ? (
+        <div className="mt-1.5 flex items-center">
+          {booking.attendees.map((person, index) => (
+            <span
+              key={`${person.letter}-${index}`}
+              className="relative inline-flex"
+              style={{
+                marginLeft: index === 0 ? 0 : -6,
+                zIndex: booking.attendees!.length - index,
+              }}
+              aria-hidden
+            >
+              <span
+                className="inline-flex items-center justify-center rounded-full border-[1.5px] border-white font-bold leading-none text-white"
+                style={{
+                  width: ATTENDEE_SIZE,
+                  height: ATTENDEE_SIZE,
+                  fontSize: ATTENDEE_SIZE * 0.5,
+                  backgroundColor: person.color,
+                  lineHeight: 1,
+                }}
+              >
+                <span className="block translate-y-px leading-none">{person.letter}</span>
+              </span>
+              {isMeeting ? (
+                <AttendeeStatusBadge status={person.status ?? "accepted"} />
+              ) : null}
+            </span>
+          ))}
+        </div>
+      ) : null}
+    </>
+  );
+}
+
 function BookingTimelineGroup({
   label,
   bookings,
   onBookingAction,
+  onBookingSelect,
+  onMeetingSelect,
 }: {
   label: string;
   bookings: readonly DeckBookingItem[];
   onBookingAction: (label: string) => void;
+  onBookingSelect?: (bookingId: string) => void;
+  onMeetingSelect?: () => void;
 }) {
   if (bookings.length === 0) return null;
 
@@ -228,14 +340,25 @@ function BookingTimelineGroup({
         {label}
       </p>
       {bookings.map((booking) => (
-        <DeckBookingCard key={booking.id} booking={booking} onAction={onBookingAction} />
+        <DeckBookingCard
+          key={booking.id}
+          booking={booking}
+          onAction={onBookingAction}
+          onSelect={
+            ALL_DAY_DETAIL_KINDS.has(booking.kind) && onBookingSelect
+              ? () => onBookingSelect(booking.id)
+              : undefined
+          }
+          onMeetingSelect={
+            booking.kind === "meeting" && onMeetingSelect ? onMeetingSelect : undefined
+          }
+        />
       ))}
     </div>
   );
 }
 
 export function DeckDaySection({
-  dayKey,
   title,
   weatherLabel,
   weatherIcon,
@@ -247,17 +370,22 @@ export function DeckDaySection({
   isEmptyTomorrow = false,
   showCommutePill = false,
   filterEmptyMessage,
+  presenceMode = "team",
+  occupancyHighlight,
+  emptyState,
+  isCalendarSelected = false,
   workLocationBadge,
   onView,
   onAddBooking,
   onBookingAction,
+  onBookingSelect,
+  onMeetingSelect,
   onExternalLink,
   onRepeatDesk,
 }: {
-  dayKey: keyof typeof DECK_DAY_TITLES;
-  title?: string;
+  title: string;
   weatherLabel: string;
-  weatherIcon: "cloud" | "sun";
+  weatherIcon: DeckWeatherIcon;
   coworkers: readonly { initials: string; color: string }[];
   bookings: readonly DeckBookingItem[];
   occupancyLabel: string;
@@ -266,20 +394,26 @@ export function DeckDaySection({
   isEmptyTomorrow?: boolean;
   showCommutePill?: boolean;
   filterEmptyMessage?: string;
+  presenceMode?: "team" | "ghost";
+  occupancyHighlight?: string;
+  emptyState?: "repeat-desk";
+  isCalendarSelected?: boolean;
   workLocationBadge?: ReactNode;
   onView: () => void;
   onAddBooking: () => void;
   onBookingAction: (label: string) => void;
+  onBookingSelect?: (bookingId: string) => void;
+  onMeetingSelect?: () => void;
   onExternalLink: () => void;
   onRepeatDesk?: () => void;
 }) {
-  const WeatherIcon = weatherIcon === "sun" ? Sun : Cloud;
-  const displayTitle = title ?? DECK_DAY_TITLES[dayKey];
+  const WeatherIcon = WEATHER_ICONS[weatherIcon];
   const allDayBookings = bookings.filter(
     (booking) => booking.kind === "parking" || booking.kind === "desk",
   );
   const upNextBookings = bookings.filter((booking) => booking.kind === "meeting");
-  const showEmptyPlaceholder = coworkers.length === 0;
+  const showEmptyPlaceholder = coworkers.length === 0 && presenceMode === "team";
+  const showRepeatDesk = emptyState === "repeat-desk" || isEmptyTomorrow;
 
   const defaultWorkLocationBadge = (
     <span
@@ -297,7 +431,10 @@ export function DeckDaySection({
   );
 
   return (
-    <section className="relative space-y-1 pl-1.5" aria-label={displayTitle}>
+    <section
+      className={`relative space-y-1 rounded-[8px] pl-1.5 transition-[box-shadow] duration-150 ${isCalendarSelected ? "ring-2 ring-[rgba(0,111,236,0.35)] ring-offset-1" : ""}`}
+      aria-label={title}
+    >
       {isToday ? (
         <span
           className="absolute bottom-1 left-0 top-1 w-0.5 rounded-full"
@@ -312,7 +449,7 @@ export function DeckDaySection({
             className={`m-0 truncate font-extrabold tracking-[-0.03em] ${isToday ? "text-[11px] leading-4" : TEXT_XS}`}
             style={{ color: isToday ? SALTMINE.primary : SALTMINE.text }}
           >
-            {displayTitle}
+            {title}
           </h3>
           {workLocationBadge ?? defaultWorkLocationBadge}
         </div>
@@ -374,12 +511,25 @@ export function DeckDaySection({
                 At {officeName}:
               </span>{" "}
               <span className="inline-flex items-center gap-0.5">
-                <DeckAvatarStack
-                  people={coworkers}
-                  size={12}
-                  showEmptyPlaceholder={showEmptyPlaceholder}
-                />
-                <span className="truncate">{occupancyLabel}</span>
+                {presenceMode === "ghost" ? (
+                  <span
+                    className="inline-flex h-3 w-3 shrink-0 items-center justify-center text-[9px] leading-none"
+                    aria-hidden
+                  >
+                    👻
+                  </span>
+                ) : (
+                  <>
+                    <DeckAvatarStack
+                      people={coworkers}
+                      size={12}
+                      showEmptyPlaceholder={showEmptyPlaceholder}
+                    />
+                    <span className="truncate">
+                      {occupancyHighlight ?? occupancyLabel}
+                    </span>
+                  </>
+                )}
               </span>
             </span>
           </p>
@@ -410,7 +560,7 @@ export function DeckDaySection({
             {filterEmptyMessage}
           </p>
         </div>
-      ) : isEmptyTomorrow && bookings.length === 0 ? (
+      ) : showRepeatDesk && bookings.length === 0 ? (
         <div
           className="rounded-[8px] border border-dashed px-2 py-2 text-center"
           style={{
@@ -443,11 +593,15 @@ export function DeckDaySection({
             label="All day"
             bookings={allDayBookings}
             onBookingAction={onBookingAction}
+            onBookingSelect={onBookingSelect}
+            onMeetingSelect={onMeetingSelect}
           />
           <BookingTimelineGroup
             label="Up next"
             bookings={upNextBookings}
             onBookingAction={onBookingAction}
+            onBookingSelect={onBookingSelect}
+            onMeetingSelect={onMeetingSelect}
           />
         </div>
       ) : null}

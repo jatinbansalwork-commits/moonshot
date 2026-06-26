@@ -138,6 +138,25 @@ export const SALTMINE_BOOKINGS_DASHBOARD_CONTENT = {
   viewDetailToast: "Opening office view for",
   externalLinkToast: "Opening day in calendar",
 
+  officePresenceEyebrow: "Who's in",
+  officePresencePanelLabel: "Who's in",
+  officePresenceTitle: "At {office}",
+  officePresenceCloseLabel: "Close who's in panel",
+  officePresenceEmptyLabel: "No-one from this team is in the office today.",
+  officePresenceFloorPlanCta: "View on floor plan",
+  officePresenceFloorPlanToast: "Opening floor plan for",
+
+  bookingDetailPanelLabel: "Booking details",
+  bookingDetailOpenLabel: "Open booking details for",
+  bookingDetailCloseLabel: "Close booking details",
+  bookingDetailMapLabel: "View on map",
+  bookingDetailShareLabel: "Share booking",
+  bookingDetailMapToast: "Opening map for",
+  bookingDetailShareToast: "Share sheet would open for",
+
+  monthlyTodayLabel: "Today",
+  monthlyCalendarOpenLabel: "Open monthly calendar for",
+
   dashboardNextLabel: "Next",
   dashboardCompleteToast: "You're all set — welcome to your workspace",
 } as const;
