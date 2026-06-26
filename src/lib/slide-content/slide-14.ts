@@ -3,7 +3,8 @@ import type { SlideDefinition } from "@/types/slide-content";
 export const slide14: SlideDefinition = {
   id: "slide-14",
   label: "Customer Feedback - Interview",
-  backgroundColor: "#ffffff",
+  backgroundColor: "#F2F0F6",
+  presentation: { rhythm: "quote", sectionLabel: "Research" },
   layout: "saltmine-problem",
   problemSplit: {
     leftLabel: "Customer Feedback - Interview",

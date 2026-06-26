@@ -2,6 +2,28 @@ export type SlideTextTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p";
 
 export type TextCase = "title" | "sentence" | "segment-title" | "preserve";
 
+export type SlideScopedEmbedVariant =
+  | "slide-17"
+  | "slide-18"
+  | "slide-19"
+  | "slide-20-deck-day"
+  | "slide-20-pod-cluster"
+  | "slide-20-team-list"
+  | "slide-21"
+  | "slide-22"
+  | "slide-23"
+  | "slide-24"
+  | "slide-25-mobile";
+
+export type SlidePlaceholderVariant =
+  | SlideScopedEmbedVariant
+  | "sign-in"
+  | "dashboard"
+  | "pod-cluster"
+  | "team-list"
+  | "help-support"
+  | "outcome-metrics";
+
 interface SlideBlockBase {
   /** Stable id — one block, one element in the DOM. */
   id: string;
@@ -40,12 +62,16 @@ export interface SlideImageBlock extends SlideBlockBase {
   width?: number;
   height?: number;
   className?: string;
+  /** Extra classes on the image block wrapper (e.g. `mt-auto` to pin embeds to the slide bottom). */
+  wrapperClassName?: string;
   align?: "left" | "center" | "right";
   /** Render a 16:9 placeholder frame instead of loading `src`. */
   placeholder?: boolean;
-  placeholderVariant?: "sign-in" | "dashboard";
+  placeholderVariant?: SlidePlaceholderVariant;
   /** Initial sidebar item when `placeholderVariant` is `dashboard`. */
   dashboardInitialNav?: string;
+  /** Floating mobile notification stack on inbox view (deck slides). */
+  dashboardShowInboxNotificationPopup?: boolean;
 }
 
 export interface SlideListItem {
@@ -90,10 +116,16 @@ export interface SplitSlideHalfContent {
   };
   /** Embedded Saltmine mockup frame (matches index slide image blocks). */
   placeholder?: boolean;
-  placeholderVariant?: "sign-in" | "dashboard";
+  placeholderVariant?: SlidePlaceholderVariant;
   dashboardInitialNav?: string;
+  dashboardShowInboxNotificationPopup?: boolean;
   dashboardInitialViewMode?: "Daily" | "Weekly" | "Monthly";
   placeholderClassName?: string;
+  /** Full-bleed cell background image. */
+  backgroundImage?: {
+    src: string;
+    alt: string;
+  };
 }
 
 /** Colours for `horizontal-split` layout rows. */
@@ -104,12 +136,25 @@ export interface HorizontalSplitSlideContent {
   topText?: string;
   topTitle?: string;
   topBody?: string;
+  /** Override top-band title font size (px). */
+  topTitleFontSize?: number;
+  /** Padding (px) on the top-band body paragraph. */
+  topBodyPadding?: number;
   topImage?: {
     src: string;
     alt: string;
     width?: number;
     height?: number;
   };
+  /** Render a scaled office-presence row below the top title and body. */
+  topShowDeckDaySection?: boolean;
+  /** Slide-scoped embed in the top band (preferred over `topShowDeckDaySection`). */
+  topPlaceholderVariant?: SlideScopedEmbedVariant;
+  /** Repeat the top title and body below the deck day section embed. */
+  topRepeatTitleBodyBelowEmbed?: boolean;
+  /** Custom title and body below the deck day section embed. */
+  topTitleBelowEmbed?: string;
+  topBodyBelowEmbed?: string;
   bottomText?: string;
   bottomImage?: {
     src: string;
@@ -180,6 +225,8 @@ export interface ProblemSplitSlideContent {
   showRightColumn?: boolean;
 }
 
+import type { DeckPresentation } from "@/lib/deck-presentation";
+
 /** One slide — each block is a separate sibling in the layout. */
 export interface SlideDefinition {
   id: string;
@@ -187,9 +234,13 @@ export interface SlideDefinition {
   backgroundColor?: string;
   align?: "left" | "center";
   /** Tailwind gap class between blocks — default `gap-20` (80px). */
-  blockGap?: "gap-4" | "gap-6" | "gap-10" | "gap-20";
+  blockGap?: "gap-2" | "gap-3" | "gap-4" | "gap-6" | "gap-8" | "gap-10" | "gap-20";
   /** Extra classes on the padded slide layout wrapper (e.g. `text-white` on dark slides). */
   className?: string;
+  /** Extra classes on the inner block stack (e.g. `h-full` to fill the slide height). */
+  contentClassName?: string;
+  /** Presentation rhythm — typography, spacing, and staging (not product UI). */
+  presentation?: DeckPresentation;
   /** Optional hero artwork shown beside the text column. */
   coverImage?: SlideCoverImage;
   /** Full-bleed layout variant — bypasses default padded block stack. */

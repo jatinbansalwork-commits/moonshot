@@ -3,9 +3,15 @@
 import Image from "next/image";
 import { IndexSlideList } from "@/components/slider/index-slide-list";
 import {
+  isSlideScopedEmbedVariant,
+  SlideScopedEmbed,
+} from "@/components/slider/slide-embeds/slide-embed-registry";
+import { OutcomeMetricsChartSlideEmbed } from "@/components/slider/outcome-metrics-chart-slide-embed";
+import {
   SaltmineDashboardSlideCard,
   SaltmineSignInCard,
 } from "@/components/slider/saltmine-sign-in-card";
+import { SaltmineHelpSupportSlideEmbed } from "@/components/slider/saltmine-help-support-slide-embed";
 import { ClipReveal } from "@/components/slider/clip-reveal";
 import {
   IndexSlideBody,
@@ -88,16 +94,27 @@ export function IndexSlideBlock({
           block.className ??
           "mx-auto h-[530px] w-[880px] max-w-full overflow-hidden rounded-[20px] border border-black/10 bg-white";
 
-        element =
-          block.placeholderVariant === "sign-in" ? (
+        element = isSlideScopedEmbedVariant(block.placeholderVariant) ? (
+          <SlideScopedEmbed
+            variant={block.placeholderVariant}
+            frameClassName={block.className}
+          />
+        ) : block.placeholderVariant === "sign-in" ? (
             <div className={placeholderFrameClass}>
               <SaltmineSignInCard />
             </div>
+          ) : block.placeholderVariant === "help-support" ? (
+            <div className={placeholderFrameClass}>
+              <SaltmineHelpSupportSlideEmbed />
+            </div>
+          ) : block.placeholderVariant === "outcome-metrics" ? (
+            <OutcomeMetricsChartSlideEmbed />
           ) : block.placeholderVariant === "dashboard" ? (
             <div className={placeholderFrameClass}>
               <SaltmineDashboardSlideCard
                 preset="deck"
                 initialActiveNav={block.dashboardInitialNav ?? "bookings"}
+                showInboxNotificationPopup={block.dashboardShowInboxNotificationPopup}
               />
             </div>
           ) : (
@@ -128,6 +145,7 @@ export function IndexSlideBlock({
 
       const imageBlockClass = [
         "index-slide-block w-full max-w-4xl",
+        block.wrapperClassName,
         align === "center" ? "mx-auto text-center" : textAlign,
         imageAlignClass,
       ]

@@ -19,7 +19,7 @@ function BentoMetricCell({
 
   return (
     <div
-      className={`flex min-h-0 flex-col justify-between bg-[#AECDFF] p-6 ${
+      className={`flex min-h-0 flex-col justify-between bg-[#AECDFF] p-6 shadow-[0_12px_40px_rgba(28,37,46,0.06)] ${
         isCentered ? "items-center text-center" : "items-start text-left"
       } ${className}`.trim()}
       data-cursor-surface="light"
@@ -42,12 +42,22 @@ function BentoMetricCell({
 }
 
 /** Slide 8 — Saltmine project metrics bento grid. */
-export function SaltmineBentoSlideLayout() {
+export function SaltmineBentoSlideLayout({
+  presentation,
+}: {
+  presentation?: import("@/lib/deck-presentation").DeckPresentation;
+}) {
   return (
-    <div
-      className="grid h-full w-full select-none grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.15fr)_minmax(0,1.35fr)] grid-rows-3 gap-4 bg-[#F2F0F6] p-[50px] text-black antialiased"
-      data-cursor-surface="light"
-    >
+    <div className="relative h-full w-full bg-[#F2F0F6] p-14 text-black antialiased">
+      {presentation?.sectionLabel ? (
+        <p className="index-slide-about-title absolute top-8 left-14 m-0 text-[11px] font-normal uppercase tracking-[0.16em] text-black/45">
+          {presentation.sectionLabel}
+        </p>
+      ) : null}
+      <div
+        className="grid h-full w-full select-none grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.15fr)_minmax(0,1.35fr)] grid-rows-3 gap-5"
+        data-cursor-surface="light"
+      >
       <BentoMetricCell
         value="1"
         label="Designer"
@@ -92,7 +102,7 @@ export function SaltmineBentoSlideLayout() {
       />
 
       <div
-        className="col-start-4 row-span-3 row-start-1 flex min-h-0 flex-col justify-between rounded-[28px] bg-[#AECDFF] p-6"
+        className="col-start-4 row-span-3 row-start-1 flex min-h-0 flex-col justify-between rounded-[28px] bg-[#AECDFF] p-6 shadow-[0_12px_40px_rgba(28,37,46,0.06)]"
         data-cursor-surface="light"
       >
         <div>
@@ -106,6 +116,7 @@ export function SaltmineBentoSlideLayout() {
         <span className="text-[80px] leading-none" aria-hidden>
           🎮
         </span>
+      </div>
       </div>
     </div>
   );

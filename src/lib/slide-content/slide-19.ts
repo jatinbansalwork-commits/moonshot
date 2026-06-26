@@ -6,7 +6,8 @@ export const slide19: SlideDefinition = {
   backgroundColor: "#F2F0F6",
   align: "center",
   blockGap: "gap-4",
-  className: "text-black !items-start justify-center pt-10",
+  className: "text-black !items-stretch pt-10 pb-12",
+  contentClassName: "h-full",
   blocks: [
     {
       id: "slide-19-heading",
@@ -28,10 +29,10 @@ export const slide19: SlideDefinition = {
       id: "slide-19-media",
       type: "image",
       placeholder: true,
-      placeholderVariant: "dashboard",
-      dashboardInitialNav: "bookings",
+      placeholderVariant: "slide-19",
       alt: "My bookings timeline with today and tomorrow reservations",
       align: "center",
+      wrapperClassName: "mt-auto w-full max-w-4xl",
       className:
         "mx-auto h-[530px] w-[880px] max-w-full overflow-hidden rounded-[20px] border border-black/10 bg-white shadow-[0_8px_32px_rgba(28,37,46,0.08)]",
     },

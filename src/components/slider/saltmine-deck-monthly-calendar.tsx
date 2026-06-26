@@ -8,6 +8,7 @@ import {
   DECK_MONTHLY_DAY_HEADERS,
   DECK_MONTHLY_TODAY,
   deckMonthlyBookingsForDay,
+  deckMonthlyChipTooltip,
   deckMonthlyWeekLabel,
   type DeckMonthlyBookingChip,
 } from "@/lib/saltmine-deck-monthly-calendar-data";
@@ -16,6 +17,14 @@ import {
   SALTMINE_HAIRLINE,
   SALTMINE_ONBOARDING,
 } from "@/lib/saltmine-onboarding-tokens";
+import {
+  SALTMINE_MOBILE_BODY_CLASS,
+  SALTMINE_MOBILE_BUTTON_LABEL_CLASS,
+  SALTMINE_MOBILE_CAPTION_CLASS,
+  SALTMINE_MOBILE_ICON,
+  SALTMINE_MOBILE_ICON_BUTTON_CLASS,
+  SALTMINE_MOBILE_PRESS_CLASS,
+} from "@/lib/saltmine-mobile-tokens";
 
 const content = SALTMINE_BOOKINGS_DASHBOARD_CONTENT;
 const HAIRLINE = SALTMINE_HAIRLINE;
@@ -36,8 +45,8 @@ const CHIP_STYLES: Record<
     color: "#7C3AED",
   },
   meeting: {
-    backgroundColor: "rgba(139, 92, 246, 0.14)",
-    color: "#7C3AED",
+    backgroundColor: "rgba(245, 158, 11, 0.14)",
+    color: "#D97706",
   },
 };
 
@@ -59,17 +68,29 @@ function filterChipsByKind(
 
 function MonthlyBookingChip({ chip }: { chip: DeckMonthlyBookingChip }) {
   const style = CHIP_STYLES[chip.kind];
+  const detailLabel = [
+    chip.duration,
+    chip.location,
+    chip.attendeeCount ? `${chip.attendeeCount} attendees` : undefined,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <div
-      className={`flex min-h-[14px] items-center gap-0.5 rounded-[4px] px-0.5 py-px font-semibold leading-none ${TEXT_MICRO}`}
+      className={`flex min-h-[22px] flex-col justify-center gap-px rounded-[4px] px-0.5 py-px font-semibold leading-none ${TEXT_MICRO}`}
       style={style}
-      title={`${chip.timeLabel} ${chip.title}`}
+      title={deckMonthlyChipTooltip(chip)}
     >
-      <span className="shrink-0 tabular-nums opacity-90">{chip.timeLabel}</span>
-      <span className="min-w-0 truncate">{chip.title}</span>
-      {chip.recurring ? (
-        <Repeat className="ml-auto h-2 w-2 shrink-0 opacity-70" strokeWidth={ICON_STROKE} aria-hidden />
+      <div className="flex min-w-0 items-center gap-0.5">
+        <span className="shrink-0 tabular-nums opacity-90">{chip.timeLabel}</span>
+        <span className="min-w-0 truncate">{chip.title}</span>
+        {chip.recurring ? (
+          <Repeat className="ml-auto h-2 w-2 shrink-0 opacity-70" strokeWidth={ICON_STROKE} aria-hidden />
+        ) : null}
+      </div>
+      {detailLabel ? (
+        <span className="truncate font-medium opacity-80">{detailLabel}</span>
       ) : null}
     </div>
   );
@@ -87,6 +108,7 @@ export function DeckMonthlyCalendar({
   onSelectMonth,
   onSelectDay,
   onToday,
+  layout = "desktop",
 }: {
   monthIndex: number;
   selectedDay: number;
@@ -99,17 +121,31 @@ export function DeckMonthlyCalendar({
   onSelectMonth: (index: number) => void;
   onSelectDay: (day: number) => void;
   onToday: () => void;
+  layout?: "desktop" | "mobile";
 }) {
   const month = CALENDAR_MONTHS[monthIndex];
+  const isMobile = layout === "mobile";
+  const headerText = isMobile ? SALTMINE_MOBILE_BODY_CLASS : TEXT_2XS;
+  const microText = isMobile ? SALTMINE_MOBILE_CAPTION_CLASS : TEXT_MICRO;
+  const iconStroke = isMobile ? SALTMINE_MOBILE_ICON.stroke : ICON_STROKE;
+  const navButtonClass = isMobile
+    ? `${SALTMINE_MOBILE_ICON_BUTTON_CLASS} rounded-[8px] border`
+    : `inline-flex h-6 w-6 items-center justify-center rounded-[6px] border disabled:opacity-40 ${FOCUS_RING}`;
+  const todayButtonClass = isMobile
+    ? `min-h-11 rounded-[8px] border px-3 ${SALTMINE_MOBILE_CAPTION_CLASS} font-semibold ${FOCUS_RING}`
+    : `min-h-6 rounded-[6px] border px-1.5 font-semibold leading-none ${TEXT_MICRO} ${FOCUS_RING}`;
+  const monthButtonClass = isMobile
+    ? `inline-flex min-h-11 max-w-full items-center gap-1.5 rounded-[8px] border px-2.5 font-bold ${headerText} ${FOCUS_RING}`
+    : `inline-flex min-h-6 max-w-full items-center gap-1 rounded-[6px] border px-1.5 font-bold leading-none ${TEXT_2XS} ${FOCUS_RING}`;
 
   return (
     <div className="flex h-full min-h-0 flex-col" aria-label="Monthly bookings calendar">
-      <div className="mb-1.5 flex items-center justify-between gap-1">
+      <div className={`flex items-center justify-between gap-2 ${isMobile ? "mb-3" : "mb-1.5 gap-1"}`}>
         <div className="relative min-w-0 flex-1">
           <button
             type="button"
             onClick={onToggleMonthMenu}
-            className={`inline-flex min-h-6 max-w-full items-center gap-1 rounded-[6px] border px-1.5 font-bold leading-none ${TEXT_2XS} ${FOCUS_RING}`}
+            className={monthButtonClass}
             style={{
               borderColor: HAIRLINE,
               backgroundColor: SALTMINE_ONBOARDING.color.canvas,
@@ -118,14 +154,22 @@ export function DeckMonthlyCalendar({
             aria-expanded={monthMenuOpen}
             aria-haspopup="listbox"
           >
-            <CalendarDays className="h-2.5 w-2.5 shrink-0" strokeWidth={ICON_STROKE} aria-hidden />
+            <CalendarDays
+              className={isMobile ? "h-4 w-4 shrink-0" : "h-2.5 w-2.5 shrink-0"}
+              strokeWidth={iconStroke}
+              aria-hidden
+            />
             <span className="truncate">{month?.label ?? "Calendar"}</span>
-            <ChevronDown className="h-2.5 w-2.5 shrink-0 opacity-70" strokeWidth={ICON_STROKE} aria-hidden />
+            <ChevronDown
+              className={`${isMobile ? "h-4 w-4" : "h-2.5 w-2.5"} shrink-0 opacity-70`}
+              strokeWidth={iconStroke}
+              aria-hidden
+            />
           </button>
           {monthMenuOpen ? (
             <ul
               role="listbox"
-              className="absolute left-0 top-[calc(100%+4px)] z-20 m-0 min-w-[120px] list-none rounded-[8px] border bg-white p-0.5 shadow-lg"
+              className={`absolute left-0 top-[calc(100%+4px)] z-20 m-0 list-none rounded-[8px] border bg-white shadow-lg ${isMobile ? "min-w-[160px] p-1" : "min-w-[120px] p-0.5"}`}
               style={{ borderColor: HAIRLINE }}
             >
               {CALENDAR_MONTHS.map((item, index) => (
@@ -138,7 +182,7 @@ export function DeckMonthlyCalendar({
                       onSelectMonth(index);
                       onCloseMonthMenu();
                     }}
-                    className={`flex w-full items-center rounded-[6px] px-1.5 py-1 text-left font-semibold ${TEXT_2XS} ${FOCUS_RING}`}
+                    className={`flex w-full items-center rounded-[6px] text-left font-semibold ${isMobile ? `min-h-11 px-3 ${SALTMINE_MOBILE_BODY_CLASS}` : `px-1.5 py-1 ${TEXT_2XS}`} ${FOCUS_RING}`}
                     style={{
                       color: index === monthIndex ? SALTMINE.primary : SALTMINE.text,
                       backgroundColor:
@@ -152,11 +196,11 @@ export function DeckMonthlyCalendar({
             </ul>
           ) : null}
         </div>
-        <div className="flex shrink-0 items-center gap-0.5">
+        <div className="flex shrink-0 items-center gap-1">
           <button
             type="button"
             onClick={onToday}
-            className={`min-h-6 rounded-[6px] border px-1.5 font-semibold leading-none ${TEXT_MICRO} ${FOCUS_RING}`}
+            className={todayButtonClass}
             style={{
               borderColor: HAIRLINE,
               color: SALTMINE.textSecondary,
@@ -170,26 +214,26 @@ export function DeckMonthlyCalendar({
             aria-label="Previous month"
             onClick={onPrevMonth}
             disabled={monthIndex === 0}
-            className={`inline-flex h-6 w-6 items-center justify-center rounded-[6px] border disabled:opacity-40 ${FOCUS_RING}`}
+            className={navButtonClass}
             style={{ borderColor: HAIRLINE, color: SALTMINE.textMuted }}
           >
-            <ChevronLeft className="h-3 w-3" strokeWidth={ICON_STROKE} />
+            <ChevronLeft className={isMobile ? "h-[18px] w-[18px]" : "h-3 w-3"} strokeWidth={iconStroke} />
           </button>
           <button
             type="button"
             aria-label="Next month"
             onClick={onNextMonth}
             disabled={monthIndex === CALENDAR_MONTHS.length - 1}
-            className={`inline-flex h-6 w-6 items-center justify-center rounded-[6px] border disabled:opacity-40 ${FOCUS_RING}`}
+            className={navButtonClass}
             style={{ borderColor: HAIRLINE, color: SALTMINE.textMuted }}
           >
-            <ChevronRight className="h-3 w-3" strokeWidth={ICON_STROKE} />
+            <ChevronRight className={isMobile ? "h-[18px] w-[18px]" : "h-3 w-3"} strokeWidth={iconStroke} />
           </button>
         </div>
       </div>
 
       <div
-        className="min-h-0 flex-1 overflow-hidden rounded-[8px] border bg-white"
+        className={`min-h-0 flex-1 overflow-hidden border bg-white ${isMobile ? "rounded-[12px]" : "rounded-[8px]"}`}
         style={{ borderColor: HAIRLINE }}
       >
         <div
@@ -199,7 +243,7 @@ export function DeckMonthlyCalendar({
           {DECK_MONTHLY_DAY_HEADERS.map((label) => (
             <div
               key={label}
-              className={`px-0.5 py-1 text-center font-bold uppercase tracking-[0.06em] ${TEXT_MICRO}`}
+              className={`px-0.5 py-1 text-center font-bold uppercase tracking-[0.06em] ${microText}`}
               style={{ color: SALTMINE.textMuted }}
             >
               {label}
@@ -207,7 +251,7 @@ export function DeckMonthlyCalendar({
           ))}
         </div>
 
-        <div className="grid h-[calc(100%-20px)] grid-rows-5">
+        <div className={`grid ${isMobile ? "min-h-[420px] grid-rows-5" : "h-[calc(100%-20px)] grid-rows-5"}`}>
           {month?.weeks.map((week, weekRowIndex) => (
             <div
               key={`week-${weekRowIndex}`}
@@ -247,7 +291,7 @@ export function DeckMonthlyCalendar({
                       <button
                         type="button"
                         onClick={() => onSelectDay(day)}
-                        className={`flex h-full w-full min-w-0 flex-col rounded-[4px] text-left ${FOCUS_RING}`}
+                        className={`flex h-full w-full min-w-0 flex-col rounded-[4px] text-left ${FOCUS_RING} ${isMobile ? SALTMINE_MOBILE_PRESS_CLASS : ""}`}
                       >
                         <div className="mb-0.5 flex items-start justify-between gap-0.5">
                           <span className="min-w-0">

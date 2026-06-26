@@ -3,7 +3,8 @@ import type { SlideDefinition } from "@/types/slide-content";
 export const slide15: SlideDefinition = {
   id: "slide-15",
   label: "Role-Play Exercise",
-  backgroundColor: "#ffffff",
+  backgroundColor: "#F2F0F6",
+  presentation: { rhythm: "quote", sectionLabel: "Validation" },
   layout: "saltmine-problem",
   problemSplit: {
     leftLabel: "Role-Play Exercise",

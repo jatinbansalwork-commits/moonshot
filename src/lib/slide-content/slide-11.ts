@@ -4,6 +4,7 @@ import { SALTMINE_VISION_CARD_COPY } from "@/components/slider/saltmine-vision-c
 export const slide11: SlideDefinition = {
   id: "slide-11",
   label: "Slide 11",
+  presentation: { rhythm: "framework", sectionLabel: "Process" },
   layout: "vertical-split",
   verticalSplit: {
     leftColor: "#F2E2FF",

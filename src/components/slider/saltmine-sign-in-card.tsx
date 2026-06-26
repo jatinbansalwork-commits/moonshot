@@ -4,7 +4,9 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState, type CSSPrope
 import { createPortal } from "react-dom";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { SaltmineBookingsDashboard } from "@/components/slider/saltmine-bookings-dashboard";
+import { SaltmineDeckAvatar } from "@/components/slider/saltmine-initial-avatar";
 import { FOCUS_RING } from "@/lib/a11y";
+import { SALTMINE_DEMO_USER } from "@/lib/saltmine-demo-personas";
 import {
   ONBOARDING_BODY_CLASS,
   ONBOARDING_CAPTION_CLASS,
@@ -115,12 +117,19 @@ function isValidEmail(value: string): boolean {
 
 function deriveDisplayName(email: string): string {
   const local = email.split("@")[0] ?? "";
-  if (!local) return "Jatin Bansal";
+  if (!local) return SALTMINE_DEMO_USER.name;
 
-  if (/jatin/i.test(local)) return "Jatin Bansal";
+  if (/jatin/i.test(local)) return SALTMINE_DEMO_USER.name;
 
-  const segment = local.split(/[._-]/).find((part) => part.length > 0) ?? "";
-  if (!segment) return "Jatin Bansal";
+  const segments = local.split(/[._-]/).filter((part) => part.length > 0);
+  if (segments.length >= 2) {
+    return segments
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+      .join(" ");
+  }
+
+  const segment = segments[0] ?? "";
+  if (!segment) return SALTMINE_DEMO_USER.name;
 
   if (/^[A-Z][a-z]+$/.test(segment)) return segment;
 
@@ -508,21 +517,12 @@ function WelcomeStep({
   onNext: () => void;
   onGoToStep: (index: number) => void;
 }) {
-  const initial = displayName.charAt(0).toUpperCase();
-
   return (
     <>
-      <div className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-y-auto px-4 py-1">
+      <div className="no-scrollbar flex min-h-0 flex-1 flex-col items-center justify-center overflow-y-auto px-4 py-1">
         <div className="w-full max-w-[306px] text-center">
-          <div
-            className="relative mx-auto mb-3 flex h-[34px] w-[34px] items-center justify-center rounded-full text-[14px] font-bold text-white"
-            style={{
-              background: `linear-gradient(145deg, ${SALTMINE.primary} 0%, #4D9BF7 100%)`,
-              boxShadow: "0 2px 6px rgba(0, 111, 236, 0.24)",
-            }}
-            aria-hidden
-          >
-            {initial}
+          <div className="relative mx-auto mb-3 inline-flex">
+            <SaltmineDeckAvatar memberId="jb" letter={SALTMINE_DEMO_USER.floorLetter} size={22} color={SALTMINE.primary} />
             <span
               className="absolute -bottom-px -right-px h-[7px] w-[7px] rounded-full border-[1.5px] border-white"
               style={{ backgroundColor: SALTMINE_ONLINE_GREEN }}
@@ -763,7 +763,7 @@ function LocationSelect({
                 id={listboxId}
                 role="listbox"
                 aria-label={label}
-                className="saltmine-onboarding-portal-menu max-h-48 overflow-y-auto rounded-lg border bg-white py-0.5"
+                className="saltmine-onboarding-portal-menu no-scrollbar max-h-48 overflow-y-auto rounded-lg border bg-white py-0.5"
                 style={{
                   ...menuStyle,
                   fontFamily: SALTMINE_ONBOARDING.font.family,
@@ -1002,8 +1002,8 @@ function CreateTeamStep({
   const [teamName, setTeamName] = useState("London Design");
   const [coworker, setCoworker] = useState("");
   const [coworkers, setCoworkers] = useState<string[]>([
-    "Sarah Chen",
-    "James Okonkwo",
+    "Neha Gupta",
+    "Priya Verma",
   ]);
 
   function addCoworker() {
@@ -1431,35 +1431,46 @@ function SignInStep({
 }
 
 export function SaltmineDashboardSlideCard({
-  displayName = "Jatin Bansal",
+  displayName = SALTMINE_DEMO_USER.name,
   /** Deck slide 18 uses a populated demo; onboarding ends on an empty My bookings screen. */
   preset = "onboarding",
   initialActiveNav = "bookings",
   initialViewMode,
+  showInboxNotificationPopup = false,
+  navigationDisabled = false,
 }: {
   displayName?: string;
   preset?: "onboarding" | "deck";
   initialActiveNav?: string;
   initialViewMode?: "Daily" | "Weekly" | "Monthly";
+  showInboxNotificationPopup?: boolean;
+  navigationDisabled?: boolean;
 }) {
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-white">
+    <div className="relative flex h-full flex-col overflow-visible bg-white">
       <SaltmineBookingsDashboard
         displayName={displayName}
         variant={preset === "deck" ? "deck" : "onboarding"}
         initialActiveNav={initialActiveNav}
         initialViewMode={initialViewMode}
+        showInboxNotificationPopup={showInboxNotificationPopup}
+        navigationDisabled={navigationDisabled}
       />
     </div>
   );
 }
 
 /** Interactive sign-in + onboarding flow for the Saltmine slide mockup. */
-export function SaltmineSignInCard() {
+export function SaltmineSignInCard({
+  disableDashboardNavigation = false,
+}: {
+  /** Slide 17 — freeze sidebar after onboarding completes. */
+  disableDashboardNavigation?: boolean;
+}) {
   const reducedMotion = useReducedMotion();
   const { message: toast, showToast } = useDemoToast();
   const [step, setStep] = useState<FlowStep>("sign-in");
-  const [displayName, setDisplayName] = useState("Jatin Bansal");
+  const [displayName, setDisplayName] = useState<string>(SALTMINE_DEMO_USER.name);
 
   const profileToast = () => showToast("Profile settings would open here");
 
@@ -1500,7 +1511,10 @@ export function SaltmineSignInCard() {
           showToast={showToast}
         />
       ) : isDashboard ? (
-        <SaltmineDashboardSlideCard displayName={displayName} />
+        <SaltmineDashboardSlideCard
+          displayName={displayName}
+          navigationDisabled={disableDashboardNavigation}
+        />
       ) : (
         <OnboardingFrame>
           {step === "welcome" ? (

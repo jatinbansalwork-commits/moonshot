@@ -1183,6 +1183,21 @@ main[data-sheet="recent"]::-webkit-scrollbar {
   display: none;
 }
 
+/* Saltmine mobile app frame — hide scrollbars on every scroll surface */
+[data-saltmine-mobile],
+[data-saltmine-mobile] * {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+[data-saltmine-mobile]::-webkit-scrollbar,
+[data-saltmine-mobile] *::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  background: transparent;
+}
+
 /* WCAG 2.4.11 — case study sticky chrome + back link clearance */
 .case-study-main {
   scroll-padding-top: 8rem;
@@ -1570,4 +1585,10 @@ html.site-custom-cursor [contenteditable="true"] {
 
 .saltmine-onboarding-portal-menu {
   z-index: 10050;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.saltmine-onboarding-portal-menu::-webkit-scrollbar {
+  display: none;
 }

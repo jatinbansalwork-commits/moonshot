@@ -88,7 +88,7 @@ export const ONBOARDING_FRAME_CLASS =
   "flex h-full w-full flex-col overflow-hidden bg-white px-12 pb-6 pt-8";
 
 export const ONBOARDING_CONTENT_CLASS =
-  "flex min-h-0 flex-1 flex-col items-center overflow-y-auto px-4 py-1";
+  "no-scrollbar flex min-h-0 flex-1 flex-col items-center overflow-y-auto px-4 py-1";
 
 export const ONBOARDING_INTRO_WRAP_CLASS =
   "mx-auto w-full max-w-[306px] text-center";

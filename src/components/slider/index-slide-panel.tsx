@@ -43,9 +43,9 @@ export function IndexSlidePanel({
       ) : slide.layout === "iphone-home" ? (
         <KalashIphoneHomeLayout />
       ) : slide.layout === "saltmine-sync" ? (
-        <SaltmineSyncSlideLayout />
+        <SaltmineSyncSlideLayout presentation={slide.presentation} />
       ) : slide.layout === "saltmine-bento" ? (
-        <SaltmineBentoSlideLayout />
+        <SaltmineBentoSlideLayout presentation={slide.presentation} />
       ) : slide.layout === "vertical-split" ? (
         <VerticalSplitSlideLayout split={slide.verticalSplit} />
       ) : slide.layout === "horizontal-split" ? (
@@ -62,7 +62,9 @@ export function IndexSlidePanel({
           align={slide.align}
           blockGap={slide.blockGap}
           className={slide.className}
+          contentClassName={slide.contentClassName}
           coverImage={slide.coverImage}
+          presentation={slide.presentation}
         >
           {slide.blocks.map((block) => (
             <IndexSlideBlock

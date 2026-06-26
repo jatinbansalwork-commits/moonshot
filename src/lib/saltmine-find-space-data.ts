@@ -90,7 +90,7 @@ const pod = (
       if (status !== "occupied") {
         return attributes?.length ? { status, attributes } : { status };
       }
-      const person = occupants[occupantIndex++] ?? { letter: "J", color: "#006FEC" };
+      const person = occupants[occupantIndex++] ?? { letter: "P", color: "#006FEC" };
       return {
         status,
         occupantLetter: person.letter,
@@ -110,8 +110,8 @@ export const FLOOR_PODS: FloorPod[] = [
     "occupied",
     "empty",
   ], [
-    { letter: "S", color: "#4D9BF7" },
-    { letter: "J", color: "#006FEC" },
+    { letter: "G", color: "#4D9BF7" },
+    { letter: "P", color: "#006FEC" },
   ], [
     ["Dual monitor"],
     [],
@@ -129,7 +129,7 @@ export const FLOOR_PODS: FloorPod[] = [
     "available",
   ], [
     { letter: "A", color: "#637381" },
-    { letter: "C", color: "#22C55E" },
+    { letter: "N", color: "#22C55E" },
   ], [
     ["Near window"],
     ["Dual monitor"],
@@ -146,8 +146,8 @@ export const FLOOR_PODS: FloorPod[] = [
     "empty",
     "empty",
   ], [
-    { letter: "D", color: "#F59E0B" },
-    { letter: "W", color: "#8B5CF6" },
+    { letter: "S", color: "#F59E0B" },
+    { letter: "J", color: "#8B5CF6" },
   ], [
     ["Standing desk"],
     ["Dual monitor"],

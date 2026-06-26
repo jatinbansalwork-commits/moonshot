@@ -1,6 +1,8 @@
 /**
- * Inbox notification demo data — slide 18.
+ * Inbox notification demo data — slide 23.
  */
+
+import { SALTMINE_DEMO_USER, getSaltmineDemoMemberName } from "@/lib/saltmine-demo-personas";
 
 export type InboxNotificationKind = "arrival" | "invite" | "check-in" | "booking";
 
@@ -20,10 +22,13 @@ export interface InboxNotification {
   detailFields: readonly InboxNotificationField[];
   primaryAction?: string;
   secondaryAction?: string;
+  /** Mobile inbox list — relative timestamp label (e.g. "5m ago"). */
+  relativeTime?: string;
   avatar?: {
     initials: string;
     color: string;
     name?: string;
+    memberId?: string;
   };
 }
 
@@ -40,11 +45,11 @@ export const INBOX_NOTIFICATIONS: readonly InboxNotification[] = [
     id: "arrival-dw",
     kind: "arrival",
     typeLabel: "Arrival",
-    title: "Daniel Waters is here",
+    title: "Arjun Mehta is here",
     subtitle: "Design Review • 14:00",
     unread: true,
     detailSummary:
-      "Daniel Waters has checked in on Floor 21 for your Design Review meeting.",
+      "Arjun Mehta has checked in on Floor 21 for your Design Review meeting.",
     detailFields: [
       { label: "When", value: "Today, 14:00" },
       { label: "Where", value: "Meeting Room 21.12" },
@@ -52,7 +57,8 @@ export const INBOX_NOTIFICATIONS: readonly InboxNotification[] = [
       { label: "Meeting", value: "Design Review" },
     ],
     primaryAction: "Open meeting",
-    avatar: { initials: "DW", color: "#637381", name: "Daniel Waters" },
+    relativeTime: "5m ago",
+    avatar: { initials: "A", color: "#637381", name: "Arjun Mehta", memberId: "ww" },
   },
   {
     id: "invite-team-day-1",
@@ -62,16 +68,17 @@ export const INBOX_NOTIFICATIONS: readonly InboxNotification[] = [
     subtitle: "Mon 6 Mar",
     unread: true,
     detailSummary:
-      "Sarah Chen invited you to join Project Sync for an in-office team day.",
+      "Neha Gupta invited you to join Project Sync for an in-office team day.",
     detailFields: [
       { label: "Event", value: "Team day" },
       { label: "Date", value: "Mon 6 Mar" },
       { label: "Office", value: "St Mary Axe, Floor 21" },
-      { label: "Invited by", value: "Sarah Chen" },
+      { label: "Invited by", value: "Neha Gupta" },
     ],
     primaryAction: "Accept",
     secondaryAction: "Decline",
-    avatar: { initials: "S", color: "#4D9BF7", name: "Sarah Chen" },
+    relativeTime: "10m ago",
+    avatar: { initials: "N", color: "#4D9BF7", name: "Neha Gupta", memberId: "sc" },
   },
   {
     id: "check-in-parking",
@@ -88,6 +95,7 @@ export const INBOX_NOTIFICATIONS: readonly InboxNotification[] = [
       { label: "Duration", value: "All day" },
     ],
     primaryAction: "View on floor plan",
+    relativeTime: "1h ago",
   },
   {
     id: "check-in-desk",
@@ -104,6 +112,7 @@ export const INBOX_NOTIFICATIONS: readonly InboxNotification[] = [
       { label: "Office", value: "St Mary Axe" },
     ],
     primaryAction: "View on floor plan",
+    relativeTime: "1h ago",
   },
   {
     id: "booking-desk",
@@ -120,6 +129,12 @@ export const INBOX_NOTIFICATIONS: readonly InboxNotification[] = [
       { label: "Floor", value: "Floor 21" },
     ],
     primaryAction: "View booking",
+    avatar: {
+      initials: "R",
+      color: "#4D9BF7",
+      name: SALTMINE_DEMO_USER.name,
+      memberId: SALTMINE_DEMO_USER.id,
+    },
   },
   {
     id: "invite-team-day-2",
@@ -129,18 +144,21 @@ export const INBOX_NOTIFICATIONS: readonly InboxNotification[] = [
     subtitle: "Thu 9 Mar",
     unread: true,
     detailSummary:
-      "Arlene McCoy invited you to join Design Team for an in-office team day.",
+      "Amit Singh invited you to join Design Team for an in-office team day.",
     detailFields: [
       { label: "Event", value: "Team day" },
       { label: "Date", value: "Thu 9 Mar" },
       { label: "Office", value: "St Mary Axe, Floor 21" },
-      { label: "Invited by", value: "Arlene McCoy" },
+      { label: "Invited by", value: "Amit Singh" },
     ],
     primaryAction: "Accept",
     secondaryAction: "Decline",
-    avatar: { initials: "A", color: "#22C55E", name: "Arlene McCoy" },
+    avatar: { initials: "A", color: "#22C55E", name: "Amit Singh", memberId: "am" },
   },
 ];
+
+export const INBOX_NOTIFICATION_POPUP_TIME = "10:21";
+export const INBOX_NOTIFICATION_POPUP_FEATURED_ID = "booking-desk";
 
 export function getInboxNotificationById(id: string | null): InboxNotification | null {
   if (!id) return null;
@@ -167,4 +185,9 @@ export function filterInboxNotifications(
   }
 
   return items;
+}
+
+/** Resolve display name for inbox avatars when only memberId is stored. */
+export function inboxAvatarName(memberId?: string, fallback?: string): string | undefined {
+  return getSaltmineDemoMemberName(memberId) ?? fallback;
 }

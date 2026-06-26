@@ -72,7 +72,7 @@ export function KalashMobilePrototypeShell({
               style={{ borderRadius: screenRadius }}
             >
               <div
-                className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className="no-scrollbar min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain"
                 style={{ borderRadius: screenRadius }}
               >
                 <div className="h-full w-full max-w-full overflow-hidden" style={{ borderRadius: screenRadius }}>

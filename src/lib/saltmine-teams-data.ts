@@ -3,6 +3,7 @@
  */
 
 import { SALTMINE_PROJECT_SYNC } from "@/lib/saltmine-deck-bookings-data";
+import { SALTMINE_DEMO_MEMBERS } from "@/lib/saltmine-demo-personas";
 
 export interface TeamMember {
   id: string;
@@ -18,19 +19,7 @@ export interface TeamGroup {
   members: TeamMember[];
 }
 
-const MEMBER_POOL: TeamMember[] = [
-  { id: "jw", name: "Jenny Wilson", initials: "JW", color: "#006FEC", floorLetter: "J" },
-  { id: "am", name: "Arlene McCoy", initials: "AM", color: "#4D9BF7", floorLetter: "A" },
-  { id: "ww", name: "Wade Warren", initials: "WW", color: "#637381", floorLetter: "W" },
-  { id: "ch", name: "Courtney Henry", initials: "CH", color: "#22C55E", floorLetter: "C" },
-  { id: "dr", name: "Dianne Russell", initials: "DR", color: "#F59E0B", floorLetter: "D" },
-  { id: "af", name: "Albert Flores", initials: "AF", color: "#8B5CF6", floorLetter: "K" },
-  { id: "jj", name: "Jacob Jones", initials: "JJ", color: "#EC4899", floorLetter: "R" },
-  { id: "bs", name: "Brooklyn Simmons", initials: "BS", color: "#14B8A6", floorLetter: "B" },
-  { id: "sc", name: "Sarah Chen", initials: "SC", color: "#006FEC", floorLetter: "S" },
-  { id: "jo", name: "James Okonkwo", initials: "JO", color: "#4D9BF7", floorLetter: "M" },
-  { id: "jb", name: "Jatin Bansal", initials: "J", color: "#1C252E", floorLetter: "J" },
-];
+const MEMBER_POOL: TeamMember[] = SALTMINE_DEMO_MEMBERS.map((member) => ({ ...member }));
 
 export const MY_TEAMS_DUMMY: TeamGroup[] = [
   {
@@ -42,8 +31,8 @@ export const MY_TEAMS_DUMMY: TeamGroup[] = [
     id: "design-team",
     name: "Design Team",
     members: [
-      { id: "jb", name: "Jatin Bansal", initials: "J", color: "#1C252E", floorLetter: "J" },
-      ...MEMBER_POOL.slice(1, 6),
+      MEMBER_POOL.find((member) => member.id === "jb")!,
+      ...MEMBER_POOL.filter((member) => member.id !== "jb").slice(0, 5),
     ],
   },
 ];

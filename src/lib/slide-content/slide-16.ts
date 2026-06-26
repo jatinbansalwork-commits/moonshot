@@ -4,6 +4,7 @@ export const slide16: SlideDefinition = {
   id: "slide-16",
   label: "The Solution",
   backgroundColor: "#E0EAFF",
+  presentation: { rhythm: "hero", sectionLabel: "Solution" },
   layout: "saltmine-problem",
   problemSplit: {
     leftLabel: "The Solution",

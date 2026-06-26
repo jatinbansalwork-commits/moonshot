@@ -2,27 +2,37 @@ import type { SlideDefinition } from "@/types/slide-content";
 
 export const slide20: SlideDefinition = {
   id: "slide-20",
-  label: "The Monthly Calendar",
+  label: "Office Presence",
   layout: "horizontal-split",
   backgroundColor: "#F2F0F6",
+  presentation: { rhythm: "framework", sectionLabel: "Presence" },
   horizontalSplit: {
     topColor: "#F2F0F6",
     bottomColor: "#ffffff",
     showDivider: true,
-    topTitle: "The Monthly Calendar",
+    topTitle: "Office Presence",
+    topTitleFontSize: 28,
     topBody:
-      "Switch to monthly view for a full-grid overview of car park, desk, and meeting bookings — with recurring reservations marked at a glance",
+      "The availability of colleagues is now surfaced throughout the apps",
+    topPlaceholderVariant: "slide-20-deck-day",
+    topTitleBelowEmbed: "Timeline",
+    topBodyBelowEmbed:
+      "The timeline shows the daily presence of colleagues in the office. Click an avatar to view their schedule.",
     bottomVerticalSplit: {
       left: {
-        color: "#ffffff",
-        title: "Office Presence",
-        body: "See who's in at a glance — teammates, their desk or meeting room, and how many from your team are in the office",
+        color: "#F2F0F6",
+        title: "Floor Plans",
+        body: "Colleagues' bookings are clearly shown on the floor plans, giving certainty when organising team days",
         placeholder: true,
-        placeholderVariant: "dashboard",
-        dashboardInitialNav: "bookings",
-        dashboardInitialViewMode: "Monthly",
+        placeholderVariant: "slide-20-pod-cluster",
       },
-      right: { color: "#ffffff" },
+      right: {
+        color: "#F2F0F6",
+        title: "Filters",
+        body: "Filters by teams or select individual colleagues",
+        placeholder: true,
+        placeholderVariant: "slide-20-team-list",
+      },
       showDivider: true,
     },
   },

@@ -5,6 +5,7 @@ export const slide10: SlideDefinition = {
   id: "slide-10",
   label: "My Approach",
   backgroundColor: "#F2F0F6",
+  presentation: { rhythm: "narrative", sectionLabel: "Approach" },
   layout: "saltmine-problem",
   problemSplit: {
     ...DEFAULT_PROBLEM_SPLIT,

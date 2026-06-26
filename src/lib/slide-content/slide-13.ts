@@ -3,6 +3,8 @@ import type { SlideDefinition } from "@/types/slide-content";
 export const slide13: SlideDefinition = {
   id: "slide-13",
   label: "Typical Example",
+  backgroundColor: "#F2F0F6",
+  presentation: { rhythm: "quote", sectionLabel: "Scenario" },
   layout: "saltmine-example",
   exampleBento: {
     eyebrow: "A typical example:",

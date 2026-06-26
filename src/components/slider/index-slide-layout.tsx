@@ -5,22 +5,37 @@ import {
   INDEX_SLIDE_PARAGRAPH_SIZE_PX,
 } from "@/lib/index-typography";
 import type { SlideCoverImage } from "@/types/slide-content";
+import type { DeckPresentation } from "@/lib/deck-presentation";
+import {
+  DECK_RHYTHM_CONTENT,
+  DECK_RHYTHM_SHELL,
+} from "@/lib/deck-presentation";
+import {
+  DeckPresentationHeader,
+} from "@/components/slider/deck-presentation-chrome";
 
 interface IndexSlideLayoutProps {
   children: React.ReactNode;
   className?: string;
+  contentClassName?: string;
+  presentation?: DeckPresentation;
   align?: "left" | "center";
-  blockGap?: "gap-4" | "gap-6" | "gap-10" | "gap-20";
+  blockGap?: "gap-2" | "gap-3" | "gap-4" | "gap-6" | "gap-8" | "gap-10" | "gap-20";
   coverImage?: SlideCoverImage;
 }
 
 export function IndexSlideLayout({
   children,
   className = "",
+  contentClassName = "",
+  presentation,
   align = "left",
   blockGap = "gap-20",
   coverImage,
 }: IndexSlideLayoutProps) {
+  const rhythm = presentation?.rhythm;
+  const rhythmShell = rhythm ? DECK_RHYTHM_SHELL[rhythm] : "";
+  const rhythmContent = rhythm ? DECK_RHYTHM_CONTENT[rhythm] : "";
   const contentAlign =
     align === "center" ? "items-center text-center" : "items-start text-left";
 
@@ -29,7 +44,7 @@ export function IndexSlideLayout({
 
     return (
       <div
-        className={`relative flex h-full w-full items-stretch ${fullBleedRight ? "py-[50px] pl-[50px] pr-0" : "p-[50px]"} ${className || "text-black"}`}
+        className={`relative flex h-full w-full items-stretch ${fullBleedRight ? "py-14 pl-14 pr-0" : "p-14"} ${rhythmShell} ${className || "text-black"}`.trim()}
       >
         <div
           className={`grid h-full w-full grid-cols-2 gap-0 ${fullBleedRight ? "items-stretch" : "items-center"}`}
@@ -65,11 +80,12 @@ export function IndexSlideLayout({
 
   return (
     <div
-      className={`relative flex h-full w-full items-center p-[50px] ${className || "text-black"}`}
+      className={`relative flex h-full w-full items-center p-14 ${rhythmShell} ${className || "text-black"}`.trim()}
     >
       <div
-        className={`mx-auto flex w-full max-w-4xl flex-col ${blockGap} ${contentAlign}`}
+        className={`mx-auto flex w-full max-w-4xl flex-col ${blockGap} ${contentAlign} ${rhythmContent} ${contentClassName}`.trim()}
       >
+        <DeckPresentationHeader presentation={presentation} />
         {children}
       </div>
     </div>

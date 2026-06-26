@@ -14,6 +14,14 @@ import { slide17 } from "@/lib/slide-content/slide-17";
 import { slide18 } from "@/lib/slide-content/slide-18";
 import { slide19 } from "@/lib/slide-content/slide-19";
 import { slide20 } from "@/lib/slide-content/slide-20";
+import { slide21 } from "@/lib/slide-content/slide-21";
+import { slide22 } from "@/lib/slide-content/slide-22";
+import { slide23 } from "@/lib/slide-content/slide-23";
+import { slide24 } from "@/lib/slide-content/slide-24";
+import { slide25Mobile } from "@/lib/slide-content/slide-25-mobile";
+import { slide25 } from "@/lib/slide-content/slide-25";
+import { slide26 } from "@/lib/slide-content/slide-26";
+import { slide28 } from "@/lib/slide-content/slide-28";
 
 const EXTRA_SLIDE_BACKGROUNDS = ["#ffffff", "#F6FE03", "#F6FE03"] as const;
 
@@ -80,6 +88,38 @@ export const extraSlides: SlideDefinition[] = [
 
     if (slideNumber === 20) {
       return slide20;
+    }
+
+    if (slideNumber === 21) {
+      return slide21;
+    }
+
+    if (slideNumber === 22) {
+      return slide22;
+    }
+
+    if (slideNumber === 23) {
+      return slide23;
+    }
+
+    if (slideNumber === 24) {
+      return slide24;
+    }
+
+    if (slideNumber === 25) {
+      return slide25Mobile;
+    }
+
+    if (slideNumber === 26) {
+      return slide25;
+    }
+
+    if (slideNumber === 27) {
+      return slide26;
+    }
+
+    if (slideNumber === 28) {
+      return slide28;
     }
 
     return {

@@ -2,6 +2,10 @@
 
 import Image from "next/image";
 import {
+  isSlideScopedEmbedVariant,
+  SlideScopedEmbed,
+} from "@/components/slider/slide-embeds/slide-embed-registry";
+import {
   SaltmineDashboardSlideCard,
   SaltmineSignInCard,
 } from "@/components/slider/saltmine-sign-in-card";
@@ -27,11 +31,15 @@ function SlideTitleBody({
   body,
   align = "center",
   compact = false,
+  bodyPadding,
+  titleFontSize,
 }: {
   title?: string;
   body?: string;
   align?: "left" | "center";
   compact?: boolean;
+  bodyPadding?: number;
+  titleFontSize?: number;
 }) {
   if (!title && !body) return null;
 
@@ -42,16 +50,19 @@ function SlideTitleBody({
     <div className={`mx-auto flex w-full max-w-4xl flex-col ${compact ? "gap-2" : "gap-4"} ${alignClass}`}>
       {title ? (
         <p
-          className={`index-slide-about-body m-0 w-full !font-bold !leading-snug ${align === "center" ? "text-center" : ""}`}
-          style={{ fontSize: compact ? 14 : 20 }}
+          className={`index-slide-about-body m-0 w-full !font-semibold !leading-tight ${align === "center" ? "text-center" : ""}`}
+          style={{ fontSize: titleFontSize ?? (compact ? 15 : 20) }}
         >
           {title}
         </p>
       ) : null}
       {body ? (
         <p
-          className={`index-slide-about-body m-0 w-full max-w-3xl !leading-snug ${compact ? "line-clamp-3" : ""} ${align === "center" ? "mx-auto text-center" : ""}`}
-          style={{ fontSize: compact ? 13 : 17 }}
+          className={`index-slide-about-body m-0 !leading-[1.55] text-black/72 ${compact ? "line-clamp-3 w-[70%] max-w-[33.6rem]" : "w-full max-w-3xl"} ${align === "center" ? "mx-auto text-center" : ""}`}
+          style={{
+            fontSize: compact ? 14 : 17,
+            ...(bodyPadding != null ? { padding: bodyPadding } : null),
+          }}
         >
           {body}
         </p>
@@ -70,6 +81,14 @@ function SplitHalfPlaceholder({
   const frameClass =
     half.placeholderClassName ??
     "relative min-h-0 w-full flex-1 overflow-hidden rounded-[12px] border border-black/10 bg-white shadow-[0_4px_16px_rgba(28,37,46,0.08)]";
+
+  if (isSlideScopedEmbedVariant(half.placeholderVariant)) {
+    return (
+      <div className="relative flex min-h-0 w-full flex-1 items-center justify-center">
+        <SlideScopedEmbed variant={half.placeholderVariant} />
+      </div>
+    );
+  }
 
   if (half.placeholderVariant === "sign-in") {
     return (
@@ -117,10 +136,21 @@ function SplitHalfCell({
 
   return (
     <div
-      className={`flex h-full min-h-0 flex-col gap-2 overflow-hidden ${justifyClass} ${alignClass} ${className}`}
+      className={`relative flex h-full min-h-0 flex-col gap-2 overflow-hidden ${justifyClass} ${alignClass} ${className}`}
       style={{ backgroundColor: half.color }}
       data-cursor-surface="light"
     >
+      {half.backgroundImage ? (
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url("${half.backgroundImage.src}")` }}
+          role="img"
+          aria-label={half.backgroundImage.alt}
+        />
+      ) : null}
+      <div
+        className={`relative z-[1] flex min-h-0 w-full flex-1 flex-col gap-2 ${justifyClass} ${alignClass}`}
+      >
       {half.title || half.body ? (
         <SlideTitleBody
           title={half.title}
@@ -146,6 +176,7 @@ function SplitHalfCell({
           />
         </div>
       ) : null}
+      </div>
     </div>
   );
 }
@@ -159,16 +190,38 @@ export function HorizontalSplitSlideLayout({
   return (
     <div className="relative grid h-full w-full select-none grid-rows-2 text-black antialiased">
       <div
-        className="flex h-full min-h-0 flex-col items-center justify-start overflow-hidden px-[50px] pt-10 pb-4 text-center"
+        className="flex h-full min-h-0 flex-col items-center justify-start gap-2 overflow-hidden px-14 pt-12 pb-5 text-center"
         style={{ backgroundColor: split.topColor }}
         data-cursor-surface="light"
       >
         {split.topTitle || split.topBody ? (
-          <SlideTitleBody title={split.topTitle} body={split.topBody} align="center" />
+          <SlideTitleBody
+            title={split.topTitle}
+            body={split.topBody}
+            align="center"
+            compact
+            titleFontSize={split.topTitleFontSize}
+            bodyPadding={split.topBodyPadding}
+          />
         ) : split.topText ? (
           <p className="index-slide-about-body m-0 mx-auto max-w-4xl text-center text-[24px] font-normal leading-snug tracking-tight">
             {split.topText}
           </p>
+        ) : null}
+        {split.topPlaceholderVariant ? (
+          <SlideScopedEmbed variant={split.topPlaceholderVariant} />
+        ) : split.topShowDeckDaySection ? (
+          <SlideScopedEmbed variant="slide-20-deck-day" />
+        ) : null}
+        {split.topTitleBelowEmbed || split.topBodyBelowEmbed ? (
+          <SlideTitleBody
+            title={split.topTitleBelowEmbed}
+            body={split.topBodyBelowEmbed}
+            align="center"
+            compact
+          />
+        ) : split.topRepeatTitleBodyBelowEmbed && (split.topTitle || split.topBody) ? (
+          <SlideTitleBody title={split.topTitle} body={split.topBody} align="center" />
         ) : null}
         {split.topImage ? (
           <div className="relative mt-4 w-full max-w-[520px]">
@@ -188,13 +241,13 @@ export function HorizontalSplitSlideLayout({
           <SplitHalfCell
             half={bottomVertical.left}
             className="px-6 py-6"
-            textAlign="left"
+            textAlign="center"
             compact
           />
           <SplitHalfCell
             half={bottomVertical.right}
             className="px-6 py-6"
-            textAlign="left"
+            textAlign="center"
             compact
           />
           {bottomVertical.showDivider !== false ? (

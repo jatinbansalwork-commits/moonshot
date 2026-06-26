@@ -19,7 +19,7 @@ export const DECK_BOOKING_TYPE_OPTIONS = [
 export const DECK_TEAM_OPTIONS = [
   `${SALTMINE_PROJECT_SYNC.name} – Show all`,
   "Design Team – Show all",
-  "Add a team!",
+  "Create a team…",
 ] as const;
 
 export const DECK_FILTER_DEFAULTS = {
@@ -41,19 +41,19 @@ export interface DeckOfficeAvatar {
 }
 
 export const DECK_OFFICE_AVATARS: readonly DeckOfficeAvatar[] = [
-  { initials: "J", color: "#006FEC", teamId: SALTMINE_PROJECT_SYNC.id, memberId: "jw" },
-  { initials: "S", color: "#4D9BF7", teamId: SALTMINE_PROJECT_SYNC.id, memberId: "sc" },
-  { initials: "A", color: "#637381", teamId: SALTMINE_PROJECT_SYNC.id, memberId: "am" },
-  { initials: "C", color: "#22C55E", teamId: SALTMINE_PROJECT_SYNC.id, memberId: "ch" },
-  { initials: "D", color: "#F59E0B", teamId: SALTMINE_PROJECT_SYNC.id, memberId: "dr" },
-  { initials: "W", color: "#8B5CF6", teamId: SALTMINE_PROJECT_SYNC.id, memberId: "ww" },
-  { initials: "B", color: "#EC4899", teamId: SALTMINE_PROJECT_SYNC.id, memberId: "bs" },
-  { initials: "R", color: "#14B8A6", teamId: SALTMINE_PROJECT_SYNC.id, memberId: "jj" },
-  { initials: "M", color: "#0EA5E9", teamId: SALTMINE_PROJECT_SYNC.id, memberId: "jo" },
-  { initials: "K", color: "#1C252E", teamId: SALTMINE_PROJECT_SYNC.id, memberId: "af" },
-  { initials: "J", color: "#1C252E", teamId: "design-team", memberId: "jb" },
-  { initials: "A", color: "#637381", teamId: "design-team", memberId: "am" },
-  { initials: "C", color: "#22C55E", teamId: "design-team", memberId: "ch" },
+  { initials: "P", color: "#006FEC", teamId: SALTMINE_PROJECT_SYNC.id, memberId: "jw" },
+  { initials: "G", color: "#006FEC", teamId: SALTMINE_PROJECT_SYNC.id, memberId: "sc" },
+  { initials: "A", color: "#4D9BF7", teamId: SALTMINE_PROJECT_SYNC.id, memberId: "am" },
+  { initials: "N", color: "#22C55E", teamId: SALTMINE_PROJECT_SYNC.id, memberId: "ch" },
+  { initials: "S", color: "#F59E0B", teamId: SALTMINE_PROJECT_SYNC.id, memberId: "dr" },
+  { initials: "J", color: "#637381", teamId: SALTMINE_PROJECT_SYNC.id, memberId: "ww" },
+  { initials: "K", color: "#14B8A6", teamId: SALTMINE_PROJECT_SYNC.id, memberId: "bs" },
+  { initials: "V", color: "#EC4899", teamId: SALTMINE_PROJECT_SYNC.id, memberId: "jj" },
+  { initials: "M", color: "#4D9BF7", teamId: SALTMINE_PROJECT_SYNC.id, memberId: "jo" },
+  { initials: "O", color: "#8B5CF6", teamId: SALTMINE_PROJECT_SYNC.id, memberId: "af" },
+  { initials: "R", color: "#1C252E", teamId: "design-team", memberId: "jb" },
+  { initials: "A", color: "#4D9BF7", teamId: "design-team", memberId: "am" },
+  { initials: "N", color: "#22C55E", teamId: "design-team", memberId: "ch" },
 ];
 
 export type DeckBookingKind = "parking" | "desk" | "meeting";
@@ -100,30 +100,30 @@ export interface DeckTimelineDay {
 }
 
 const DESIGN_REVIEW_ATTENDEES: readonly DeckBookingAttendee[] = [
-  { letter: "J", color: "#006FEC", status: "accepted" },
-  { letter: "S", color: "#4D9BF7", status: "accepted" },
-  { letter: "A", color: "#637381", status: "accepted" },
-  { letter: "C", color: "#22C55E", status: "accepted" },
-  { letter: "D", color: "#F59E0B", status: "accepted" },
-  { letter: "W", color: "#8B5CF6", status: "accepted" },
+  { letter: "P", color: "#006FEC", status: "accepted" },
+  { letter: "G", color: "#006FEC", status: "accepted" },
+  { letter: "A", color: "#4D9BF7", status: "accepted" },
+  { letter: "N", color: "#22C55E", status: "accepted" },
+  { letter: "S", color: "#F59E0B", status: "accepted" },
+  { letter: "J", color: "#637381", status: "accepted" },
 ];
 
 const Q2_SALES_ATTENDEES: readonly DeckBookingAttendee[] = [
-  { letter: "J", color: "#006FEC", status: "accepted" },
-  { letter: "S", color: "#4D9BF7", status: "declined" },
-  { letter: "A", color: "#637381", status: "accepted" },
-  { letter: "C", color: "#22C55E", status: "tentative" },
-  { letter: "D", color: "#F59E0B", status: "accepted" },
-  { letter: "W", color: "#8B5CF6", status: "declined" },
-  { letter: "B", color: "#EC4899", status: "accepted" },
+  { letter: "P", color: "#006FEC", status: "accepted" },
+  { letter: "G", color: "#006FEC", status: "declined" },
+  { letter: "A", color: "#4D9BF7", status: "accepted" },
+  { letter: "N", color: "#22C55E", status: "tentative" },
+  { letter: "S", color: "#F59E0B", status: "accepted" },
+  { letter: "J", color: "#637381", status: "declined" },
+  { letter: "K", color: "#14B8A6", status: "accepted" },
 ];
 
 const ACCOUNTS_SYNC_ATTENDEES: readonly DeckBookingAttendee[] = [
-  { letter: "J", color: "#006FEC", status: "accepted" },
-  { letter: "S", color: "#4D9BF7", status: "accepted" },
-  { letter: "A", color: "#637381", status: "accepted" },
-  { letter: "C", color: "#22C55E", status: "accepted" },
-  { letter: "M", color: "#0EA5E9", status: "accepted" },
+  { letter: "P", color: "#006FEC", status: "accepted" },
+  { letter: "G", color: "#006FEC", status: "accepted" },
+  { letter: "A", color: "#4D9BF7", status: "accepted" },
+  { letter: "N", color: "#22C55E", status: "accepted" },
+  { letter: "M", color: "#4D9BF7", status: "accepted" },
 ];
 
 export const DECK_TIMELINE_DAYS: readonly DeckTimelineDay[] = [
@@ -356,7 +356,7 @@ export function filterAvatarsByTeam(
   avatars: readonly DeckOfficeAvatar[],
   teamFilter: string,
 ): DeckOfficeAvatar[] {
-  if (teamFilter.includes("Add a team")) return [];
+  if (teamFilter.includes("Create a team")) return [];
   if (teamFilter.includes("Design Team")) {
     return avatars.filter((avatar) => avatar.teamId === "design-team");
   }
@@ -371,6 +371,12 @@ export function filterAvatarsByTeam(
 export function teamOccupancyLabel(count: number, teamName: string): string {
   if (count === 0) return "No-one's in!";
   return `${count} from ${teamName} in`;
+}
+
+/** Shorter occupancy line for mobile presence bar. */
+export function teamOccupancyShortLabel(count: number, teamName: string): string {
+  if (count === 0) return "No-one's in";
+  return `${count} from ${teamName}`;
 }
 
 export function resolveTeamNameFromFilter(teamFilter: string): string {

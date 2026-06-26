@@ -7,6 +7,7 @@ import {
   BOOKING_TYPE_OPTIONS,
   TEAM_OPTIONS,
 } from "@/lib/saltmine-bookings-dashboard-data";
+import { SALTMINE_DEMO_USER } from "@/lib/saltmine-demo-personas";
 
 export type DashboardNavIcon =
   | "bookings"
@@ -16,7 +17,6 @@ export type DashboardNavIcon =
   | "grid"
   | "conference"
   | "help"
-  | "status"
   | "locale"
   | "language";
 
@@ -39,17 +39,18 @@ export const SALTMINE_BOOKINGS_DASHBOARD_CONTENT = {
   brandName: "saltmine",
   brandLogoSrc: "/assets/saltmine-logo.png",
 
-  defaultDisplayName: "Jatin Bansal",
+  defaultDisplayName: SALTMINE_DEMO_USER.name,
 
-  searchPlaceholder: "Search…",
+  searchPlaceholder: "Search bookings, people, or spaces…",
   searchEmptyLabel: "No matches — try a space, person, or page",
 
   pageTitle: "My bookings",
 
   inboxPageTitle: "Inbox",
+  inboxMobilePageTitle: "Your inbox",
   inboxShowLabel: "Show",
   inboxFilterLabel: "Filter",
-  inboxEmptyLabel: "No notifications match these filters",
+  inboxEmptyLabel: "No notifications match these filters — try Show all",
   inboxMenuToast: "Notification options would open here",
   inboxDetailEmptyLabel: "Select a notification to see details",
   inboxDetailFieldsLabel: "Details",
@@ -57,8 +58,15 @@ export const SALTMINE_BOOKINGS_DASHBOARD_CONTENT = {
   inboxDetailCloseLabel: "Close details",
   inboxAcceptToast: "Invite accepted",
   inboxDeclineToast: "Invite declined",
+  inboxNotificationPopupLabel: "Mobile notifications",
+  inboxNotificationPopupLatestLabel: "Latest",
+  inboxNotificationPopupBookingsLabel: "Your bookings",
+  inboxNotificationPopupBookingsToast: "Opening your bookings",
+  inboxNotificationOpenLabel: "Open notification",
 
   findSpacePageTitle: "Find a space",
+  findSpaceMobileFiltersCta: "Select your filters",
+  findSpaceFavoritesLabel: "Favorites",
   findSpaceMoreFilters: "More filters",
   findSpaceClearFilters: "Clear filters",
   findSpacePanHint: "Scroll to pan",
@@ -72,6 +80,42 @@ export const SALTMINE_BOOKINGS_DASHBOARD_CONTENT = {
   repeatDeskLabel: "Repeat desk",
   repeatDeskCta: "Repeat yesterday's desk",
   tomorrowEmptyLabel: "Nothing booked yet",
+
+  bookingGridPageTitle: "Booking grid",
+  bookingGridLocationLabel: "Your default location",
+  bookingGridTypeLabel: "Type",
+  bookingGridDisplayLabel: "Display options",
+  bookingGridAllDayLabel: "All day",
+  bookingGridPopupWhenLabel: "When",
+  bookingGridPopupWhereLabel: "Where",
+  bookingGridPopupOrganiserLabel: "Organiser",
+  bookingGridPopupAttendeesLabel: "Attendees",
+  bookingGridPopupJoinLabel: "Join meeting",
+  bookingGridPopupEditLabel: "Edit booking",
+  bookingGridPopupCancelLabel: "Cancel booking",
+  bookingGridPopupCloseLabel: "Close booking details",
+  bookingGridPopupAllDayValue: "All day",
+  bookingGridPopupJoinToast: "Opening video meeting for",
+  bookingGridPopupEditToast: "Edit booking — demo",
+  bookingGridPopupCancelToast: "Booking cancelled — demo",
+
+  conferenceGridPageTitle: "Conference grid",
+  conferenceGridActiveGridLabel: "Active grid",
+  conferenceGridNewGridLabel: "New grid",
+  conferenceGridSaveChangesLabel: "Save changes",
+  conferenceGridSaveChangesToast: "Grid changes saved",
+  conferenceGridUpdateGridLabel: "Update grid",
+  conferenceGridUpdateGridToast: "Grid updated",
+  conferenceGridCountryLabel: "Country",
+  conferenceGridLocationLabel: "Location",
+  conferenceGridFloorLabel: "Floor",
+  conferenceGridWorkspaceLabel: "Workspace type",
+  conferenceGridCapacityLabel: "Capacity",
+  conferenceGridTagsLabel: "Tags",
+  conferenceGridAccessLabel: "Booking access",
+  conferenceGridRoomColumnLabel: "Room",
+  conferenceGridUnsavedChangesLabel: "Unsaved changes",
+  conferenceGridPopupUseCaseLabel: "Use case",
 
   teamsPageTitle: "My teams",
   teamsMemberLabel: "members",
@@ -118,13 +162,19 @@ export const SALTMINE_BOOKINGS_DASHBOARD_CONTENT = {
 
   secondaryNav: [
     { id: "help", label: "Help & support", icon: "help" },
-    { id: "status", label: "System status", icon: "status" },
     { id: "locale", label: "India", icon: "locale", localeFlag: "🇮🇳" },
     { id: "language", label: "Language", icon: "language" },
   ] satisfies DashboardNavItem[],
 
   viewButtonLabel: "View",
   addBookingLabel: "Add booking",
+  addBookingMenuCloseLabel: "Close add booking menu",
+  addBookingMenuItems: [
+    { id: "team-day", label: "Create a team day" },
+    { id: "car-parking", label: "Find car parking" },
+    { id: "meeting-space", label: "Find a meeting space" },
+    { id: "desk", label: "Find a desk" },
+  ],
   addedBookingToast: "Booking added for",
 
   calendar: {

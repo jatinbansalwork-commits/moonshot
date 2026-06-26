@@ -15,6 +15,10 @@ export interface DeckMonthlyBookingChip {
   kind: DeckBookingKind;
   timeLabel: string;
   title: string;
+  duration?: string;
+  location?: string;
+  attendeeCount?: number;
+  status?: DeckBookingItem["status"];
   recurring?: boolean;
 }
 
@@ -24,18 +28,28 @@ const RECURRING_MONDAY_TEMPLATE: readonly DeckMonthlyBookingChip[] = [
     kind: "parking",
     timeLabel: "09:00",
     title: "Car Park B2.113",
+    duration: "All day",
+    location: "Basement 2",
+    status: "active",
   },
   {
     id: "recurring-desk",
     kind: "desk",
     timeLabel: "09:00",
     title: "Desk 21.P3.2",
+    duration: "All day",
+    location: "Floor 21",
+    status: "active",
   },
   {
     id: "recurring-design-review",
     kind: "meeting",
     timeLabel: "10:30",
     title: "Design Review",
+    duration: "1h",
+    location: "Meeting Room 21.12",
+    attendeeCount: 6,
+    status: "upcoming",
     recurring: true,
   },
 ];
@@ -49,6 +63,18 @@ function truncateTitle(title: string, max = 14): string {
   return `${title.slice(0, max - 1).trim()}…`;
 }
 
+function chipDetailParts(chip: {
+  duration?: string;
+  location?: string;
+  attendeeCount?: number;
+}): string[] {
+  const parts: string[] = [];
+  if (chip.duration) parts.push(chip.duration);
+  if (chip.location) parts.push(chip.location);
+  if (chip.attendeeCount) parts.push(`${chip.attendeeCount} attendees`);
+  return parts;
+}
+
 function bookingToChip(booking: DeckBookingItem): DeckMonthlyBookingChip {
   return {
     id: booking.id,
@@ -58,8 +84,30 @@ function bookingToChip(booking: DeckBookingItem): DeckMonthlyBookingChip {
       booking.kind === "meeting"
         ? truncateTitle(booking.title)
         : booking.title,
+    duration: booking.duration,
+    location:
+      booking.kind === "meeting"
+        ? booking.location
+        : booking.floor ?? booking.location,
+    attendeeCount: booking.attendees?.length,
+    status: booking.status,
     recurring: booking.id === "meeting-design",
   };
+}
+
+export function deckMonthlyChipTooltip(chip: DeckMonthlyBookingChip): string {
+  const statusLabel =
+    chip.status === "active"
+      ? "Checked in"
+      : chip.status === "upcoming"
+        ? "Up next"
+        : chip.status === "completed"
+          ? "Completed"
+          : undefined;
+
+  return [chip.timeLabel, chip.title, ...chipDetailParts(chip), statusLabel]
+    .filter(Boolean)
+    .join(" · ");
 }
 
 function isMondayInMonth(monthIndex: number, day: number): boolean {

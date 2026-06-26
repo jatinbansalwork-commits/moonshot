@@ -29,7 +29,7 @@ const FALLBACK_LOCATIONS = [
 ] as const;
 
 function teamMembersForFilter(teamFilter: string): TeamMember[] {
-  if (teamFilter.includes("Add a team")) return [];
+  if (teamFilter.includes("Create a team")) return [];
   if (teamFilter.includes("Design Team")) {
     return MY_TEAMS_DUMMY.find((team) => team.id === "design-team")?.members ?? [];
   }

@@ -24,7 +24,7 @@ export function VerticalSplitSlideLayout({
         data-cursor-surface="light"
       >
         {split.leftText ? (
-          <p className="index-slide-about-body m-0 mt-10 text-[24px] font-normal leading-snug tracking-tight text-black antialiased">
+          <p className="index-slide-about-body m-0 mt-8 text-[22px] font-medium leading-snug tracking-tight text-black antialiased">
             {split.leftText}
           </p>
         ) : null}
@@ -46,7 +46,7 @@ export function VerticalSplitSlideLayout({
         data-cursor-surface="light"
       >
         {split.rightText ? (
-          <p className="index-slide-about-body m-0 text-[24px] font-normal leading-snug tracking-tight text-black antialiased">
+          <p className="index-slide-about-body m-0 text-[22px] font-medium leading-snug tracking-tight text-black antialiased">
             {split.rightText}
           </p>
         ) : null}

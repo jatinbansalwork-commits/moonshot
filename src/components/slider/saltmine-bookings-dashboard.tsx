@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Activity,
   Bookmark,
   CalendarDays,
   ChevronDown,
@@ -21,6 +20,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { FOCUS_RING } from "@/lib/a11y";
+import { SaltmineDeckAvatar } from "@/components/slider/saltmine-initial-avatar";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import {
   SALTMINE_BOOKINGS_DASHBOARD_CONTENT,
@@ -36,8 +36,17 @@ import {
   officePresenceSummary,
   OFFICE_PRESENCE_OFFICE_NAME,
 } from "@/lib/saltmine-office-presence-data";
-import { InboxDetailPanel, InboxMainView } from "@/components/slider/saltmine-inbox-view";
-import { getInboxNotificationById, INBOX_NOTIFICATIONS } from "@/lib/saltmine-inbox-data";
+import { InboxDetailPanel, InboxMainView, InboxNotificationPopup } from "@/components/slider/saltmine-inbox-view";
+import {
+  BookingGridDateNav,
+  BookingGridMainView,
+} from "@/components/slider/saltmine-booking-grid-view";
+import {
+  ConferenceGridDateNav,
+  ConferenceGridMainView,
+  ConferenceGridNewGridButton,
+} from "@/components/slider/saltmine-conference-grid-view";
+import { getInboxNotificationById, INBOX_NOTIFICATION_POPUP_FEATURED_ID, INBOX_NOTIFICATIONS } from "@/lib/saltmine-inbox-data";
 import {
   DeckDaySection,
 } from "@/components/slider/saltmine-deck-bookings-view";
@@ -76,7 +85,6 @@ import {
   SALTMINE_HAIRLINE,
   SALTMINE_MENU_SHADOW,
   SALTMINE_ONBOARDING,
-  SALTMINE_ONLINE_GREEN,
   SALTMINE_SURFACE_INSET,
 } from "@/lib/saltmine-onboarding-tokens";
 
@@ -88,7 +96,6 @@ const ICON_STROKE = 1.65;
 const HAIRLINE = SALTMINE_HAIRLINE;
 const SURFACE_INSET = SALTMINE_SURFACE_INSET;
 const MENU_SHADOW = SALTMINE_MENU_SHADOW;
-const ONLINE_GREEN = SALTMINE_ONLINE_GREEN;
 
 const TEXT_XS = "text-[9px] leading-[13px]";
 const TEXT_2XS = "text-[8px] leading-[11px]";
@@ -108,7 +115,6 @@ const NAV_ICONS: Record<DashboardNavIcon, LucideIcon> = {
   grid: LayoutGrid,
   conference: Presentation,
   help: CircleHelp,
-  status: Activity,
   locale: MapPin,
   language: Globe,
 };
@@ -201,7 +207,7 @@ function DashboardMenu({
       ref={menuRef}
       id={id}
       role="listbox"
-      className={`absolute left-0 right-0 z-50 max-h-[140px] overflow-y-auto rounded-lg border bg-white py-0.5 ${placement === "above" ? "bottom-[calc(100%+4px)]" : "top-[calc(100%+4px)]"}`}
+      className={`no-scrollbar absolute left-0 right-0 z-50 max-h-[140px] overflow-y-auto rounded-lg border bg-white py-0.5 ${placement === "above" ? "bottom-[calc(100%+4px)]" : "top-[calc(100%+4px)]"}`}
       style={{ borderColor: HAIRLINE, boxShadow: MENU_SHADOW }}
       onKeyDown={(event) => {
         if (event.key === "Escape") {
@@ -253,6 +259,7 @@ function NavItem({
   localeFlag,
   badge,
   reducedMotion,
+  disabled = false,
   onClick,
 }: {
   label: string;
@@ -261,22 +268,33 @@ function NavItem({
   localeFlag?: string;
   badge?: boolean;
   reducedMotion: boolean;
+  disabled?: boolean;
   onClick?: () => void;
 }) {
   const Icon = NAV_ICONS[icon];
   const isLocale = icon === "locale" && localeFlag;
+  const ariaLabel = badge
+    ? `${label}, unread notifications`
+    : active
+      ? `${label}, current page`
+      : label;
 
   return (
     <button
       type="button"
+      disabled={disabled}
       aria-current={active ? "page" : undefined}
-      title={label}
-      onClick={onClick}
-      className={`group relative flex w-full min-h-[27px] items-center gap-1.5 rounded-lg px-1.5 py-[3px] text-left transition-[background-color,color,box-shadow,transform] duration-150 active:scale-[0.99] ${active ? "" : "hover:bg-[rgba(145,158,171,0.08)]"} ${FOCUS_RING}`}
+      aria-label={ariaLabel}
+      aria-disabled={disabled || undefined}
+      onClick={disabled ? undefined : onClick}
+      className={`group relative flex w-full min-h-[32px] items-center gap-1.5 rounded-lg px-1.5 py-1 text-left transition-[background-color,color,box-shadow,transform] duration-150 ${disabled ? "cursor-not-allowed opacity-55" : "active:scale-[0.99]"} ${active || disabled ? "" : "hover:bg-[rgba(145,158,171,0.08)]"} ${FOCUS_RING}`}
       style={{
         backgroundColor: active ? SALTMINE.accentSolid : "transparent",
         color: active ? SALTMINE.primaryDark : SALTMINE.textSecondary,
-        boxShadow: active ? `inset 0 0 0 1px rgba(0, 111, 236, 0.18)` : undefined,
+        boxShadow: active
+          ? "inset 0 0 0 1px rgba(0, 111, 236, 0.28), 0 1px 2px rgba(0, 111, 236, 0.08)"
+          : undefined,
+        fontWeight: active ? 700 : 500,
       }}
     >
       {active ? (
@@ -296,19 +314,6 @@ function NavItem({
         {isLocale ? (
           <span className="text-[9px] leading-none" aria-hidden>
             {localeFlag}
-          </span>
-        ) : icon === "status" ? (
-          <span className="relative inline-flex h-2 w-2 items-center justify-center" aria-hidden>
-            {!reducedMotion ? (
-              <span
-                className="absolute inline-flex h-2 w-2 animate-pulse rounded-full opacity-40"
-                style={{ backgroundColor: ONLINE_GREEN }}
-              />
-            ) : null}
-            <span
-              className="relative inline-flex h-1.5 w-1.5 rounded-full"
-              style={{ backgroundColor: ONLINE_GREEN }}
-            />
           </span>
         ) : (
           <DashboardIcon icon={Icon} className="h-[13px] w-[13px]" />
@@ -834,6 +839,11 @@ export function SaltmineBookingsDashboard({
   variant = "onboarding",
   initialActiveNav = "bookings",
   initialViewMode,
+  showInboxNotificationPopup = false,
+  navigationDisabled = false,
+  initialFilterValues,
+  disabledNavIds,
+  embedLayout = "desktop",
 }: {
   displayName: string;
   initialAddedBookings?: Record<DayId, string[]>;
@@ -843,11 +853,31 @@ export function SaltmineBookingsDashboard({
   initialActiveNav?: string;
   /** Bookings calendar mode on first render (deck slides). */
   initialViewMode?: ViewMode;
+  /** Slide 23 — floating mobile notification stack beside the inbox. */
+  showInboxNotificationPopup?: boolean;
+  /** Deck mockup — sidebar nav and search are visible but not interactive. */
+  navigationDisabled?: boolean;
+  /** Per-slide filter defaults (e.g. team for office presence). */
+  initialFilterValues?: Record<string, string>;
+  /** Per-slide nav ids to show but not allow interaction. */
+  disabledNavIds?: readonly string[];
+  /** Mobile app embed — main content only, no side rails. */
+  embedLayout?: "desktop" | "mobile";
 }) {
   const isDeckVariant = variant === "deck";
+  const isMobileEmbed = embedLayout === "mobile";
   const reducedMotion = useReducedMotion();
   const initial = displayName.charAt(0).toUpperCase();
   const { toast, showToast, dismissToast } = useToast();
+
+  const isNavItemDisabled = useCallback(
+    (id: string) => {
+      if (disabledNavIds?.includes(id)) return true;
+      if (navigationDisabled && id !== "bookings") return true;
+      return false;
+    },
+    [disabledNavIds, navigationDisabled],
+  );
 
   const [viewMode, setViewMode] = useState<ViewMode>(
     initialViewMode ?? content.defaultViewMode,
@@ -883,6 +913,7 @@ export function SaltmineBookingsDashboard({
     showToast(`${label} — demo`);
   }
   const [inboxBadge, setInboxBadge] = useState(true);
+  const [bookingGridDayOffset, setBookingGridDayOffset] = useState(0);
   const [calendarMonthIndex, setCalendarMonthIndex] = useState<number>(
     isDeckVariant ? DECK_CALENDAR.monthIndex : content.calendar.defaultMonthIndex,
   );
@@ -904,7 +935,7 @@ export function SaltmineBookingsDashboard({
 
   const [filterValues, setFilterValues] = useState<Record<string, string>>(() =>
     isDeckVariant
-      ? { ...DECK_FILTER_DEFAULTS }
+      ? { ...DECK_FILTER_DEFAULTS, ...initialFilterValues }
       : Object.fromEntries(content.filters.map((f) => [f.id, f.defaultValue])),
   );
 
@@ -992,7 +1023,7 @@ export function SaltmineBookingsDashboard({
 
   const deckTeamName = resolveTeamNameFromFilter(teamFilter);
   const deckOccupancyLabel = isDeckVariant
-    ? teamFilter.includes("Add a team")
+    ? teamFilter.includes("Create a team")
       ? "No-one's in!"
       : teamOccupancyLabel(deckFilteredAvatars.length, deckTeamName)
     : "";
@@ -1032,7 +1063,11 @@ export function SaltmineBookingsDashboard({
   const coworkers = isDeckVariant
     ? deckFilteredAvatars
     : showTeamCoworkers
-      ? COWORKERS_IN_OFFICE.map((c) => ({ initials: c.initials, color: c.color }))
+      ? COWORKERS_IN_OFFICE.map((c) => ({
+          initials: c.initials,
+          color: c.color,
+          memberId: c.memberId,
+        }))
       : [];
 
   const searchResults = (
@@ -1044,6 +1079,7 @@ export function SaltmineBookingsDashboard({
   ).slice(0, 8);
 
   const handleNavClick = (id: string, label: string) => {
+    if (isNavItemDisabled(id)) return;
     closeAllOverlays();
     setActiveNav(id);
     if (id === "inbox") {
@@ -1052,15 +1088,24 @@ export function SaltmineBookingsDashboard({
     }
     if (id === "bookings" || id === "teams") return;
     if (id === "find-space" && isDeckVariant) return;
-    showToast(label);
+    if (id === "booking-grid" && isDeckVariant) return;
+    if (id === "conference-grid" && isDeckVariant) return;
+    showToast(`Opening ${label.toLowerCase()}`);
   };
 
   const isTeamsView = activeNav === "teams";
   const isFindSpaceView = isDeckVariant && activeNav === "find-space";
   const isInboxView = activeNav === "inbox";
-  const isBookingsView = !isTeamsView && !isFindSpaceView && !isInboxView;
+  const isBookingGridView = isDeckVariant && activeNav === "booking-grid";
+  const isConferenceGridView = isDeckVariant && activeNav === "conference-grid";
+  const isBookingsView =
+    !isTeamsView &&
+    !isFindSpaceView &&
+    !isInboxView &&
+    !isBookingGridView &&
+    !isConferenceGridView;
   const showBookingsCalendarRail =
-    isBookingsView && viewMode === "Daily" && !bookingsRailOpen;
+    !isMobileEmbed && isBookingsView && viewMode === "Daily" && !bookingsRailOpen;
 
   const handleAddBooking = (dayId: string, dayTitle: string) => {
     const type = filterValues["booking-type"] ?? "Desk";
@@ -1122,7 +1167,7 @@ export function SaltmineBookingsDashboard({
 
   return (
     <div
-      className="relative flex h-full w-full overflow-hidden antialiased text-left"
+      className={`relative flex h-full w-full antialiased text-left ${showInboxNotificationPopup ? "overflow-visible" : "overflow-hidden"}`}
       style={{
         fontFamily: SALTMINE_ONBOARDING.font.family,
         backgroundColor: "#F4F6F8",
@@ -1135,7 +1180,11 @@ export function SaltmineBookingsDashboard({
             ? content.findSpacePageTitle
             : isInboxView
               ? content.inboxPageTitle
-              : `${content.pageTitle} workspace`
+              : isBookingGridView
+                ? content.bookingGridPageTitle
+                : isConferenceGridView
+                  ? content.conferenceGridPageTitle
+                  : `${content.pageTitle} workspace`
       }
     >
       <aside
@@ -1145,6 +1194,7 @@ export function SaltmineBookingsDashboard({
           borderColor: HAIRLINE,
         }}
         aria-label="Main navigation"
+        hidden={isMobileEmbed}
       >
         <div className="mb-2 flex items-center gap-1.5 px-0.5">
           <span
@@ -1182,12 +1232,19 @@ export function SaltmineBookingsDashboard({
               type="search"
               placeholder={content.searchPlaceholder}
               value={searchQuery}
+              disabled={navigationDisabled}
+              readOnly={navigationDisabled}
+              aria-disabled={navigationDisabled || undefined}
               onChange={(event) => {
+                if (navigationDisabled) return;
                 setSearchQuery(event.target.value);
                 setSearchOpen(true);
               }}
-              onFocus={() => setSearchOpen(true)}
-              className={`h-[30px] w-full rounded-[8px] border-0 py-0 pl-[26px] ${TEXT_XS} font-medium outline-none transition-[box-shadow,background-color] duration-150 placeholder:font-normal placeholder:text-[#919EAB] focus-visible:bg-white focus-visible:shadow-[0_0_0_3px_rgba(0,111,236,0.16)] ${searchOpen ? "pr-7" : "pr-2"} ${FOCUS_RING}`}
+              onFocus={() => {
+                if (navigationDisabled) return;
+                setSearchOpen(true);
+              }}
+              className={`h-[30px] w-full rounded-[8px] border-0 py-0 pl-[26px] ${TEXT_XS} font-medium outline-none transition-[box-shadow,background-color] duration-150 placeholder:font-normal placeholder:text-[#919EAB] focus-visible:bg-white focus-visible:shadow-[0_0_0_3px_rgba(0,111,236,0.16)] ${searchOpen ? "pr-7" : "pr-2"} ${navigationDisabled ? "cursor-not-allowed opacity-55" : ""} ${FOCUS_RING}`}
               style={{
                 color: SALTMINE.text,
                 backgroundColor: searchOpen
@@ -1210,7 +1267,7 @@ export function SaltmineBookingsDashboard({
           {searchOpen ? (
             <ul
               role="listbox"
-              className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 max-h-[120px] overflow-y-auto rounded-lg border bg-white py-0.5"
+              className="no-scrollbar absolute left-0 right-0 top-[calc(100%+4px)] z-50 max-h-[120px] overflow-y-auto rounded-lg border bg-white py-0.5"
               style={{ borderColor: HAIRLINE, boxShadow: MENU_SHADOW }}
             >
               {searchResults.length === 0 ? (
@@ -1270,6 +1327,7 @@ export function SaltmineBookingsDashboard({
               icon={item.icon}
               badge={item.id === "inbox" && inboxBadge}
               reducedMotion={reducedMotion}
+              disabled={isNavItemDisabled(item.id)}
               onClick={() => handleNavClick(item.id, item.label)}
             />
           ))}
@@ -1296,18 +1354,8 @@ export function SaltmineBookingsDashboard({
                   label={item.label}
                   icon={item.icon}
                   reducedMotion={reducedMotion}
+                  disabled={isNavItemDisabled(item.id)}
                   onClick={() => showToast(content.helpToast)}
-                />
-              );
-            }
-            if (item.id === "status") {
-              return (
-                <NavItem
-                  key={item.id}
-                  label={item.label}
-                  icon={item.icon}
-                  reducedMotion={reducedMotion}
-                  onClick={() => showToast("All systems operational")}
                 />
               );
             }
@@ -1319,6 +1367,7 @@ export function SaltmineBookingsDashboard({
                     icon={item.icon}
                     localeFlag={locale.flag}
                     reducedMotion={reducedMotion}
+                    disabled={isNavItemDisabled(item.id)}
                     onClick={() =>
                       setOpenSecondary((current) =>
                         current === "locale" ? null : "locale",
@@ -1361,6 +1410,7 @@ export function SaltmineBookingsDashboard({
                     label={language}
                     icon={item.icon}
                     reducedMotion={reducedMotion}
+                    disabled={isNavItemDisabled(item.id)}
                     onClick={() =>
                       setOpenSecondary((current) =>
                         current === "language" ? null : "language",
@@ -1398,16 +1448,12 @@ export function SaltmineBookingsDashboard({
               boxShadow: "0 1px 2px rgba(145, 158, 171, 0.06)",
             }}
           >
-            <span
-              className="inline-flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full text-[8px] font-bold leading-none text-white"
-              style={{
-                background: `linear-gradient(145deg, ${SALTMINE.primary} 0%, #4D9BF7 100%)`,
-                boxShadow: "0 2px 6px rgba(0, 111, 236, 0.24)",
-              }}
-              aria-hidden
-            >
-              <span className="block translate-y-px leading-none">{initial}</span>
-            </span>
+            <SaltmineDeckAvatar
+              memberId="jb"
+              letter={initial}
+              size={13}
+              color={SALTMINE.primary}
+            />
             <span
               className="min-w-0 flex-1 truncate font-bold leading-none tracking-[-0.015em] text-[10px]"
               style={{ color: SALTMINE.text }}
@@ -1419,11 +1465,21 @@ export function SaltmineBookingsDashboard({
       </aside>
 
       <div className="flex min-w-0 flex-1">
-        <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-[#F4F6F8] px-3 py-2.5">
-          <div className={`flex items-center justify-between gap-2 ${isFindSpaceView ? "mb-1" : "mb-1.5"}`}>
+        <main
+          className={`relative flex min-w-0 flex-1 flex-col overflow-hidden bg-[#F4F6F8] ${isMobileEmbed ? "px-2 py-2" : "px-3 py-2.5"}`}
+        >
+          <div
+            className={`flex items-center gap-2 ${
+              isConferenceGridView
+                ? "mb-1 grid grid-cols-[1fr_auto_1fr] gap-2"
+                : isFindSpaceView || isBookingGridView
+                  ? "mb-1 justify-between"
+                  : "mb-1.5 justify-between"
+            }`}
+          >
             <div className="min-w-0">
               <h1
-                className="m-0 text-[14px] font-extrabold leading-4 tracking-[-0.035em]"
+                className={`m-0 font-extrabold tracking-[-0.035em] ${isMobileEmbed ? "text-[12px] leading-[14px]" : "text-[14px] leading-4"}`}
                 style={{ color: SALTMINE.text }}
               >
                 {isTeamsView
@@ -1432,10 +1488,32 @@ export function SaltmineBookingsDashboard({
                     ? content.findSpacePageTitle
                     : isInboxView
                       ? content.inboxPageTitle
-                      : content.pageTitle}
+                      : isBookingGridView
+                        ? content.bookingGridPageTitle
+                        : isConferenceGridView
+                          ? content.conferenceGridPageTitle
+                          : content.pageTitle}
               </h1>
             </div>
-            {isBookingsView ? (
+            {isConferenceGridView ? (
+              <>
+                <ConferenceGridDateNav
+                  onPrev={() => showToast("Previous day")}
+                  onNext={() => showToast("Next day")}
+                  onCalendar={() => showToast("Open calendar")}
+                />
+                <div className="flex justify-end">
+                  <ConferenceGridNewGridButton
+                    onClick={() => showToast(content.conferenceGridNewGridLabel)}
+                  />
+                </div>
+              </>
+            ) : isBookingGridView ? (
+              <BookingGridDateNav
+                dayOffset={bookingGridDayOffset}
+                onDayOffsetChange={setBookingGridDayOffset}
+              />
+            ) : isBookingsView ? (
               <ViewToggle
                 value={viewMode}
                 onChange={(mode) => {
@@ -1451,8 +1529,8 @@ export function SaltmineBookingsDashboard({
           </div>
 
           {isBookingsView && viewMode === "Daily" ? (
-            <div className="mb-1.5">
-              <div className="flex gap-1.5">
+            <div className={isMobileEmbed ? "mb-1" : "mb-1.5"}>
+              <div className={`flex gap-1 ${isMobileEmbed ? "flex-col" : "gap-1.5"}`}>
                 {content.filters.map((filter) => (
                   <div key={filter.id} className="min-w-0 flex-1">
                     <p
@@ -1464,7 +1542,16 @@ export function SaltmineBookingsDashboard({
                     <FilterSelect
                       filterId={filter.id}
                       label={filter.label}
-                      value={filterValues[filter.id] ?? filter.defaultValue}
+                      value={
+                        filterValues[filter.id] ??
+                        (isDeckVariant
+                          ? filter.id === "team"
+                            ? DECK_TEAM_OPTIONS[0]
+                            : filter.id === "booking-type"
+                              ? DECK_BOOKING_TYPE_OPTIONS[0]
+                              : filter.defaultValue
+                          : filter.defaultValue)
+                      }
                       options={
                         isDeckVariant
                           ? filter.id === "team"
@@ -1504,6 +1591,7 @@ export function SaltmineBookingsDashboard({
                 checkedMemberIds={checkedTeamMemberIds}
                 onCheckedMemberIdsChange={setCheckedTeamMemberIds}
                 showToast={showToast}
+                compact={isMobileEmbed}
               />
             ) : isFindSpaceView ? (
               <FindASpaceMainView
@@ -1516,6 +1604,13 @@ export function SaltmineBookingsDashboard({
                 onSelect={handleInboxSelect}
                 showToast={showToast}
               />
+            ) : isBookingGridView ? (
+              <BookingGridMainView
+                dayOffset={bookingGridDayOffset}
+                showToast={showToast}
+              />
+            ) : isConferenceGridView ? (
+              <ConferenceGridMainView showToast={showToast} compact={isMobileEmbed} />
             ) : (
             <div
               ref={isDeckVariant && viewMode === "Daily" ? timelineScrollRef : undefined}
@@ -1523,8 +1618,8 @@ export function SaltmineBookingsDashboard({
                 isDeckVariant
                   ? viewMode === "Monthly"
                     ? "flex h-full min-h-0 flex-col overflow-hidden"
-                    : "h-full min-h-0 space-y-2 overflow-y-auto overscroll-y-contain pr-0.5 [scrollbar-width:thin] [scrollbar-color:rgba(145,158,171,0.45)_transparent] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[rgba(145,158,171,0.45)]"
-                  : "h-full space-y-2 overflow-y-auto overscroll-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                    : "no-scrollbar h-full min-h-0 space-y-2 overflow-y-auto overscroll-y-contain"
+                  : "no-scrollbar h-full space-y-2 overflow-y-auto overscroll-contain"
               }
               role="region"
               aria-label={
@@ -1548,6 +1643,7 @@ export function SaltmineBookingsDashboard({
                             (avatar) => ({
                               initials: avatar.initials,
                               color: avatar.color,
+                              memberId: avatar.memberId,
                             }),
                           )
                         : coworkers;
@@ -1569,7 +1665,6 @@ export function SaltmineBookingsDashboard({
                           occupancyLabel={deckOccupancyLabel}
                           bookings={filteredBookings}
                           isToday={day.isToday}
-                          isCalendarSelected={selectedTimelineDayId === day.id}
                           showCommutePill={day.showCommutePill}
                           presenceMode={day.presenceMode}
                           occupancyHighlight={day.occupancyHighlight}
@@ -1595,7 +1690,6 @@ export function SaltmineBookingsDashboard({
                               current === bookingId ? null : bookingId,
                             );
                           }}
-                          onMeetingSelect={openMonthlyCalendar}
                           onExternalLink={() => showToast(content.externalLinkToast)}
                           onRepeatDesk={() =>
                             showToast("Desk 21.P3.2 repeated for tomorrow")
@@ -1779,7 +1873,7 @@ export function SaltmineBookingsDashboard({
           </button>
         </aside>
         ) : null}
-        {isBookingsView && selectedBookingDetail && isDeckVariant ? (
+        {isBookingsView && selectedBookingDetail && isDeckVariant && !isMobileEmbed ? (
         <aside
           className="flex shrink-0 flex-col border-l bg-white px-2 py-2.5"
           style={{
@@ -1811,7 +1905,7 @@ export function SaltmineBookingsDashboard({
           </div>
         </aside>
         ) : null}
-        {isBookingsView && presencePanelDay && isDeckVariant ? (
+        {isBookingsView && presencePanelDay && isDeckVariant && !isMobileEmbed ? (
         <aside
           className="flex shrink-0 flex-col border-l bg-white px-2 py-2.5"
           style={{
@@ -1844,7 +1938,7 @@ export function SaltmineBookingsDashboard({
           </div>
         </aside>
         ) : null}
-        {isInboxView && inboxDetailOpen ? (
+        {isInboxView && inboxDetailOpen && !isMobileEmbed ? (
         <aside
           className="flex shrink-0 flex-col border-l bg-white px-2 py-2.5"
           style={{
@@ -1867,6 +1961,19 @@ export function SaltmineBookingsDashboard({
             />
           </div>
         </aside>
+        ) : null}
+        {isInboxView && showInboxNotificationPopup ? (
+          <InboxNotificationPopup
+            notifications={INBOX_NOTIFICATIONS}
+            featuredId={INBOX_NOTIFICATION_POPUP_FEATURED_ID}
+            selectedId={selectedInboxId}
+            onSelect={handleInboxSelect}
+            onBookings={() => {
+              showToast(content.inboxNotificationPopupBookingsToast);
+              setActiveNav("bookings");
+              closeAllOverlays();
+            }}
+          />
         ) : null}
       </div>
 

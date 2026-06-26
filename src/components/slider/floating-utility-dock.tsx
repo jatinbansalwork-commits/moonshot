@@ -20,7 +20,7 @@ const FULL_DOCK_NAV_ITEMS: DockNavItem[] = [
   { kind: "avatar", src: "/assets/jb-avatar.png", label: "JB", slideIndex: 0 },
   { kind: "icon", icon: Menu, label: "Index", slideIndex: 4 },
   { kind: "logo", src: "/assets/saltmine-logo.png", label: "Saltmine", slideIndex: 5 },
-  { kind: "logo", src: "/assets/kalash-logo.png", label: "Kalash", slideIndex: 5 },
+  { kind: "logo", src: "/assets/kalash-logo.png", label: "Kalash", slideIndex: 27 },
   { kind: "icon", icon: Inbox, label: "FreshPrints" },
 ];
 

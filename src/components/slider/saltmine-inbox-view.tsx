@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, ChevronDown, MoreHorizontal, X } from "lucide-react";
+import { Check, ChevronDown, ClipboardList, MoreHorizontal, X } from "lucide-react";
 import { FOCUS_RING } from "@/lib/a11y";
+import { SaltmineDeckAvatar } from "@/components/slider/saltmine-initial-avatar";
 import { SALTMINE_BOOKINGS_DASHBOARD_CONTENT } from "@/lib/saltmine-bookings-dashboard-content";
 import {
   filterInboxNotifications,
   INBOX_FILTER_OPTIONS,
+  INBOX_NOTIFICATION_POPUP_FEATURED_ID,
+  INBOX_NOTIFICATION_POPUP_TIME,
   INBOX_NOTIFICATIONS,
   INBOX_SHOW_OPTIONS,
   type InboxNotification,
@@ -26,6 +29,8 @@ const TEXT_XS = "text-[9px] leading-[13px]";
 const TEXT_2XS = "text-[8px] leading-[11px]";
 const TEXT_MICRO = "text-[7px] leading-[10px]";
 const MENU_SHADOW = "0 8px 24px rgba(28, 37, 46, 0.12), 0 2px 6px rgba(28, 37, 46, 0.06)";
+const POPUP_PANEL_SHADOW =
+  "0 16px 40px rgba(28, 37, 46, 0.16), 0 4px 12px rgba(28, 37, 46, 0.08)";
 
 const KIND_ACCENT: Record<InboxNotification["kind"], string> = {
   arrival: "#006FEC",
@@ -70,7 +75,7 @@ function InboxFilterMenu({
     <ul
       id={id}
       role="listbox"
-      className="absolute left-0 right-0 top-[calc(100%+4px)] z-[1] max-h-[120px] overflow-y-auto rounded-lg border bg-white py-0.5 shadow-lg"
+      className="no-scrollbar absolute left-0 right-0 top-[calc(100%+4px)] z-[1] max-h-[120px] overflow-y-auto rounded-lg border bg-white py-0.5 shadow-lg"
       style={{
         borderColor: HAIRLINE,
         boxShadow: MENU_SHADOW,
@@ -185,7 +190,10 @@ function NotificationAvatar({
   notification: InboxNotification;
   size?: number;
 }) {
-  if (notification.kind === "check-in" || notification.kind === "booking") {
+  if (
+    (notification.kind === "check-in" || notification.kind === "booking") &&
+    !notification.avatar
+  ) {
     return (
       <span
         className="inline-flex shrink-0 items-center justify-center rounded-full bg-[#22C55E] text-white"
@@ -198,23 +206,13 @@ function NotificationAvatar({
   }
 
   const avatar = notification.avatar ?? { initials: "?", color: "#637381" };
-  const label =
-    avatar.initials.length <= 2
-      ? avatar.initials.toUpperCase()
-      : avatar.initials.charAt(0).toUpperCase();
   return (
-    <span
-      className="inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full font-bold leading-none text-white"
-      style={{
-        width: size,
-        height: size,
-        backgroundColor: avatar.color,
-        fontSize: label.length > 1 ? size * 0.32 : size * 0.42,
-      }}
-      aria-hidden
-    >
-      <span className="block translate-y-px leading-none">{label}</span>
-    </span>
+    <SaltmineDeckAvatar
+      memberId={avatar.memberId}
+      letter={avatar.initials}
+      color={avatar.color}
+      size={size}
+    />
   );
 }
 
@@ -293,6 +291,148 @@ function InboxNotificationRow({
         </button>
       </div>
     </li>
+  );
+}
+
+function InboxNotificationPopupRow({
+  notification,
+  selected,
+  onSelect,
+}: {
+  notification: InboxNotification;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={selected}
+      aria-label={`${content.inboxNotificationOpenLabel}: ${notification.title}`}
+      className={`flex w-full items-center gap-1 rounded-[6px] border px-1 py-0.5 text-left transition-[border-color,background-color] duration-150 ${FOCUS_RING}`}
+      style={{
+        borderColor: selected ? "rgba(0, 111, 236, 0.28)" : HAIRLINE,
+        backgroundColor: selected ? "rgba(0, 111, 236, 0.06)" : "#FFFFFF",
+      }}
+    >
+      <span className="flex w-1.5 shrink-0 justify-center" aria-hidden>
+        {notification.unread ? (
+          <span
+            className="h-1 w-1 rounded-full"
+            style={{ backgroundColor: SALTMINE.primary }}
+          />
+        ) : null}
+      </span>
+      <NotificationAvatar notification={notification} size={14} />
+      <span
+        className={`min-w-0 flex-1 truncate font-semibold ${TEXT_MICRO}`}
+        style={{ color: SALTMINE.text }}
+      >
+        {notification.title}
+      </span>
+    </button>
+  );
+}
+
+export function InboxNotificationPopup({
+  notifications,
+  featuredId,
+  selectedId,
+  onSelect,
+  onBookings,
+}: {
+  notifications: readonly InboxNotification[];
+  featuredId: string;
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+  onBookings: () => void;
+}) {
+  const featured =
+    notifications.find((item) => item.id === featuredId) ?? notifications[0] ?? null;
+  const latest = notifications.slice(0, 5);
+
+  if (!featured) return null;
+
+  return (
+    <aside
+      className="pointer-events-auto absolute top-1/2 z-50 flex w-[118px] -translate-y-1/2 flex-col overflow-hidden rounded-[18px] border bg-white"
+      style={{
+        right: -54,
+        borderColor: HAIRLINE,
+        boxShadow: POPUP_PANEL_SHADOW,
+        zIndex: SALTMINE_ONBOARDING_PORTAL_Z_INDEX + 1,
+      }}
+      aria-label={content.inboxNotificationPopupLabel}
+    >
+      <p
+        className={`m-0 px-2 pt-2 text-center font-bold tabular-nums tracking-[-0.02em] ${TEXT_XS}`}
+        style={{ color: SALTMINE.text }}
+      >
+        {INBOX_NOTIFICATION_POPUP_TIME}
+      </p>
+
+      <div className="px-1.5 pt-1">
+        <button
+          type="button"
+          onClick={() => onSelect(featured.id)}
+          aria-pressed={selectedId === featured.id}
+          aria-label={`${content.inboxNotificationOpenLabel}: ${featured.title}`}
+          className={`flex w-full items-center gap-1 rounded-full px-1.5 py-1 text-left ${FOCUS_RING}`}
+          style={{ backgroundColor: "#1C252E" }}
+        >
+          <NotificationAvatar notification={featured} size={16} />
+          <span className="min-w-0 flex-1">
+            <span
+              className={`block truncate font-semibold ${TEXT_MICRO}`}
+              style={{ color: "#FFFFFF" }}
+            >
+              {featured.title}
+            </span>
+          </span>
+          <span
+            className={`shrink-0 font-medium tabular-nums ${TEXT_MICRO}`}
+            style={{ color: "rgba(255, 255, 255, 0.72)" }}
+          >
+            09:45
+          </span>
+        </button>
+      </div>
+
+      <div className="min-h-0 flex-1 px-1.5 py-1">
+        <p
+          className={`m-0 mb-0.5 px-0.5 font-bold uppercase tracking-[0.06em] ${TEXT_MICRO}`}
+          style={{ color: SALTMINE.textMuted }}
+        >
+          {content.inboxNotificationPopupLatestLabel}
+        </p>
+        <ul className="m-0 list-none space-y-0.5 p-0" aria-label={content.inboxNotificationPopupLatestLabel}>
+          {latest.map((notification) => (
+            <li key={`popup-${notification.id}`}>
+              <InboxNotificationPopupRow
+                notification={notification}
+                selected={selectedId === notification.id}
+                onSelect={() => onSelect(notification.id)}
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div
+        className="border-t px-1.5 py-1"
+        style={{ borderColor: HAIRLINE, backgroundColor: "#FAFBFC" }}
+      >
+        <button
+          type="button"
+          onClick={onBookings}
+          className={`flex min-h-6 w-full items-center justify-center gap-0.5 rounded-[6px] font-semibold ${TEXT_MICRO} ${FOCUS_RING}`}
+          style={{ color: SALTMINE.textSecondary }}
+        >
+          <ClipboardList className="h-2.5 w-2.5 shrink-0" strokeWidth={ICON_STROKE} aria-hidden />
+          {content.inboxNotificationPopupBookingsLabel}
+        </button>
+      </div>
+    </aside>
   );
 }
 
@@ -475,7 +615,7 @@ export function InboxMainView({
       </div>
 
       <ul
-        className="m-0 min-h-0 flex-1 list-none space-y-1 overflow-y-auto p-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="no-scrollbar m-0 min-h-0 flex-1 list-none space-y-1 overflow-y-auto p-0"
         aria-label="Inbox notifications"
       >
         {notifications.length === 0 ? (

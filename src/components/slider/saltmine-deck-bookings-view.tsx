@@ -18,6 +18,11 @@ import {
   X,
 } from "lucide-react";
 import { FOCUS_RING } from "@/lib/a11y";
+import {
+  SaltmineDeckAvatar,
+  SALTMINE_AVATAR_SCALE,
+  saltmineAvatarOverlap,
+} from "@/components/slider/saltmine-initial-avatar";
 import { SALTMINE_BOOKINGS_DASHBOARD_CONTENT } from "@/lib/saltmine-bookings-dashboard-content";
 import {
   DECK_OFFICE_PRESENCE,
@@ -40,7 +45,7 @@ const ICON_STROKE = 1.65;
 const TEXT_XS = "text-[9px] leading-[13px]";
 const TEXT_2XS = "text-[8px] leading-[11px]";
 const TEXT_MICRO = "text-[7px] leading-[10px]";
-const ATTENDEE_SIZE = 16;
+const ATTENDEE_SIZE = 18;
 
 const WEATHER_ICONS: Record<DeckWeatherIcon, typeof Cloud> = {
   cloud: Cloud,
@@ -84,7 +89,7 @@ function AttendeeStatusBadge({ status }: { status: DeckBookingAttendee["status"]
   );
 }
 
-const ALL_DAY_DETAIL_KINDS = new Set<DeckBookingKind>(["parking", "desk"]);
+const BOOKING_DETAIL_KINDS = new Set<DeckBookingKind>(["parking", "desk", "meeting"]);
 
 const KIND_ICONS: Record<DeckBookingKind, typeof Car> = {
   parking: Car,
@@ -92,38 +97,29 @@ const KIND_ICONS: Record<DeckBookingKind, typeof Car> = {
   meeting: Video,
 };
 
-function avatarLetter(label: string) {
-  return label.charAt(0).toUpperCase();
-}
-
 function DeckAvatarStack({
   people,
   size = 14,
   showEmptyPlaceholder = false,
+  maxVisible,
 }: {
-  people: readonly { initials?: string; letter?: string; color: string }[];
+  people: readonly { initials?: string; letter?: string; color: string; memberId?: string }[];
   size?: number;
   showEmptyPlaceholder?: boolean;
+  maxVisible?: number;
 }) {
-  const fontSize = Math.round(size * 0.5 * 10) / 10;
-
   if (people.length === 0 && showEmptyPlaceholder) {
+    const overlap = saltmineAvatarOverlap(size);
     return (
-      <span className="inline-flex shrink-0 items-center -space-x-[3px]" aria-hidden>
-        {["#94A3B8", "#CBD5E1"].map((fill, index) => (
-          <span
-            key={fill}
-            className="inline-flex shrink-0 items-center justify-center rounded-full border-[1.5px] border-white font-bold text-white"
-            style={{
-              width: size,
-              height: size,
-              fontSize: size * 0.42,
-              backgroundColor: fill,
-              zIndex: 2 - index,
-            }}
-          >
-            {index === 0 ? "?" : ""}
-          </span>
+      <span className="inline-flex shrink-0 items-center py-px" aria-hidden>
+        {["placeholder-a", "placeholder-b"].map((key, index) => (
+          <SaltmineDeckAvatar
+            key={key}
+            size={size}
+            placeholder
+            stacked
+            style={{ zIndex: 2 - index, marginLeft: index === 0 ? 0 : -overlap }}
+          />
         ))}
       </span>
     );
@@ -131,27 +127,27 @@ function DeckAvatarStack({
 
   if (people.length === 0) return null;
 
+  const overlap = saltmineAvatarOverlap(size);
+  const visiblePeople =
+    maxVisible != null && maxVisible > 0 ? people.slice(0, maxVisible) : people;
+  const stackOverlap = visiblePeople.length > 1;
+
   return (
-    <span className="inline-flex shrink-0 items-center -space-x-[3px]" aria-hidden>
-      {people.map((person, index) => {
-        const letter = avatarLetter(person.letter ?? person.initials ?? "?");
-        return (
-          <span
-            key={`${letter}-${index}`}
-            className="inline-flex shrink-0 items-center justify-center rounded-full border-[1.5px] border-white font-bold leading-none text-white"
-            style={{
-              width: size,
-              height: size,
-              fontSize,
-              lineHeight: 1,
-              backgroundColor: person.color,
-              zIndex: people.length - index,
-            }}
-          >
-            <span className="block translate-y-px leading-none">{letter}</span>
-          </span>
-        );
-      })}
+    <span className="inline-flex shrink-0 items-center py-px" aria-hidden>
+      {visiblePeople.map((person, index) => (
+        <SaltmineDeckAvatar
+          key={`${person.memberId ?? person.letter ?? person.initials ?? "?"}-${index}`}
+          memberId={person.memberId}
+          letter={person.letter ?? person.initials}
+          color={person.color}
+          size={size}
+          stacked={stackOverlap}
+          style={{
+            zIndex: visiblePeople.length - index,
+            marginLeft: index === 0 ? 0 : -overlap,
+          }}
+        />
+      ))}
     </span>
   );
 }
@@ -160,17 +156,14 @@ function DeckBookingCard({
   booking,
   onAction,
   onSelect,
-  onMeetingSelect,
 }: {
   booking: DeckBookingItem;
   onAction: (label: string) => void;
   onSelect?: () => void;
-  onMeetingSelect?: () => void;
 }) {
   const KindIcon = KIND_ICONS[booking.kind];
   const isMeeting = booking.kind === "meeting";
-  const isSelectable = ALL_DAY_DETAIL_KINDS.has(booking.kind) && Boolean(onSelect);
-  const isMeetingSelectable = isMeeting && Boolean(onMeetingSelect);
+  const isSelectable = BOOKING_DETAIL_KINDS.has(booking.kind) && Boolean(onSelect);
   const accentColor = isMeeting ? "#F59E0B" : "#EF4444";
   const titleColor = isMeeting ? "#F59E0B" : SALTMINE.text;
   const actionLabel = booking.action === "check-out" ? "Check out" : "Check in";
@@ -198,22 +191,7 @@ function DeckBookingCard({
             type="button"
             aria-label={`${content.bookingDetailOpenLabel} ${booking.title}`}
             onClick={onSelect}
-            className={`min-w-0 flex-1 rounded-[4px] text-left ${FOCUS_RING}`}
-          >
-            <BookingCardBody
-              KindIcon={KindIcon}
-              booking={booking}
-              isMeeting={isMeeting}
-              accentColor={accentColor}
-              titleColor={titleColor}
-            />
-          </button>
-        ) : isMeetingSelectable ? (
-          <button
-            type="button"
-            aria-label={`${content.monthlyCalendarOpenLabel} ${booking.title}`}
-            onClick={onMeetingSelect}
-            className={`min-w-0 flex-1 rounded-[4px] text-left ${FOCUS_RING}`}
+            className="min-w-0 flex-1 rounded-[4px] text-left outline-none focus:outline-none focus-visible:outline-none"
           >
             <BookingCardBody
               KindIcon={KindIcon}
@@ -282,29 +260,23 @@ function BookingCardBody({
         {booking.time} • {booking.duration} • {booking.location}
       </p>
       {booking.attendees?.length ? (
-        <div className="mt-1.5 flex items-center">
+        <div className="mt-1.5 flex items-center overflow-visible">
           {booking.attendees.map((person, index) => (
             <span
               key={`${person.letter}-${index}`}
               className="relative inline-flex"
               style={{
-                marginLeft: index === 0 ? 0 : -6,
+                marginLeft: index === 0 ? 0 : -Math.round(6 * SALTMINE_AVATAR_SCALE),
                 zIndex: booking.attendees!.length - index,
               }}
               aria-hidden
             >
-              <span
-                className="inline-flex items-center justify-center rounded-full border-[1.5px] border-white font-bold leading-none text-white"
-                style={{
-                  width: ATTENDEE_SIZE,
-                  height: ATTENDEE_SIZE,
-                  fontSize: ATTENDEE_SIZE * 0.5,
-                  backgroundColor: person.color,
-                  lineHeight: 1,
-                }}
-              >
-                <span className="block translate-y-px leading-none">{person.letter}</span>
-              </span>
+              <SaltmineDeckAvatar
+                letter={person.letter}
+                color={person.color}
+                size={ATTENDEE_SIZE}
+                stacked={booking.attendees!.length > 1}
+              />
               {isMeeting ? (
                 <AttendeeStatusBadge status={person.status ?? "accepted"} />
               ) : null}
@@ -321,13 +293,11 @@ function BookingTimelineGroup({
   bookings,
   onBookingAction,
   onBookingSelect,
-  onMeetingSelect,
 }: {
   label: string;
   bookings: readonly DeckBookingItem[];
   onBookingAction: (label: string) => void;
   onBookingSelect?: (bookingId: string) => void;
-  onMeetingSelect?: () => void;
 }) {
   if (bookings.length === 0) return null;
 
@@ -345,12 +315,9 @@ function BookingTimelineGroup({
           booking={booking}
           onAction={onBookingAction}
           onSelect={
-            ALL_DAY_DETAIL_KINDS.has(booking.kind) && onBookingSelect
+            BOOKING_DETAIL_KINDS.has(booking.kind) && onBookingSelect
               ? () => onBookingSelect(booking.id)
               : undefined
-          }
-          onMeetingSelect={
-            booking.kind === "meeting" && onMeetingSelect ? onMeetingSelect : undefined
           }
         />
       ))}
@@ -373,13 +340,16 @@ export function DeckDaySection({
   presenceMode = "team",
   occupancyHighlight,
   emptyState,
-  isCalendarSelected = false,
   workLocationBadge,
+  hideDayHeader = false,
+  hideBookings = false,
+  presenceRowOnly = false,
+  presenceCompact = false,
+  avatarStackSize = 14,
   onView,
   onAddBooking,
   onBookingAction,
   onBookingSelect,
-  onMeetingSelect,
   onExternalLink,
   onRepeatDesk,
 }: {
@@ -397,13 +367,16 @@ export function DeckDaySection({
   presenceMode?: "team" | "ghost";
   occupancyHighlight?: string;
   emptyState?: "repeat-desk";
-  isCalendarSelected?: boolean;
   workLocationBadge?: ReactNode;
+  hideDayHeader?: boolean;
+  hideBookings?: boolean;
+  presenceRowOnly?: boolean;
+  presenceCompact?: boolean;
+  avatarStackSize?: number;
   onView: () => void;
   onAddBooking: () => void;
   onBookingAction: (label: string) => void;
   onBookingSelect?: (bookingId: string) => void;
-  onMeetingSelect?: () => void;
   onExternalLink: () => void;
   onRepeatDesk?: () => void;
 }) {
@@ -430,19 +403,77 @@ export function DeckDaySection({
     </span>
   );
 
+  const presenceRow = (
+    <div
+      className={`rounded-[8px] ${presenceCompact ? "px-1.5 py-0.5" : "px-2 py-1"}`}
+      style={{
+        border: `1px solid rgba(145, 158, 171, 0.38)`,
+        backgroundColor: "rgba(244, 246, 248, 0.72)",
+      }}
+    >
+      <div className={`flex items-center justify-between ${presenceCompact ? "gap-1.5" : "gap-2"}`}>
+        <div
+          className={`flex min-w-0 flex-1 items-center overflow-visible ${presenceCompact ? "gap-1" : "gap-1.5"} ${TEXT_2XS}`}
+          style={{ color: SALTMINE.textMuted }}
+        >
+          <MapPin
+            className="h-2.5 w-2.5 shrink-0"
+            strokeWidth={ICON_STROKE}
+            style={{ color: SALTMINE.primary }}
+            aria-hidden
+          />
+          <span className="shrink-0 font-medium" style={{ color: SALTMINE.textSecondary }}>
+            At {officeName}:
+          </span>
+          {presenceMode === "ghost" ? (
+            <span
+              className="inline-flex h-3 w-3 shrink-0 items-center justify-center text-[9px] leading-none"
+              aria-hidden
+            >
+              👻
+            </span>
+          ) : (
+            <>
+              <span className="shrink-0 overflow-visible">
+                <DeckAvatarStack
+                  people={coworkers}
+                  size={avatarStackSize}
+                  showEmptyPlaceholder={showEmptyPlaceholder}
+                  maxVisible={presenceCompact ? 3 : 5}
+                />
+              </span>
+              <span className="min-w-0 truncate">
+                {occupancyHighlight ?? occupancyLabel}
+              </span>
+            </>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={onView}
+          className={`inline-flex h-5 min-w-[36px] shrink-0 items-center justify-center rounded-[6px] border px-1.5 font-semibold leading-none transition-colors duration-150 hover:bg-[rgba(0,111,236,0.06)] ${TEXT_MICRO} ${FOCUS_RING}`}
+          style={{
+            borderColor: "rgba(0, 111, 236, 0.24)",
+            color: SALTMINE.primary,
+            backgroundColor: "transparent",
+          }}
+        >
+          {content.viewButtonLabel}
+        </button>
+      </div>
+    </div>
+  );
+
+  if (presenceRowOnly) {
+    return presenceRow;
+  }
+
   return (
     <section
-      className={`relative space-y-1 rounded-[8px] pl-1.5 transition-[box-shadow] duration-150 ${isCalendarSelected ? "ring-2 ring-[rgba(0,111,236,0.35)] ring-offset-1" : ""}`}
+      className="relative space-y-1 rounded-[8px] transition-[box-shadow] duration-150"
       aria-label={title}
     >
-      {isToday ? (
-        <span
-          className="absolute bottom-1 left-0 top-1 w-0.5 rounded-full"
-          style={{ backgroundColor: SALTMINE.primary }}
-          aria-hidden
-        />
-      ) : null}
-
+      {hideDayHeader ? null : (
       <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-1">
           <h3
@@ -490,63 +521,9 @@ export function DeckDaySection({
           </button>
         </div>
       </div>
+      )}
 
-      <div
-        className="rounded-[8px] px-2 py-1"
-        style={{
-          border: `1px solid rgba(145, 158, 171, 0.38)`,
-          backgroundColor: "rgba(244, 246, 248, 0.72)",
-        }}
-      >
-        <div className="flex items-center justify-between gap-2">
-          <p className={`m-0 flex min-w-0 items-center gap-1 ${TEXT_2XS}`} style={{ color: SALTMINE.textMuted }}>
-            <MapPin
-              className="h-2.5 w-2.5 shrink-0"
-              strokeWidth={ICON_STROKE}
-              style={{ color: SALTMINE.primary }}
-              aria-hidden
-            />
-            <span className="min-w-0">
-              <span className="font-medium" style={{ color: SALTMINE.textSecondary }}>
-                At {officeName}:
-              </span>{" "}
-              <span className="inline-flex items-center gap-0.5">
-                {presenceMode === "ghost" ? (
-                  <span
-                    className="inline-flex h-3 w-3 shrink-0 items-center justify-center text-[9px] leading-none"
-                    aria-hidden
-                  >
-                    👻
-                  </span>
-                ) : (
-                  <>
-                    <DeckAvatarStack
-                      people={coworkers}
-                      size={12}
-                      showEmptyPlaceholder={showEmptyPlaceholder}
-                    />
-                    <span className="truncate">
-                      {occupancyHighlight ?? occupancyLabel}
-                    </span>
-                  </>
-                )}
-              </span>
-            </span>
-          </p>
-          <button
-            type="button"
-            onClick={onView}
-            className={`inline-flex h-5 min-w-[36px] shrink-0 items-center justify-center rounded-[6px] border px-1.5 font-semibold leading-none transition-colors duration-150 hover:bg-[rgba(0,111,236,0.06)] ${TEXT_MICRO} ${FOCUS_RING}`}
-            style={{
-              borderColor: "rgba(0, 111, 236, 0.24)",
-              color: SALTMINE.primary,
-              backgroundColor: "transparent",
-            }}
-          >
-            {content.viewButtonLabel}
-          </button>
-        </div>
-      </div>
+      {presenceRow}
 
       {filterEmptyMessage ? (
         <div
@@ -587,25 +564,24 @@ export function DeckDaySection({
             </button>
           ) : null}
         </div>
-      ) : bookings.length > 0 ? (
+      ) : hideBookings ? null : bookings.length > 0 ? (
         <div className="space-y-1.5">
           <BookingTimelineGroup
             label="All day"
             bookings={allDayBookings}
             onBookingAction={onBookingAction}
             onBookingSelect={onBookingSelect}
-            onMeetingSelect={onMeetingSelect}
           />
           <BookingTimelineGroup
             label="Up next"
             bookings={upNextBookings}
             onBookingAction={onBookingAction}
             onBookingSelect={onBookingSelect}
-            onMeetingSelect={onMeetingSelect}
           />
         </div>
       ) : null}
 
+      {hideBookings ? null : (
       <button
         type="button"
         onClick={onAddBooking}
@@ -619,6 +595,7 @@ export function DeckDaySection({
         <Plus className="h-3 w-3" strokeWidth={ICON_STROKE} aria-hidden />
         {content.addBookingLabel}
       </button>
+      )}
     </section>
   );
 }

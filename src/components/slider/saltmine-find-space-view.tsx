@@ -4,10 +4,10 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Image from "next/image";
 import { Check, ChevronDown, Minus, Plus } from "lucide-react";
 import { FOCUS_RING } from "@/lib/a11y";
+import { PodCluster } from "@/components/slider/saltmine-pod-cluster";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { SALTMINE_BOOKINGS_DASHBOARD_CONTENT } from "@/lib/saltmine-bookings-dashboard-content";
 import {
-  FIND_SPACE_POD_TABLE,
   FIND_SPACE_TABLE_POD,
 } from "@/lib/saltmine-find-space-data";
 import {
@@ -25,7 +25,6 @@ import {
   FIND_SPACE_FILTER_DEFINITIONS,
   FIND_SPACE_PRIMARY_FILTER_IDS,
   FIND_SPACE_SECONDARY_FILTER_IDS,
-  type DisplayDesk,
   type DisplayPod,
   type FindSpaceFilterId,
   type FindSpaceFilterValues,
@@ -49,15 +48,6 @@ const FLOOR_CANVAS_BG = "#E8ECF0";
 const MENU_SHADOW = "0 8px 24px rgba(28, 37, 46, 0.12), 0 2px 6px rgba(28, 37, 46, 0.06)";
 const ZOOM_LEVELS = [50, 75, 100, 125, 150] as const;
 const DEFAULT_ZOOM_INDEX = ZOOM_LEVELS.indexOf(100);
-
-const POD_SEAT_POSITIONS: { x: number; y: number }[] = [
-  { x: 50, y: 6.5 },
-  { x: 90, y: 35 },
-  { x: 90, y: 64 },
-  { x: 50, y: 92.5 },
-  { x: 9, y: 64 },
-  { x: 9, y: 35 },
-];
 
 function filterDefinition(id: FindSpaceFilterId) {
   return FIND_SPACE_FILTER_DEFINITIONS.find((entry) => entry.id === id)!;
@@ -99,7 +89,7 @@ function FindSpaceFilterMenu({
     <ul
       id={id}
       role="listbox"
-      className="absolute left-0 right-0 top-[calc(100%+4px)] z-[1] max-h-[140px] overflow-y-auto rounded-lg border bg-white py-0.5 shadow-lg"
+      className="no-scrollbar absolute left-0 right-0 top-[calc(100%+4px)] z-[1] max-h-[140px] overflow-y-auto rounded-lg border bg-white py-0.5 shadow-lg"
       style={{
         borderColor: HAIRLINE,
         boxShadow: MENU_SHADOW,
@@ -352,56 +342,6 @@ function FloorPlanLegend() {
   );
 }
 
-function DeskMarker({
-  desk,
-  size = 10,
-  pulse = false,
-  selected = false,
-  reducedMotion = false,
-}: {
-  desk: DisplayDesk;
-  size?: number;
-  pulse?: boolean;
-  selected?: boolean;
-  reducedMotion?: boolean;
-}) {
-  if (desk.displayStatus === "unavailable") return null;
-
-  const checkSize = Math.round(size * 0.6);
-  const pulseClass = pulse && !reducedMotion ? "animate-pulse" : "";
-
-  if (desk.displayStatus === "available") {
-    return (
-      <span
-        className={`inline-flex items-center justify-center rounded-full bg-[#22C55E] text-white ring-2 ring-transparent ${pulseClass} ${selected ? "ring-[#006FEC]" : ""}`}
-        style={{ width: size, height: size }}
-        aria-hidden
-      >
-        <Check style={{ width: checkSize, height: checkSize }} strokeWidth={3} />
-      </span>
-    );
-  }
-
-  if (desk.displayStatus === "occupied") {
-    return (
-      <span
-        className={`inline-flex items-center justify-center rounded-full border font-bold leading-none text-white ${desk.highlighted ? "border-[#006FEC] ring-2 ring-[rgba(0,111,236,0.35)]" : "border-white"} ${pulseClass} ${selected ? "ring-2 ring-[#006FEC]" : ""}`}
-        style={{
-          width: size,
-          height: size,
-          fontSize: size * 0.5,
-          backgroundColor: desk.occupantColor ?? "#637381",
-        }}
-        aria-hidden
-      >
-        <span className="block translate-y-px">{desk.occupantLetter ?? "?"}</span>
-      </span>
-    );
-  }
-
-  return null;
-}
-
 function ArtboardSlotFrame({
   slot,
   children,
@@ -470,7 +410,7 @@ function ScaledArtboard({
   const scaledH = FLOOR_PLAN_ARTBOARD.height * scale;
 
   return (
-    <div ref={hostRef} className="h-full w-full overflow-auto">
+    <div ref={hostRef} className="no-scrollbar h-full w-full overflow-auto">
       <div
         className="flex min-h-full min-w-full items-center justify-center"
         style={{ minWidth: scaledW, minHeight: scaledH }}
@@ -548,88 +488,6 @@ function FloorPlanZoomControl({
   );
 }
 
-function PodCluster({
-  pod,
-  pulseKey,
-  selectedDeskId,
-  reducedMotion,
-  onSeatClick,
-}: {
-  pod: DisplayPod;
-  pulseKey: number;
-  selectedDeskId: string | null;
-  reducedMotion: boolean;
-  onSeatClick: (deskId: string, label: string) => void;
-}) {
-  if (!pod.visible) return null;
-
-  return (
-    <div className="flex h-full w-full min-h-0 flex-col items-center" aria-label={pod.label}>
-      <p
-        className={`m-0 mb-px shrink-0 font-semibold ${TEXT_MICRO}`}
-        style={{ color: SALTMINE.textMuted }}
-      >
-        {pod.label}
-      </p>
-      <div className="relative min-h-0 w-full flex-1 p-[5%]">
-        <Image
-          src={FIND_SPACE_POD_TABLE.src}
-          alt=""
-          width={FIND_SPACE_POD_TABLE.width}
-          height={FIND_SPACE_POD_TABLE.height}
-          aria-hidden
-          className="block h-full w-full object-contain object-center"
-        />
-        {pod.desks.map((desk, index) => {
-          const pos = POD_SEAT_POSITIONS[index];
-          if (!pos) return null;
-          const base = 9;
-          const markerSize =
-            desk.displayStatus === "occupied" ? base * 2 : Math.round(base * 1.75);
-          const deskId = `${pod.id}-seat-${index}`;
-          const deskLabel = `${pod.label} · Desk ${index + 1}`;
-          const interactive = desk.displayStatus !== "unavailable";
-          const title =
-            desk.displayStatus === "available"
-              ? `${deskLabel} — available`
-              : desk.displayStatus === "occupied"
-                ? `${deskLabel} — ${desk.occupantLetter ?? "booked"}`
-                : deskLabel;
-
-          return (
-            <div
-              key={deskId}
-              className="absolute z-[1] -translate-x-1/2 -translate-y-1/2"
-              style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
-            >
-              {interactive ? (
-                <button
-                  type="button"
-                  title={title}
-                  aria-label={title}
-                  onClick={() => onSeatClick(deskId, deskLabel)}
-                  className={`rounded-full transition-transform duration-150 hover:scale-110 active:scale-95 ${FOCUS_RING}`}
-                >
-                  <DeskMarker
-                    desk={desk}
-                    size={markerSize}
-                    pulse={desk.matches}
-                    selected={selectedDeskId === deskId}
-                    reducedMotion={reducedMotion}
-                    key={`${deskId}-${pulseKey}`}
-                  />
-                </button>
-              ) : (
-                <DeskMarker desk={desk} size={markerSize} reducedMotion={reducedMotion} />
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 function MeetingTableUnit({
   label,
   available,
@@ -662,7 +520,7 @@ function MeetingTableUnit({
   );
 }
 
-function FloorPlanPods({
+export function FloorPlanPods({
   result,
   zoomPercent,
   pulseKey,
@@ -818,7 +676,7 @@ function FindSpaceListView({
 
   return (
     <ul
-      className="m-0 h-full list-none space-y-1 overflow-y-auto p-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="no-scrollbar m-0 h-full list-none space-y-1 overflow-y-auto p-2"
       aria-label="Matching spaces"
     >
       {spaces.map((space) => (

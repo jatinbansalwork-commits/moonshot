@@ -8,6 +8,8 @@ import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import {
   FLASHBACK_STORIES,
   FLASHBACK_STORY_COUNT,
+  STORY_TEXT_AFTER_TIMER_GAP_PX,
+  STORY_TIMER_BOTTOM_OFFSET_PX,
 } from "@/lib/flashback-stories";
 
 const STORY_COUNT = FLASHBACK_STORY_COUNT;
@@ -84,6 +86,7 @@ export function StoryViewOverlay({
     FLASHBACK_STORIES[
       Math.min(Math.max(currentStoryIndex, 0), STORY_COUNT - 1)
     ];
+  const isBelowTimerLayout = activeStory.layout === "below-timer";
 
   return (
     <AnimatePresence>
@@ -173,7 +176,18 @@ export function StoryViewOverlay({
             </div>
           </div>
 
-          <div className="relative flex w-full flex-1 flex-col items-center justify-center px-6">
+          <div
+            className={`relative flex w-full flex-1 flex-col items-center px-6 ${isBelowTimerLayout ? "justify-start" : "justify-center"}`}
+            style={
+              isBelowTimerLayout
+                ? {
+                    paddingTop:
+                      STORY_TIMER_BOTTOM_OFFSET_PX +
+                      STORY_TEXT_AFTER_TIMER_GAP_PX,
+                  }
+                : undefined
+            }
+          >
             <AnimatePresence mode="wait">
               <StoryViewContent key={activeStory.id} story={activeStory} />
             </AnimatePresence>

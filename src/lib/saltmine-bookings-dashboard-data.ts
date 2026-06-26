@@ -10,7 +10,7 @@ export const BOOKING_TYPE_OPTIONS = [
 ] as const;
 
 export const TEAM_OPTIONS = [
-  "Add a team!",
+  "Create a team…",
   "London Design",
   "Product",
   "Engineering",
@@ -40,13 +40,13 @@ export const SEARCH_ITEMS = [
   "Conference grid",
   "Desk 4B — Floor 21",
   "Focus room — St Mary Axe",
-  "Sarah Chen",
-  "James Okonkwo",
+  "Neha Gupta",
+  "Sanjay Menon",
 ] as const;
 
 export const COWORKERS_IN_OFFICE = [
-  { initials: "SC", name: "Sarah Chen", color: "#006FEC" },
-  { initials: "JO", name: "James Okonkwo", color: "#4D9BF7" },
+  { initials: "G", name: "Neha Gupta", color: "#006FEC", memberId: "sc" },
+  { initials: "M", name: "Sanjay Menon", color: "#4D9BF7", memberId: "jo" },
 ] as const;
 
 export const WEEKLY_DUMMY = [
