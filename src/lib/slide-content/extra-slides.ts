@@ -21,14 +21,12 @@ import { slide24 } from "@/lib/slide-content/slide-24";
 import { slide25Mobile } from "@/lib/slide-content/slide-25-mobile";
 import { slide25 } from "@/lib/slide-content/slide-25";
 import { slide26 } from "@/lib/slide-content/slide-26";
-import { slide28 } from "@/lib/slide-content/slide-28";
 
 const EXTRA_SLIDE_BACKGROUNDS = ["#ffffff", "#F6FE03", "#F6FE03"] as const;
 
 /** Deck order for slides 6+ — skips removed slide 12. */
 const EXTRA_SLIDE_ORDER = [
-  6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-  29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43,
+  6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
 ] as const;
 
 export const extraSlides: SlideDefinition[] = [
@@ -117,10 +115,6 @@ export const extraSlides: SlideDefinition[] = [
 
     if (slideNumber === 27) {
       return slide26;
-    }
-
-    if (slideNumber === 28) {
-      return slide28;
     }
 
     return {
