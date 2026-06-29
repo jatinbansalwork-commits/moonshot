@@ -306,66 +306,86 @@ function MobileBookingCard({
     ? `${booking.time} • ${booking.duration} • ${booking.location}`
     : `${booking.duration} • ${booking.location}`;
 
-  const cardBody = (
-    <>
+  const bookingMeta = (
+    <div className="min-w-0 flex-1">
+      <div className="flex min-w-0 items-center gap-1">
+        {isMeeting ? (
+          <Video
+            className="h-3 w-3 shrink-0"
+            strokeWidth={SALTMINE_MOBILE_ICON.stroke}
+            style={{ color: accentColor }}
+            aria-hidden
+          />
+        ) : null}
+        <span
+          className={`truncate ${SALTMINE_MOBILE_CARD_TITLE_CLASS}`}
+          style={{ color: titleColor }}
+        >
+          {booking.title}
+        </span>
+        {!isMeeting ? (
+          <Repeat
+            className="h-3 w-3 shrink-0 opacity-50"
+            strokeWidth={SALTMINE_MOBILE_ICON.stroke}
+            style={{ color: SALTMINE.textMuted }}
+            aria-hidden
+          />
+        ) : null}
+      </div>
+      <p className={`m-0 mt-1 ${SALTMINE_MOBILE_CAPTION_CLASS}`} style={{ color: SALTMINE.textMuted }}>
+        {subtitle}
+      </p>
+      {booking.attendees?.length ? (
+        <div className="mt-2 flex items-center overflow-visible">
+          {booking.attendees.map((person, index) => (
+            <span
+              key={`${person.letter}-${index}`}
+              className="relative inline-flex"
+              style={{
+                marginLeft: index === 0 ? 0 : -Math.round(7 * SALTMINE_AVATAR_SCALE),
+                zIndex: booking.attendees!.length - index,
+              }}
+              aria-hidden
+            >
+              <SaltmineDeckAvatar
+                letter={person.letter}
+                color={person.color}
+                size={ATTENDEE_SIZE}
+                stacked={booking.attendees!.length > 1}
+              />
+              <AttendeeStatusBadge status={person.status ?? "accepted"} />
+            </span>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+
+  const canOpenDetails = BOOKING_DETAIL_KINDS.has(booking.kind) && onSelect;
+
+  return (
+    <div
+      className={`${SALTMINE_MOBILE_CARD_CLASS} ${SALTMINE_MOBILE_CARD_PAD_CLASS}`}
+      style={{ borderColor: SALTMINE_MOBILE_CARD_BORDER_COLOR }}
+    >
       <div className="flex items-start gap-1.5">
         <span
           className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
           style={{ backgroundColor: accentColor }}
           aria-hidden
         />
-        <div className="min-w-0 flex-1">
-          <div className="flex min-w-0 items-center gap-1">
-            {isMeeting ? (
-              <Video
-                className="h-3 w-3 shrink-0"
-                strokeWidth={SALTMINE_MOBILE_ICON.stroke}
-                style={{ color: accentColor }}
-                aria-hidden
-              />
-            ) : null}
-            <span
-              className={`truncate ${SALTMINE_MOBILE_CARD_TITLE_CLASS}`}
-              style={{ color: titleColor }}
-            >
-              {booking.title}
-            </span>
-            {!isMeeting ? (
-              <Repeat
-                className="h-3 w-3 shrink-0 opacity-50"
-                strokeWidth={SALTMINE_MOBILE_ICON.stroke}
-                style={{ color: SALTMINE.textMuted }}
-                aria-hidden
-              />
-            ) : null}
-          </div>
-          <p className={`m-0 mt-1 ${SALTMINE_MOBILE_CAPTION_CLASS}`} style={{ color: SALTMINE.textMuted }}>
-            {subtitle}
-          </p>
-          {booking.attendees?.length ? (
-            <div className="mt-2 flex items-center overflow-visible">
-              {booking.attendees.map((person, index) => (
-                <span
-                  key={`${person.letter}-${index}`}
-                  className="relative inline-flex"
-                  style={{
-                    marginLeft: index === 0 ? 0 : -Math.round(7 * SALTMINE_AVATAR_SCALE),
-                    zIndex: booking.attendees!.length - index,
-                  }}
-                  aria-hidden
-                >
-                  <SaltmineDeckAvatar
-                    letter={person.letter}
-                    color={person.color}
-                    size={ATTENDEE_SIZE}
-                    stacked={booking.attendees!.length > 1}
-                  />
-                  <AttendeeStatusBadge status={person.status ?? "accepted"} />
-                </span>
-              ))}
-            </div>
-          ) : null}
-        </div>
+        {canOpenDetails ? (
+          <button
+            type="button"
+            aria-label={`${content.bookingDetailOpenLabel} ${booking.title}`}
+            onClick={onSelect}
+            className={`min-w-0 flex-1 rounded-[8px] text-left outline-none focus:outline-none focus-visible:outline-none ${FOCUS_RING}`}
+          >
+            {bookingMeta}
+          </button>
+        ) : (
+          bookingMeta
+        )}
         {!isMeeting ? (
           <button
             type="button"
@@ -389,26 +409,6 @@ function MobileBookingCard({
           {actionLabel}
         </button>
       ) : null}
-    </>
-  );
-
-  return (
-    <div
-      className={`${SALTMINE_MOBILE_CARD_CLASS} ${SALTMINE_MOBILE_CARD_PAD_CLASS}`}
-      style={{ borderColor: SALTMINE_MOBILE_CARD_BORDER_COLOR }}
-    >
-      {BOOKING_DETAIL_KINDS.has(booking.kind) && onSelect ? (
-        <button
-          type="button"
-          aria-label={`${content.bookingDetailOpenLabel} ${booking.title}`}
-          onClick={onSelect}
-          className="w-full rounded-[8px] text-left outline-none focus:outline-none focus-visible:outline-none"
-        >
-          {cardBody}
-        </button>
-      ) : (
-        cardBody
-      )}
     </div>
   );
 }

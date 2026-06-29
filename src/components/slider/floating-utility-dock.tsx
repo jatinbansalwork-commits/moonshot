@@ -5,8 +5,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   ChevronLeft,
   ChevronRight,
-  Inbox,
-  Menu,
   type LucideIcon,
 } from "lucide-react";
 import { FOCUS_RING, TARGET_HIT_AREA } from "@/lib/a11y";
@@ -18,10 +16,7 @@ type DockNavItem =
 
 const FULL_DOCK_NAV_ITEMS: DockNavItem[] = [
   { kind: "avatar", src: "/assets/jb-avatar.png", label: "JB", slideIndex: 0 },
-  { kind: "icon", icon: Menu, label: "Index", slideIndex: 4 },
-  { kind: "logo", src: "/assets/saltmine-logo.png", label: "Saltmine", slideIndex: 5 },
-  { kind: "logo", src: "/assets/kalash-logo.png", label: "Kalash", slideIndex: 27 },
-  { kind: "icon", icon: Inbox, label: "FreshPrints" },
+  { kind: "logo", src: "/assets/saltmine-logo.png", label: "Saltmine", slideIndex: 4 },
 ];
 
 const PRIMARY_DOCK_NAV_ITEMS: DockNavItem[] = [];

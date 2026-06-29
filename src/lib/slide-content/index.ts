@@ -6,7 +6,6 @@ import {
 import { aboutSlide } from "@/lib/slide-content/about";
 import { extraSlides } from "@/lib/slide-content/extra-slides";
 import { heroSlide } from "@/lib/slide-content/hero";
-import { indexSlide } from "@/lib/slide-content/slide-index";
 import { manifestSlide } from "@/lib/slide-content/manifest";
 import { preIndexSlide } from "@/lib/slide-content/pre-index";
 import type { SlideDefinition } from "@/types/slide-content";
@@ -21,7 +20,6 @@ export const SLIDES: SlideDefinition[] = [
   aboutSlide,
   preIndexSlide,
   manifestSlide,
-  indexSlide,
   ...extraSlides,
 ];
 
