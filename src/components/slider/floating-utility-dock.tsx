@@ -55,7 +55,7 @@ function DockNavButton({
       type="button"
       aria-label={ariaLabel}
       onClick={onClick}
-      className={`relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white/80 transition-colors duration-200 hover:text-white ${TARGET_HIT_AREA} ${FOCUS_RING}`}
+      className={`relative flex h-10 w-10 shrink-0 touch-manipulation items-center justify-center rounded-full text-white/80 transition-colors duration-200 hover:text-white ${TARGET_HIT_AREA} ${FOCUS_RING}`}
     >
       {children}
     </button>
@@ -80,7 +80,7 @@ export function FloatingUtilityDock({
       id={dockId}
       data-dock-id={dockId}
       aria-label={ariaLabel ?? "Utility dock"}
-      className="relative flex shrink-0 items-center gap-3 rounded-full border border-neutral-900/80 bg-black px-4 py-3 shadow-[0_24px_64px_rgba(0,0,0,0.6)]"
+      className="relative flex shrink-0 touch-manipulation items-center gap-3 rounded-full border border-neutral-900/80 bg-black px-4 py-3 shadow-[0_24px_64px_rgba(0,0,0,0.6)]"
     >
         {showPrevious ? (
           <DockNavButton ariaLabel="Previous slide" onClick={onPrevious}>

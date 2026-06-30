@@ -80,13 +80,13 @@ export function SaltmineMobileSheetHandle() {
 export function SaltmineMobileEmptyState({ children }: { children: ReactNode }) {
   return (
     <div
-      className="rounded-[16px] border border-dashed px-4 py-10 text-center"
+      className="rounded-[16px] border border-dashed px-4 py-9 text-center"
       style={{
-        borderColor: "rgba(145, 158, 171, 0.28)",
-        backgroundColor: "rgba(255, 255, 255, 0.72)",
+        borderColor: "rgba(145, 158, 171, 0.24)",
+        backgroundColor: "rgba(255, 255, 255, 0.85)",
       }}
     >
-      <p className={`m-0 ${SALTMINE_MOBILE_BODY_CLASS}`} style={{ color: SALTMINE.textMuted }}>
+      <p className={`m-0 ${SALTMINE_MOBILE_BODY_CLASS} leading-relaxed`} style={{ color: SALTMINE.textMuted }}>
         {children}
       </p>
     </div>

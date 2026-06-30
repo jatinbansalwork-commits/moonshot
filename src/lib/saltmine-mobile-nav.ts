@@ -1,7 +1,16 @@
-import { CalendarDays, type LucideIcon } from "lucide-react";
+import {
+  Bell,
+  CalendarDays,
+  LampDesk,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 
 export const SALTMINE_MOBILE_TABS = [
   { id: "bookings", label: "My bookings", icon: CalendarDays },
+  { id: "find", label: "Find a space", icon: LampDesk, disabled: true },
+  { id: "inbox", label: "Inbox", icon: Bell, disabled: true },
+  { id: "teams", label: "My teams", icon: Users, disabled: true },
 ] as const;
 
 export type SaltmineMobileTabId = (typeof SALTMINE_MOBILE_TABS)[number]["id"];
@@ -29,6 +38,11 @@ export const SALTMINE_MOBILE_HUB_ITEMS: readonly {
 export const SALTMINE_MOBILE_TAB_BY_ID = Object.fromEntries(
   SALTMINE_MOBILE_TABS.map((tab) => [tab.id, tab]),
 ) as Record<SaltmineMobileTabId, (typeof SALTMINE_MOBILE_TABS)[number] & { icon: LucideIcon }>;
+
+export function isSaltmineMobileTabDisabled(tabId: SaltmineMobileTabId): boolean {
+  const tab = SALTMINE_MOBILE_TAB_BY_ID[tabId];
+  return "disabled" in tab && tab.disabled === true;
+}
 
 /** Comfortable tap targets for bottom tab bar (44px min per tab). */
 export const SALTMINE_MOBILE_BOTTOM_NAV_HEIGHT = 56;

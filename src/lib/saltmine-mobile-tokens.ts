@@ -154,6 +154,18 @@ export const SALTMINE_MOBILE_SURFACE_CHIP_CLASS =
 
 export const SALTMINE_MOBILE_LIST_GAP_CLASS = "space-y-3.5";
 
+/** Tighter vertical rhythm for dense lists (inbox, notifications). */
+export const SALTMINE_MOBILE_LIST_GAP_COMPACT_CLASS = "space-y-2.5";
+
+/** Active tab pill — subtle brand tint behind icon + label. */
+export const SALTMINE_MOBILE_TAB_ACTIVE_PILL_BG = "rgba(0, 111, 236, 0.09)";
+
+/** Bottom scrim so scroll content fades before FAB / tab bar. */
+export const SALTMINE_MOBILE_FAB_SCRIM_STYLE = {
+  background:
+    "linear-gradient(to top, rgba(238, 242, 246, 0.98) 0%, rgba(238, 242, 246, 0.72) 45%, rgba(238, 242, 246, 0) 100%)",
+} as const;
+
 export const SALTMINE_MOBILE_FAB_CLASS =
   `inline-flex h-14 w-14 items-center justify-center rounded-full border-2 border-white text-white transition-transform duration-150 active:scale-95 ${FOCUS_RING}`;
 
@@ -198,6 +210,11 @@ export const SALTMINE_MOBILE_STICKY_CHROME_CLASS =
 
 export const SALTMINE_MOBILE_STICKY_CHROME_SHADOW_STYLE = {
   boxShadow: SALTMINE_MOBILE_ELEVATION.chrome,
+} as const;
+
+/** Mark in-slide scroll surfaces so deck pointer routing defers to native scroll. */
+export const SALTMINE_MOBILE_SCROLL_SURFACE_ATTR = {
+  "data-slider-scroll": "",
 } as const;
 
 /** Hide scrollbars while keeping touch / wheel scroll — pair with overflow-auto/y. */

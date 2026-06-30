@@ -71,6 +71,7 @@ export function IndexSlideBlock({
       element = (
         <IndexSlideBody
           as={block.as}
+          typography={block.typography}
           className={[block.className, textAlign].filter(Boolean).join(" ")}
           fontSize={block.fontSize}
         >

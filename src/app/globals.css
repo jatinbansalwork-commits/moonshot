@@ -1069,6 +1069,20 @@ body {
   touch-action: none;
 }
 
+/* In-slide scroll surfaces — native vertical pan, no deck swipe steal */
+[data-slider-scroll],
+[data-saltmine-mobile] .overflow-y-auto,
+[data-saltmine-mobile] .overflow-auto,
+.frame-panel [data-sheet] .overflow-y-auto,
+.frame-panel [data-sheet] .overflow-auto {
+  touch-action: pan-y pinch-zoom;
+  overscroll-behavior: contain;
+}
+
+#utility-dock-cluster {
+  touch-action: manipulation;
+}
+
 /* Single font stack for all index slider copy. */
 .index-slide-type {
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;

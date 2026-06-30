@@ -67,6 +67,7 @@ import {
 import { SALTMINE_DEMO_USER } from "@/lib/saltmine-demo-personas";
 import {
   mobileBookingsSubtitle,
+  mobileDayContextLabel,
   mobileGreeting,
   mobilePresenceLead,
 } from "@/lib/slide-screens/slide-25-mobile-content";
@@ -86,6 +87,7 @@ import {
   SALTMINE_MOBILE_FAB_BOTTOM_OFFSET,
   SALTMINE_MOBILE_FAB_CLASS,
   SALTMINE_MOBILE_FAB_SCROLL_CLEARANCE,
+  SALTMINE_MOBILE_FAB_SCRIM_STYLE,
   SALTMINE_MOBILE_FAB_SHADOW_STYLE,
   SALTMINE_MOBILE_ICON,
   SALTMINE_MOBILE_ICON_BUTTON_CLASS,
@@ -100,7 +102,9 @@ import {
   SALTMINE_MOBILE_PRESS_CLASS,
   SALTMINE_MOBILE_PRIMARY_CTA_CLASS,
   SALTMINE_MOBILE_SCROLL_Y_CLASS,
+  SALTMINE_MOBILE_SCROLL_SURFACE_ATTR,
   SALTMINE_MOBILE_SECONDARY_CLASS,
+  SALTMINE_MOBILE_SECTION_EYEBROW_CLASS,
   SALTMINE_MOBILE_STICKY_CHROME_CLASS,
   SALTMINE_MOBILE_STICKY_CHROME_SHADOW_STYLE,
   SALTMINE_MOBILE_SURFACE_CHIP_CLASS,
@@ -127,6 +131,14 @@ const MOBILE_WEEK_STRIP = [
 
 const DEFAULT_SELECTED = { monthIndex: 0, day: 30 } as const;
 const TODAY_RING = { monthIndex: 1, day: 3 } as const;
+const TOMORROW_RING = { monthIndex: 0, day: 31 } as const;
+
+function isSameCalendarDay(
+  a: { monthIndex: number; day: number },
+  b: { monthIndex: number; day: number },
+): boolean {
+  return a.monthIndex === b.monthIndex && a.day === b.day;
+}
 
 const BOOKING_DETAIL_KINDS = new Set<DeckBookingKind>(["parking", "desk", "meeting"]);
 
@@ -210,11 +222,13 @@ function MobileWeekStrip({
 function MobilePresenceRow({
   avatars,
   leadLabel,
+  count,
   onPress,
   reducedMotion,
 }: {
   avatars: readonly { initials: string; color: string; memberId: string }[];
   leadLabel: string;
+  count: number;
   onPress: () => void;
   reducedMotion: boolean;
 }) {
@@ -224,37 +238,62 @@ function MobilePresenceRow({
     <button
       type="button"
       onClick={onPress}
-      className={`w-full rounded-[14px] border px-4 py-3.5 text-left ${pressClass} ${FOCUS_RING}`}
+      className={`w-full rounded-[14px] border bg-white px-4 py-3 text-left ${pressClass} ${FOCUS_RING}`}
       style={{
-        backgroundColor: "rgba(0, 111, 236, 0.05)",
-        borderColor: "rgba(0, 111, 236, 0.12)",
+        borderColor: "rgba(145, 158, 171, 0.2)",
         ...SALTMINE_MOBILE_CARD_SHADOW_STYLE,
       }}
       aria-label={`View who is in the office — ${leadLabel}`}
     >
-      <div className="flex flex-col gap-2.5">
-        <div className="flex min-w-0 items-start justify-between gap-2">
+      <div className="flex items-center gap-3">
+        <div
+          className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-[12px]"
+          style={{
+            backgroundColor: count > 0 ? "rgba(0, 111, 236, 0.08)" : "rgba(145, 158, 171, 0.1)",
+          }}
+          aria-hidden
+        >
+          <span
+            className={`${SALTMINE_MOBILE_BODY_CLASS} font-bold tabular-nums leading-none`}
+            style={{ color: count > 0 ? SALTMINE.primary : SALTMINE.textMuted }}
+          >
+            {count}
+          </span>
+          <span
+            className={`mt-0.5 ${SALTMINE_MOBILE_CAPTION_CLASS} font-semibold leading-none`}
+            style={{ color: SALTMINE.textMuted }}
+          >
+            in
+          </span>
+        </div>
+        <div className="min-w-0 flex-1">
           <p
-            className={`m-0 min-w-0 flex-1 ${SALTMINE_MOBILE_CAPTION_CLASS} font-semibold leading-snug`}
+            className={`m-0 ${SALTMINE_MOBILE_SECTION_EYEBROW_CLASS}`}
+            style={{ color: SALTMINE.textMuted }}
+          >
+            Who&apos;s in today
+          </p>
+          <p
+            className={`m-0 mt-1 ${SALTMINE_MOBILE_SECONDARY_CLASS} font-semibold leading-snug`}
             style={{ color: SALTMINE.text }}
           >
             {leadLabel}
           </p>
-          <ChevronRight
-            className="mt-0.5 h-4 w-4 shrink-0 opacity-45"
-            strokeWidth={SALTMINE_MOBILE_ICON.stroke}
-            style={{ color: SALTMINE.textMuted }}
-            aria-hidden
-          />
+          <div className="mt-2 min-w-0 overflow-hidden">
+            <SaltmineAvatarStack
+              people={avatars}
+              size={PRESENCE_AVATAR_SIZE}
+              maxVisible={5}
+              overflowClassName={`${SALTMINE_MOBILE_CAPTION_CLASS} font-bold`}
+            />
+          </div>
         </div>
-        <div className="flex min-w-0 items-center overflow-hidden">
-          <SaltmineAvatarStack
-            people={avatars}
-            size={PRESENCE_AVATAR_SIZE}
-            maxVisible={5}
-            overflowClassName={`${SALTMINE_MOBILE_CAPTION_CLASS} font-bold`}
-          />
-        </div>
+        <ChevronRight
+          className="h-4 w-4 shrink-0 opacity-40"
+          strokeWidth={SALTMINE_MOBILE_ICON.stroke}
+          style={{ color: SALTMINE.textMuted }}
+          aria-hidden
+        />
       </div>
     </button>
   );
@@ -283,14 +322,12 @@ function MobileBookingCard({
   const kindLabel = BOOKING_KIND_LABEL[booking.kind];
 
   const subtitle = isMeeting
-    ? `${booking.time} · ${booking.location}`
-    : booking.duration
-      ? `${booking.time} · ${booking.duration} · ${booking.location}`
-      : `${booking.time} · ${booking.location}`;
+    ? booking.location
+    : [booking.duration, booking.location].filter(Boolean).join(" · ");
 
   const bookingMeta = (
     <div className="min-w-0 flex-1 py-0.5">
-      <div className="mb-1.5 flex min-w-0 items-center gap-1.5">
+      <div className="mb-2 flex min-w-0 items-center justify-between gap-2">
         <span
           className={SALTMINE_MOBILE_KIND_BADGE_CLASS}
           style={{
@@ -300,16 +337,14 @@ function MobileBookingCard({
         >
           {kindLabel}
         </span>
-        {!isMeeting ? (
-          <Repeat
-            className="h-3 w-3 shrink-0 opacity-45"
-            strokeWidth={SALTMINE_MOBILE_ICON.stroke}
-            style={{ color: SALTMINE.textMuted }}
-            aria-hidden
-          />
-        ) : null}
+        <span
+          className={`shrink-0 ${SALTMINE_MOBILE_BODY_CLASS} font-bold tabular-nums`}
+          style={{ color: SALTMINE.text }}
+        >
+          {booking.time}
+        </span>
       </div>
-      <div className="flex min-w-0 items-center gap-1">
+      <div className="flex min-w-0 items-center gap-1.5">
         {isMeeting ? (
           <Video
             className="h-3.5 w-3.5 shrink-0"
@@ -317,7 +352,14 @@ function MobileBookingCard({
             style={{ color: accentColor }}
             aria-hidden
           />
-        ) : null}
+        ) : (
+          <Repeat
+            className="h-3 w-3 shrink-0 opacity-45"
+            strokeWidth={SALTMINE_MOBILE_ICON.stroke}
+            style={{ color: SALTMINE.textMuted }}
+            aria-hidden
+          />
+        )}
         <span
           className={`truncate ${SALTMINE_MOBILE_CARD_TITLE_CLASS}`}
           style={{ color: titleColor }}
@@ -518,11 +560,16 @@ export function SaltmineMobileBookingsView({
   }
 
   const showDailyChrome = bookingsViewMode === "Daily";
+  const isTodaySelected = isSameCalendarDay(selectedDate, TODAY_RING);
+  const isTomorrowSelected = isSameCalendarDay(selectedDate, TOMORROW_RING);
+  const dayTitle = formatMobileDayTitle(timelineDay);
+  const dayContextLabel = mobileDayContextLabel(dayTitle, isTodaySelected, isTomorrowSelected);
   const presenceLead = mobilePresenceLead(occupancyCount, teamName);
   const bookingsSubtitle = mobileBookingsSubtitle(
-    formatMobileDayTitle(timelineDay),
+    dayTitle,
     filteredBookings.length,
     displayName,
+    isTodaySelected,
   );
 
   return (
@@ -598,6 +645,7 @@ export function SaltmineMobileBookingsView({
       </div>
 
       <div
+        {...SALTMINE_MOBILE_SCROLL_SURFACE_ATTR}
         className={`${SALTMINE_MOBILE_SCROLL_Y_CLASS} ${SALTMINE_MOBILE_CONTENT_X_CLASS} pt-4`}
         style={{
           paddingBottom:
@@ -607,6 +655,14 @@ export function SaltmineMobileBookingsView({
       >
         {showDailyChrome ? (
           <>
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <p
+                className={`m-0 ${SALTMINE_MOBILE_SECTION_EYEBROW_CLASS}`}
+                style={{ color: isTodaySelected ? SALTMINE.primary : SALTMINE.textMuted }}
+              >
+                {dayContextLabel}
+              </p>
+            </div>
             <div className="mb-4 flex flex-col gap-3">
               <div className="flex flex-wrap items-center gap-1.5">
                 <div ref={locationRef} className="relative">
@@ -674,6 +730,7 @@ export function SaltmineMobileBookingsView({
               <MobilePresenceRow
                 avatars={avatars}
                 leadLabel={presenceLead}
+                count={occupancyCount}
                 onPress={() => setPresenceOpen(true)}
                 reducedMotion={reducedMotion}
               />
@@ -764,20 +821,27 @@ export function SaltmineMobileBookingsView({
       </div>
 
       {showDailyChrome && !addMenuOpen ? (
-        <button
-          type="button"
-          aria-label={content.addBookingLabel}
-          aria-expanded={addMenuOpen}
-          onClick={() => setAddMenuOpen(true)}
-          className={`absolute right-4 z-20 ${SALTMINE_MOBILE_FAB_CLASS} ${reducedMotion ? "" : SALTMINE_MOBILE_PRESS_CLASS}`}
-          style={{
-            bottom: SALTMINE_MOBILE_FAB_BOTTOM_OFFSET,
-            backgroundColor: SALTMINE.primary,
-            ...SALTMINE_MOBILE_FAB_SHADOW_STYLE,
-          }}
-        >
-          <Plus className="h-5 w-5" strokeWidth={2.2} aria-hidden />
-        </button>
+        <>
+          <div
+            className="pointer-events-none absolute inset-x-0 z-10 h-24"
+            style={{ bottom: 0, ...SALTMINE_MOBILE_FAB_SCRIM_STYLE }}
+            aria-hidden
+          />
+          <button
+            type="button"
+            aria-label={content.addBookingLabel}
+            aria-expanded={addMenuOpen}
+            onClick={() => setAddMenuOpen(true)}
+            className={`absolute right-4 z-20 ${SALTMINE_MOBILE_FAB_CLASS} ${reducedMotion ? "" : SALTMINE_MOBILE_PRESS_CLASS}`}
+            style={{
+              bottom: SALTMINE_MOBILE_FAB_BOTTOM_OFFSET,
+              backgroundColor: SALTMINE.primary,
+              ...SALTMINE_MOBILE_FAB_SHADOW_STYLE,
+            }}
+          >
+            <Plus className="h-5 w-5" strokeWidth={2.2} aria-hidden />
+          </button>
+        </>
       ) : null}
 
       <SaltmineMobileAddBookingSheet

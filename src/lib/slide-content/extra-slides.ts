@@ -19,14 +19,13 @@ import { slide20 } from "@/lib/slide-content/slide-20";
 import { slide21 } from "@/lib/slide-content/slide-21";
 import { slide22 } from "@/lib/slide-content/slide-22";
 import { slide23 } from "@/lib/slide-content/slide-23";
-import { slide24 } from "@/lib/slide-content/slide-24";
 import { slide25Mobile } from "@/lib/slide-content/slide-25-mobile";
 import { slide25 } from "@/lib/slide-content/slide-25";
 import { slide26 } from "@/lib/slide-content/slide-26";
 
-/** Deck order — value (28) after What I Learned (27); onboarding (17) before future plan. */
+/** Deck order — onboarding (17) after solution (16); value (28) after What I Learned (27). */
 const EXTRA_SLIDE_ORDER = [
-  6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 17,
+  6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 26, 27, 28,
 ] as const;
 
 export const extraSlides: SlideDefinition[] = [
@@ -107,10 +106,6 @@ export const extraSlides: SlideDefinition[] = [
 
     if (slideNumber === 23) {
       return slide23;
-    }
-
-    if (slideNumber === 24) {
-      return slide24;
     }
 
     if (slideNumber === 25) {

@@ -10,7 +10,7 @@ const ICON_STROKE = 2;
 export function SaltmineMobileStatusBar({ time = "10:21" }: { time?: string }) {
   return (
     <div
-      className="relative z-10 flex shrink-0 items-center justify-between px-5"
+      className="relative z-10 flex shrink-0 items-center justify-between px-5 pb-0.5 pt-1"
       style={{ height: SALTMINE_MOBILE_STATUS_BAR_HEIGHT }}
       aria-hidden
     >

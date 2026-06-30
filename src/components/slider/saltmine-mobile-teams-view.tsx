@@ -16,6 +16,7 @@ import {
   SALTMINE_MOBILE_CARD_PAD_CLASS,
   SALTMINE_MOBILE_CARD_SHADOW_STYLE,
   SALTMINE_MOBILE_CARD_TITLE_CLASS,
+  SALTMINE_MOBILE_CAPTION_CLASS,
   SALTMINE_MOBILE_CONTENT_BOTTOM_PADDING,
   SALTMINE_MOBILE_CONTENT_X_CLASS,
   SALTMINE_MOBILE_ICON,
@@ -23,7 +24,9 @@ import {
   SALTMINE_MOBILE_LIST_GAP_CLASS,
   SALTMINE_MOBILE_OUTLINE_BUTTON_CLASS,
   SALTMINE_MOBILE_SCROLL_Y_CLASS,
+  SALTMINE_MOBILE_SCROLL_SURFACE_ATTR,
   SALTMINE_MOBILE_SECONDARY_CLASS,
+  SALTMINE_MOBILE_SECTION_EYEBROW_CLASS,
 } from "@/lib/saltmine-mobile-tokens";
 import { SALTMINE_BOOKINGS_DASHBOARD_CONTENT } from "@/lib/saltmine-bookings-dashboard-content";
 import { SALTMINE_PROJECT_SYNC } from "@/lib/saltmine-deck-bookings-data";
@@ -79,9 +82,15 @@ function MobileTeamCard({
           <h3 className={`m-0 truncate ${SALTMINE_MOBILE_CARD_TITLE_CLASS}`} style={{ color: SALTMINE.text }}>
             {label}
           </h3>
-          <p className={`m-0 mt-1 ${SALTMINE_MOBILE_SECONDARY_CLASS}`} style={{ color: SALTMINE.textMuted }}>
-            {team.members.length} members
-          </p>
+          <span
+            className={`mt-1.5 inline-flex h-6 items-center rounded-full px-2 ${SALTMINE_MOBILE_CAPTION_CLASS} font-semibold tabular-nums`}
+            style={{
+              backgroundColor: "rgba(145, 158, 171, 0.1)",
+              color: SALTMINE.textSecondary,
+            }}
+          >
+            {team.members.length} {team.members.length === 1 ? "member" : "members"}
+          </span>
         </div>
         <button
           type="button"
@@ -97,11 +106,26 @@ function MobileTeamCard({
         </button>
       </div>
 
-      <div className="mb-3.5 min-h-[44px]">
+      <div
+        className="mb-3.5 min-h-[44px] rounded-[10px] border px-3 py-2.5"
+        style={{
+          borderColor: "rgba(145, 158, 171, 0.16)",
+          backgroundColor: "rgba(244, 246, 248, 0.72)",
+        }}
+      >
+        <p
+          className={`m-0 mb-2 ${SALTMINE_MOBILE_SECTION_EYEBROW_CLASS}`}
+          style={{ color: SALTMINE.textMuted }}
+        >
+          Roster
+        </p>
         <MobileTeamAvatarGrid members={team.members} />
       </div>
 
-      <div className="flex justify-end">
+      <div
+        className="flex justify-end gap-2 border-t pt-3"
+        style={{ borderColor: "rgba(145, 158, 171, 0.16)" }}
+      >
         <button
           type="button"
           onClick={onDeleteTeam}
@@ -153,9 +177,16 @@ export function SaltmineMobileTeamsView({
       </SaltmineMobilePageHeader>
 
       <div
+        {...SALTMINE_MOBILE_SCROLL_SURFACE_ATTR}
         className={`${SALTMINE_MOBILE_SCROLL_Y_CLASS} ${SALTMINE_MOBILE_CONTENT_X_CLASS} pt-3 ${SALTMINE_MOBILE_LIST_GAP_CLASS}`}
         style={{ paddingBottom: SALTMINE_MOBILE_CONTENT_BOTTOM_PADDING + 16 }}
       >
+        <p
+          className={`m-0 -mt-1 ${SALTMINE_MOBILE_SECTION_EYEBROW_CLASS}`}
+          style={{ color: SALTMINE.textMuted }}
+        >
+          Your teams
+        </p>
         {teams.map((team) => (
           <MobileTeamCard
             key={team.id}

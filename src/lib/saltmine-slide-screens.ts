@@ -14,7 +14,7 @@ export interface SaltmineSlideScreenEntry {
   frameClassName?: string;
 }
 
-/** Isolated Saltmine product screens — one entry per editable surface (slides 17–24). */
+/** Isolated Saltmine product screens — one entry per editable surface (slides 17–23, 25-mobile). */
 export const SALTMINE_SLIDE_SCREENS: readonly SaltmineSlideScreenEntry[] = [
   {
     slug: "17",
@@ -83,14 +83,6 @@ export const SALTMINE_SLIDE_SCREENS: readonly SaltmineSlideScreenEntry[] = [
     label: "Inbox",
     screenFile: "src/components/slider/slide-screens/slide-23-screen.tsx",
     configFile: "src/lib/slide-screens/slide-23-config.ts",
-    framed: true,
-  },
-  {
-    slug: "24",
-    variant: "slide-24",
-    label: "Help & support",
-    screenFile: "src/components/slider/slide-screens/slide-24-screen.tsx",
-    configFile: "src/lib/slide-screens/slide-24-config.ts",
     framed: true,
   },
   {

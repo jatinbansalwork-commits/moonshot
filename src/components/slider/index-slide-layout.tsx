@@ -141,14 +141,16 @@ export function IndexSlideTitle({
 export function IndexSlideBody({
   children,
   as = "p",
+  typography,
   className = "",
   fontSize = INDEX_SLIDE_PARAGRAPH_SIZE_PX,
 }: IndexSlideTextProps) {
   const Tag = as;
+  const baseTypography = typography ?? INDEX_SLIDE_ABOUT_BODY;
 
   return (
     <Tag
-      className={`${INDEX_SLIDE_ABOUT_BODY} ${className}`}
+      className={`${baseTypography} ${className}`.trim()}
       style={{ fontSize }}
     >
       {children}

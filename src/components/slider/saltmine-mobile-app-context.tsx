@@ -13,9 +13,11 @@ import {
   DECK_TEAM_OPTIONS,
 } from "@/lib/saltmine-deck-bookings-data";
 import { WORK_LOCATION_OPTIONS } from "@/lib/saltmine-bookings-dashboard-data";
-import type {
-  SaltmineMobileBookingsViewMode,
-  SaltmineMobileOverlayRoute,
+import {
+  isSaltmineMobileTabDisabled,
+  type SaltmineMobileBookingsViewMode,
+  type SaltmineMobileOverlayRoute,
+  type SaltmineMobileTabId,
 } from "@/lib/saltmine-mobile-nav";
 
 export interface SaltmineMobileAppContextValue {
@@ -33,17 +35,24 @@ export interface SaltmineMobileAppContextValue {
   setHubOpen: (open: boolean) => void;
   searchOpen: boolean;
   setSearchOpen: (open: boolean) => void;
+  inboxBadge: boolean;
+  clearInboxBadge: () => void;
+  activeTab: SaltmineMobileTabId;
+  setActiveTab: (tab: SaltmineMobileTabId) => void;
   showToast: (message: string) => void;
+  navigateToFind: () => void;
 }
 
 const SaltmineMobileAppContext = createContext<SaltmineMobileAppContextValue | null>(null);
 
 export function SaltmineMobileAppProvider({
   displayName,
+  initialTab,
   showToast,
   children,
 }: {
   displayName: string;
+  initialTab: SaltmineMobileTabId;
   showToast: (message: string) => void;
   children: ReactNode;
 }) {
@@ -56,6 +65,8 @@ export function SaltmineMobileAppProvider({
   const [overlayRoute, setOverlayRoute] = useState<SaltmineMobileOverlayRoute | null>(null);
   const [hubOpen, setHubOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [inboxBadge, setInboxBadge] = useState(true);
+  const [activeTab, setActiveTab] = useState<SaltmineMobileTabId>(initialTab);
 
   const setFilterValue = useCallback((id: string, value: string) => {
     setFilterValues((prev) => ({ ...prev, [id]: value }));
@@ -69,6 +80,25 @@ export function SaltmineMobileAppProvider({
   const closeOverlay = useCallback(() => {
     setOverlayRoute(null);
   }, []);
+
+  const clearInboxBadge = useCallback(() => {
+    setInboxBadge(false);
+  }, []);
+
+  const navigateToFind = useCallback(() => {
+    if (isSaltmineMobileTabDisabled("find")) return;
+    setOverlayRoute(null);
+    setActiveTab("find");
+  }, []);
+
+  const handleSetActiveTab = useCallback(
+    (tab: SaltmineMobileTabId) => {
+      if (isSaltmineMobileTabDisabled(tab)) return;
+      setActiveTab(tab);
+      if (tab === "inbox") clearInboxBadge();
+    },
+    [clearInboxBadge],
+  );
 
   const value = useMemo(
     () => ({
@@ -86,7 +116,12 @@ export function SaltmineMobileAppProvider({
       setHubOpen,
       searchOpen,
       setSearchOpen,
+      inboxBadge,
+      clearInboxBadge,
+      activeTab,
+      setActiveTab: handleSetActiveTab,
       showToast,
+      navigateToFind,
     }),
     [
       displayName,
@@ -99,7 +134,12 @@ export function SaltmineMobileAppProvider({
       closeOverlay,
       hubOpen,
       searchOpen,
+      inboxBadge,
+      clearInboxBadge,
+      activeTab,
+      handleSetActiveTab,
       showToast,
+      navigateToFind,
     ],
   );
 

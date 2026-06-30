@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { Bookmark, ChevronDown, Users } from "lucide-react";
 import { FOCUS_RING } from "@/lib/a11y";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { SALTMINE_BOOKINGS_DASHBOARD_CONTENT } from "@/lib/saltmine-bookings-dashboard-content";
 import {
   DECK_BOOKING_TYPE_OPTIONS,
@@ -191,40 +192,43 @@ export function SaltmineMobileBookingsFilters({
 
   if (!expanded) {
     return (
-      <div className="flex items-center gap-2">
+      <div
+        className="flex items-center gap-2 rounded-[12px] px-2.5 py-2"
+        style={{ backgroundColor: "rgba(145, 158, 171, 0.08)" }}
+      >
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
           <span
-            className={`inline-flex h-8 max-w-[48%] items-center truncate rounded-full border px-2.5 ${SALTMINE_MOBILE_CAPTION_CLASS} font-semibold`}
+            className={`inline-flex h-7 max-w-[48%] items-center truncate rounded-full px-2.5 ${SALTMINE_MOBILE_CAPTION_CLASS} font-semibold`}
             style={{
               backgroundColor: "#FFFFFF",
-              borderColor: "rgba(145, 158, 171, 0.18)",
               color: SALTMINE.textSecondary,
+              boxShadow: "0 1px 2px rgba(28, 37, 46, 0.04)",
             }}
           >
             {bookingType}
           </span>
           <span
-            className={`inline-flex h-8 min-w-0 flex-1 items-center truncate rounded-full border px-2.5 ${SALTMINE_MOBILE_CAPTION_CLASS} font-semibold`}
+            className={`inline-flex h-7 min-w-0 flex-1 items-center truncate rounded-full px-2.5 ${SALTMINE_MOBILE_CAPTION_CLASS} font-semibold`}
             style={{
               backgroundColor: "#FFFFFF",
-              borderColor: "rgba(145, 158, 171, 0.18)",
               color: SALTMINE.textSecondary,
+              boxShadow: "0 1px 2px rgba(28, 37, 46, 0.04)",
             }}
           >
-            {team}
+            {team || "All teams"}
           </span>
         </div>
         <button
           type="button"
           onClick={() => setExpanded(true)}
-          className={`inline-flex h-11 shrink-0 items-center justify-center rounded-[10px] border px-3 ${SALTMINE_MOBILE_CAPTION_CLASS} font-semibold ${SALTMINE_MOBILE_PRESS_CLASS} ${FOCUS_RING}`}
+          aria-label="Edit filters"
+          className={`inline-flex h-11 shrink-0 items-center justify-center rounded-[10px] px-3 ${SALTMINE_MOBILE_CAPTION_CLASS} font-semibold ${SALTMINE_MOBILE_PRESS_CLASS} ${FOCUS_RING}`}
           style={{
-            borderColor: "rgba(145, 158, 171, 0.28)",
             color: SALTMINE.primary,
-            backgroundColor: "#FFFFFF",
+            backgroundColor: "transparent",
           }}
         >
-          Edit filters
+          Edit
         </button>
       </div>
     );
@@ -283,6 +287,7 @@ export function SaltmineMobileViewModeToggle({
   value: "Daily" | "Weekly" | "Monthly";
   onChange: (mode: "Daily" | "Weekly" | "Monthly") => void;
 }) {
+  const reducedMotion = useReducedMotion();
   const modes = content.viewModes;
   const activeIndex = modes.indexOf(value);
 
@@ -298,7 +303,7 @@ export function SaltmineMobileViewModeToggle({
     >
       <span
         aria-hidden
-        className="pointer-events-none absolute bottom-1 top-1 rounded-[10px] transition-transform duration-200 ease-out"
+        className={`pointer-events-none absolute bottom-1 top-1 rounded-[10px] ${reducedMotion ? "" : "transition-transform duration-200 ease-out"}`}
         style={{
           width: "calc((100% - 8px) / 3)",
           left: 4,

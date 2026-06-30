@@ -32,7 +32,6 @@ const DECK_SLIDE_ID_BY_SLUG: Record<string, string> = {
   "21": "slide-21",
   "22": "slide-22",
   "23": "slide-23",
-  "24": "slide-24",
   "25-mobile": "slide-25-mobile",
   "20-deck-day": "slide-20",
   "20-pod-cluster": "slide-20",
@@ -55,7 +54,6 @@ const FLOW_DESCRIPTIONS: Record<string, string> = {
   "21": "Booking grid — desk availability by floor with date navigation.",
   "22": "Conference grid — room blocks, filters, and booking detail popovers.",
   "23": "Inbox — notifications list with detail overlay and optional popup stack.",
-  "24": "Help & support — search overlay and workspace nav previews.",
   "25-mobile":
     "Full mobile shell: onboarding, bookings, help, and hub menu.",
   "39": "Same-day lane — desk, room, parking, cab ranked with honest alternatives.",
@@ -72,7 +70,6 @@ const FLOW_TAGS: Record<string, readonly string[]> = {
   "21": ["Desktop", "Grid"],
   "22": ["Desktop", "Grid"],
   "23": ["Desktop", "Inbox"],
-  "24": ["Desktop", "Help"],
   "25-mobile": ["Journey", "Mobile"],
   "39": ["Future plan", "Desktop"],
   "40": ["Future plan", "Desktop"],
@@ -96,7 +93,7 @@ function entryToFlow(entry: SaltmineSlideScreenEntry): SaltmineDevFlow {
 
 const JOURNEY_SLUGS = new Set(["17", "25-mobile"]);
 const COMPONENT_SLUGS = new Set(["20-deck-day", "20-pod-cluster", "20-team-list"]);
-const DESKTOP_SLUGS = new Set(["18", "19", "21", "22", "23", "24"]);
+const DESKTOP_SLUGS = new Set(["18", "19", "21", "22", "23"]);
 
 export const SALTMINE_OVERLAY_FLOWS: readonly SaltmineDevFlow[] = [
   {

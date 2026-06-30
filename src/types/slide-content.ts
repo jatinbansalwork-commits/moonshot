@@ -53,6 +53,8 @@ export interface SlideBodyBlock extends SlideBlockBase {
   text: string;
   as?: SlideTextTag;
   fontSize?: number;
+  /** Replaces default body typography classes when set. */
+  typography?: string;
   /** Casing applied at render — inferred from block type/length when omitted. */
   textCase?: TextCase;
   className?: string;

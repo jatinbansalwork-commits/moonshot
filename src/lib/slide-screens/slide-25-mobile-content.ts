@@ -25,11 +25,24 @@ export function mobileBookingsSubtitle(
   dayLabel: string,
   bookingCount: number,
   displayName?: string,
+  isToday = false,
 ): string {
   const noun = bookingCount === 1 ? "booking" : "bookings";
-  const dayPart = `${dayLabel} · ${bookingCount} ${noun}`;
+  const dayPart = isToday
+    ? `Today · ${bookingCount} ${noun}`
+    : `${dayLabel} · ${bookingCount} ${noun}`;
   if (!displayName) return dayPart;
   return `${mobileGreeting(displayName)} · ${dayPart}`;
+}
+
+export function mobileDayContextLabel(
+  dayLabel: string,
+  isToday: boolean,
+  isTomorrow: boolean,
+): string {
+  if (isToday) return "Today";
+  if (isTomorrow) return "Tomorrow";
+  return dayLabel;
 }
 
 export function mobilePresenceLead(count: number, teamName: string): string {

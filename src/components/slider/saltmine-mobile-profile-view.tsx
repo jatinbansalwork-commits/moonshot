@@ -14,6 +14,7 @@ import {
   SALTMINE_MOBILE_MENU_ITEM_CLASS,
   SALTMINE_MOBILE_PAGE_TITLE_CLASS,
   SALTMINE_MOBILE_SCROLL_Y_CLASS,
+  SALTMINE_MOBILE_SCROLL_SURFACE_ATTR,
   SALTMINE_MOBILE_SECONDARY_CLASS,
 } from "@/lib/saltmine-mobile-tokens";
 import { SALTMINE, SALTMINE_HAIRLINE } from "@/lib/saltmine-onboarding-tokens";
@@ -23,6 +24,7 @@ export function SaltmineMobileProfileView() {
 
   return (
     <div
+      {...SALTMINE_MOBILE_SCROLL_SURFACE_ATTR}
       className={`flex h-full ${SALTMINE_MOBILE_SCROLL_Y_CLASS} flex-col ${SALTMINE_MOBILE_CONTENT_X_CLASS} py-4`}
       style={{ backgroundColor: SALTMINE_MOBILE_CANVAS_BG }}
     >

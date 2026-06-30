@@ -19,16 +19,18 @@ import {
   SALTMINE_MOBILE_CARD_BORDER_COLOR,
   SALTMINE_MOBILE_CARD_CLASS,
   SALTMINE_MOBILE_CARD_PAD_CLASS,
+  SALTMINE_MOBILE_CARD_SHADOW_STYLE,
   SALTMINE_MOBILE_CARD_TITLE_CLASS,
   SALTMINE_MOBILE_CONTENT_X_CLASS,
   SALTMINE_MOBILE_ICON,
   SALTMINE_MOBILE_ICON_BUTTON_CLASS,
-  SALTMINE_MOBILE_LIST_GAP_CLASS,
+  SALTMINE_MOBILE_LIST_GAP_COMPACT_CLASS,
   SALTMINE_MOBILE_MENU_ITEM_CLASS,
   SALTMINE_MOBILE_OVERLAY_HEADER_CLASS,
   SALTMINE_MOBILE_OVERLAY_TITLE_CLASS,
   SALTMINE_MOBILE_PAGE_HEADER_STRIP_CLASS,
   SALTMINE_MOBILE_SCROLL_Y_CLASS,
+  SALTMINE_MOBILE_SCROLL_SURFACE_ATTR,
   SALTMINE_MOBILE_SECONDARY_CLASS,
   SALTMINE_MOBILE_SEGMENTED_CONTROL_CLASS,
   SALTMINE_MOBILE_SEGMENTED_TAB_CLASS,
@@ -136,45 +138,55 @@ function MobileInboxNotificationCard({
   onSelect: () => void;
   onMenu: () => void;
 }) {
+  const isUnread = notification.unread;
+
   return (
     <li>
-      {notification.relativeTime ? (
-        <p
-          className={`m-0 mb-1 text-right ${SALTMINE_MOBILE_CAPTION_CLASS} tabular-nums`}
-          style={{ color: SALTMINE.textMuted }}
-        >
-          {notification.relativeTime}
-        </p>
-      ) : null}
       <div
-        className={`flex items-center gap-2.5 ${SALTMINE_MOBILE_CARD_CLASS} ${SALTMINE_MOBILE_CARD_PAD_CLASS}`}
-        style={{ borderColor: SALTMINE_MOBILE_CARD_BORDER_COLOR }}
+        className={`flex items-center gap-2 ${SALTMINE_MOBILE_CARD_CLASS} overflow-hidden ${isUnread ? "py-3 pl-0 pr-3" : `${SALTMINE_MOBILE_CARD_PAD_CLASS} opacity-90`}`}
+        style={{
+          borderColor: isUnread ? "rgba(0, 111, 236, 0.18)" : SALTMINE_MOBILE_CARD_BORDER_COLOR,
+          backgroundColor: isUnread ? "#FFFFFF" : "rgba(255, 255, 255, 0.72)",
+          ...(isUnread ? SALTMINE_MOBILE_CARD_SHADOW_STYLE : {}),
+        }}
       >
-        <span className="flex w-2 shrink-0 justify-center" aria-hidden>
-          {notification.unread ? (
-            <span
-              className="h-1.5 w-1.5 rounded-full"
-              style={{ backgroundColor: SALTMINE.primary }}
-            />
-          ) : null}
-        </span>
+        {isUnread ? (
+          <span
+            className="w-1 shrink-0 self-stretch rounded-l-[16px]"
+            style={{ backgroundColor: SALTMINE.primary }}
+            aria-hidden
+          />
+        ) : null}
 
         <button
           type="button"
           onClick={onSelect}
           className={`flex min-w-0 flex-1 items-center gap-2.5 text-left ${FOCUS_RING}`}
-          aria-label={`${notification.title}. ${notification.subtitle}`}
+          aria-label={`${notification.title}. ${notification.subtitle}${isUnread ? ". Unread" : ""}`}
         >
           <MobileNotificationIcon notification={notification} />
           <span className="min-w-0 flex-1">
-            <span
-              className={`block truncate ${SALTMINE_MOBILE_CARD_TITLE_CLASS}`}
-              style={{ color: SALTMINE.text }}
-            >
-              {notification.title}
+            <span className="flex min-w-0 items-baseline justify-between gap-2">
+              <span
+                className={`min-w-0 truncate ${SALTMINE_MOBILE_CARD_TITLE_CLASS}`}
+                style={{
+                  color: SALTMINE.text,
+                  fontWeight: isUnread ? 700 : 600,
+                }}
+              >
+                {notification.title}
+              </span>
+              {notification.relativeTime ? (
+                <span
+                  className={`shrink-0 ${SALTMINE_MOBILE_CAPTION_CLASS} tabular-nums`}
+                  style={{ color: isUnread ? SALTMINE.primary : SALTMINE.textMuted }}
+                >
+                  {notification.relativeTime}
+                </span>
+              ) : null}
             </span>
             <span
-              className={`mt-1 block truncate ${SALTMINE_MOBILE_SECONDARY_CLASS}`}
+              className={`mt-0.5 block truncate ${SALTMINE_MOBILE_SECONDARY_CLASS}`}
               style={{ color: SALTMINE.textMuted }}
             >
               {notification.subtitle}
@@ -299,10 +311,13 @@ export function SaltmineMobileInboxView({
         <SaltmineMobileProfileButton onClick={() => openOverlay("profile")} />
         </SaltmineMobilePageHeader>
 
-        <MobileInboxSegmentedControl value={showTab} onChange={setShowTab} />
+        <div className={`${SALTMINE_MOBILE_CONTENT_X_CLASS} pb-3 pt-0`}>
+          <MobileInboxSegmentedControl value={showTab} onChange={setShowTab} />
+        </div>
       </div>
 
       <div
+        {...SALTMINE_MOBILE_SCROLL_SURFACE_ATTR}
         className={`${SALTMINE_MOBILE_SCROLL_Y_CLASS} ${SALTMINE_MOBILE_CONTENT_X_CLASS} pt-3`}
         style={{
           paddingBottom: showNotificationPopup
@@ -313,7 +328,7 @@ export function SaltmineMobileInboxView({
         {notifications.length === 0 ? (
           <SaltmineMobileEmptyState>{content.inboxEmptyLabel}</SaltmineMobileEmptyState>
         ) : (
-          <ul className={`m-0 list-none p-0 ${SALTMINE_MOBILE_LIST_GAP_CLASS}`}>
+          <ul className={`m-0 list-none p-0 ${SALTMINE_MOBILE_LIST_GAP_COMPACT_CLASS}`}>
             {notifications.map((item) => (
               <MobileInboxNotificationCard
                 key={item.id}

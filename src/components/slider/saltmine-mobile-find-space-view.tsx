@@ -13,12 +13,14 @@ import {
   SALTMINE_MOBILE_BODY_CLASS,
   SALTMINE_MOBILE_BUTTON_LABEL_CLASS,
   SALTMINE_MOBILE_CANVAS_BG,
+  SALTMINE_MOBILE_CARD_SHADOW_STYLE,
   SALTMINE_MOBILE_FAB_BOTTOM_OFFSET,
   SALTMINE_MOBILE_ICON,
   SALTMINE_MOBILE_ICON_BUTTON_CLASS,
   SALTMINE_MOBILE_PRESS_CLASS,
   SALTMINE_MOBILE_PAGE_TITLE_CLASS,
   SALTMINE_MOBILE_SCROLL_CLASS,
+  SALTMINE_MOBILE_SCROLL_SURFACE_ATTR,
   SALTMINE_MOBILE_SCROLL_Y_CLASS,
   SALTMINE_MOBILE_SHEET_CLASS,
 } from "@/lib/saltmine-mobile-tokens";
@@ -224,10 +226,14 @@ export function SaltmineMobileFindSpaceView({
       </SaltmineMobilePageHeader>
 
       <div
-        className="relative mx-4 mb-3 min-h-0 flex-1 overflow-hidden rounded-[16px] border shadow-[0_1px_2px_rgba(28,37,46,0.05)]"
-        style={{ borderColor: SALTMINE_HAIRLINE, backgroundColor: FLOOR_CANVAS_BG }}
+        className="relative mx-4 mb-3 min-h-0 flex-1 overflow-hidden rounded-[16px] border"
+        style={{
+          borderColor: SALTMINE_HAIRLINE,
+          backgroundColor: FLOOR_CANVAS_BG,
+          ...SALTMINE_MOBILE_CARD_SHADOW_STYLE,
+        }}
       >
-        <div className={`h-full min-h-0 ${SALTMINE_MOBILE_SCROLL_CLASS}`}>
+        <div {...SALTMINE_MOBILE_SCROLL_SURFACE_ATTR} className={`h-full min-h-0 ${SALTMINE_MOBILE_SCROLL_CLASS}`}>
           <FloorPlanPods
             result={floorPlanResult}
             zoomPercent={MOBILE_FLOOR_ZOOM}
@@ -247,8 +253,12 @@ export function SaltmineMobileFindSpaceView({
         <button
           type="button"
           onClick={() => setFilterSheetOpen(true)}
-          className={`pointer-events-auto inline-flex min-h-11 min-w-[240px] items-center justify-center gap-2 rounded-full border bg-white px-5 ${SALTMINE_MOBILE_BUTTON_LABEL_CLASS} shadow-[0_4px_16px_rgba(28,37,46,0.12)] ${SALTMINE_MOBILE_PRESS_CLASS} ${FOCUS_RING}`}
-          style={{ borderColor: "rgba(145, 158, 171, 0.2)", color: SALTMINE.textSecondary }}
+          className={`pointer-events-auto inline-flex min-h-11 min-w-[240px] items-center justify-center gap-2 rounded-full border bg-white px-5 ${SALTMINE_MOBILE_BUTTON_LABEL_CLASS} ${reducedMotion ? "" : SALTMINE_MOBILE_PRESS_CLASS} ${FOCUS_RING}`}
+          style={{
+            borderColor: "rgba(0, 111, 236, 0.2)",
+            color: SALTMINE.primaryDark,
+            boxShadow: "0 4px 16px rgba(28, 37, 46, 0.1)",
+          }}
         >
           <ListFilter className="h-[18px] w-[18px]" strokeWidth={SALTMINE_MOBILE_ICON.stroke} aria-hidden />
           {content.findSpaceMobileFiltersCta}

@@ -15,7 +15,7 @@ import {
   SCROLL_PER_FRAME,
 } from "@/lib/constants";
 import { FRAMES } from "@/lib/slide-content";
-import { springScale } from "@/lib/spring";
+import { springScale, springScrollSnap } from "@/lib/spring";
 import {
   trackIndexFrameNavigate,
   trackIndexFrameView,
@@ -33,6 +33,8 @@ import { getDevSlideIndex } from "@/lib/dev-slide";
 
 const WHEEL_THRESHOLD_PX = 48;
 const WHEEL_COOLDOWN_MS = 280;
+const SNAP_DURATION_MS = 720;
+const SWIPE_COMMIT_PX = 56;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -111,7 +113,9 @@ function eventTargetHasScrollableAncestor(
 }
 
 const SLIDER_POINTER_IGNORE_SELECTOR =
-  'a[href], button, [role="button"], input, textarea, select, label, summary, [contenteditable="true"], [role="dialog"]';
+  'a[href], button, [role="button"], input, textarea, select, label, summary, [contenteditable="true"], [role="dialog"], [data-slider-scroll]';
+
+const SLIDER_INTERACTIVE_SELECTOR = `${SLIDER_POINTER_IGNORE_SELECTOR}, #utility-dock-cluster, #utility-dock-cluster *`;
 
 const SLIDER_DRAG_AXIS_LOCK_PX = 8;
 const SLIDER_DRAG_AXIS_LOCK_COARSE_PX = 18;
@@ -123,7 +127,30 @@ function getSliderDragAxisLockPx(): number {
     : SLIDER_DRAG_AXIS_LOCK_PX;
 }
 
-function isInNestedScrollContainer(element: Element): boolean {
+function isScrollableAxis(
+  element: Element,
+  axis: "x" | "y",
+): boolean {
+  if (element.matches("[data-slider-scroll]")) return true;
+
+  const style = window.getComputedStyle(element);
+  if (axis === "y") {
+    return (
+      (style.overflowY === "auto" || style.overflowY === "scroll") &&
+      element.scrollHeight > element.clientHeight + 1
+    );
+  }
+
+  return (
+    (style.overflowX === "auto" || style.overflowX === "scroll") &&
+    element.scrollWidth > element.clientWidth + 1
+  );
+}
+
+function isInNestedScrollContainer(
+  element: Element,
+  axis: "x" | "y" | "any" = "any",
+): boolean {
   let node: Element | null = element;
   while (node && node !== document.documentElement && node !== document.body) {
     if (node.matches('main[data-sheet="index"]')) {
@@ -131,15 +158,12 @@ function isInNestedScrollContainer(element: Element): boolean {
       continue;
     }
 
-    const style = window.getComputedStyle(node);
-    const scrollableY =
-      (style.overflowY === "auto" || style.overflowY === "scroll") &&
-      node.scrollHeight > node.clientHeight + 1;
-    const scrollableX =
-      (style.overflowX === "auto" || style.overflowX === "scroll") &&
-      node.scrollWidth > node.clientWidth + 1;
+    if (axis === "any") {
+      if (isScrollableAxis(node, "x") || isScrollableAxis(node, "y")) return true;
+    } else if (isScrollableAxis(node, axis)) {
+      return true;
+    }
 
-    if (scrollableY || scrollableX) return true;
     node = node.parentElement;
   }
 
@@ -181,7 +205,8 @@ export function useScrollSlider() {
   const snapFrameRef = useRef<number | null>(null);
 
   const springScaleValue = useSpring(scale, springScale);
-  const slideTrackX = useTransform(trackX, (value) =>
+  const springTrackX = useSpring(trackX, springScrollSnap);
+  const slideTrackX = useTransform(springTrackX, (value) =>
     clamp(value, -maxOffset, 0),
   );
 
@@ -266,13 +291,48 @@ export function useScrollSlider() {
       navigateMethodRef.current = method;
       const clampedIndex = clamp(index, 0, frameCount - 1);
       const targetScroll = clampedIndex * SCROLL_PER_FRAME;
+      const start = readScrollOffset();
 
       cancelSnapAnimation();
-      const synced = syncScrollPosition(targetScroll);
-      updateFromScroll(synced);
-      isSnappingRef.current = false;
+      isSnappingRef.current = true;
+
+      if (reducedMotion || start === targetScroll) {
+        const synced = syncScrollPosition(targetScroll);
+        updateFromScroll(synced);
+        isSnappingRef.current = false;
+        return;
+      }
+
+      const delta = targetScroll - start;
+      const startTime = performance.now();
+
+      const tick = (now: number) => {
+        const progress = Math.min((now - startTime) / SNAP_DURATION_MS, 1);
+        const eased = 1 - (1 - progress) ** 3;
+        const value = start + delta * eased;
+        const synced = syncScrollPosition(value);
+        updateFromScroll(synced);
+
+        if (progress < 1) {
+          snapFrameRef.current = requestAnimationFrame(tick);
+          return;
+        }
+
+        syncScrollPosition(targetScroll);
+        updateFromScroll(targetScroll);
+        isSnappingRef.current = false;
+        snapFrameRef.current = null;
+      };
+
+      snapFrameRef.current = requestAnimationFrame(tick);
     },
-    [cancelSnapAnimation, frameCount, syncScrollPosition, updateFromScroll],
+    [
+      cancelSnapAnimation,
+      frameCount,
+      reducedMotion,
+      syncScrollPosition,
+      updateFromScroll,
+    ],
   );
 
   useLayoutEffect(() => {
@@ -297,13 +357,14 @@ export function useScrollSlider() {
 
     baseScaleRef.current = computeBaseScale();
     trackX.jump(-initialOffset);
+    springTrackX.jump(-initialOffset);
     minimapX.jump(initialProgress * MINIMAP_RANGE);
     scale.jump(baseScaleRef.current);
     springScaleValue.jump(baseScaleRef.current);
     frameIndexRef.current = initialIndex;
     setActiveFrameIndex(initialIndex);
     resumeIndexActiveFramePersistence();
-  }, [frameCount, maxOffset, minimapX, scale, springScaleValue, trackX]);
+  }, [frameCount, maxOffset, minimapX, scale, springScaleValue, springTrackX, trackX]);
 
   useEffect(() => {
     const scrollRange = (frameCount - 1) * SCROLL_PER_FRAME;
@@ -458,6 +519,16 @@ export function useScrollSlider() {
     const onPointerMove = (event: PointerEvent) => {
       if (event.pointerId !== activePointerId) return;
 
+      if (event.target instanceof Element) {
+        const nestedAxis =
+          dragAxis === "x" ? "x" : dragAxis === "y" ? "y" : "any";
+        if (isInNestedScrollContainer(event.target, nestedAxis)) {
+          clearPointerDrag();
+          suppressClick = false;
+          return;
+        }
+      }
+
       const axisLockPx = getSliderDragAxisLockPx();
       const deltaX = startX - event.clientX;
       const deltaY = startY - event.clientY;
@@ -471,6 +542,16 @@ export function useScrollSlider() {
         }
 
         dragAxis = Math.abs(deltaX) >= Math.abs(deltaY) ? "x" : "y";
+
+        if (
+          event.target instanceof Element &&
+          isInNestedScrollContainer(event.target, dragAxis)
+        ) {
+          clearPointerDrag();
+          suppressClick = false;
+          return;
+        }
+
         suppressClick = true;
       }
 
@@ -487,12 +568,33 @@ export function useScrollSlider() {
       if (event.pointerId !== activePointerId) return;
 
       const axisLockPx = getSliderDragAxisLockPx();
-      const totalDelta = Math.max(
-        Math.abs(startX - event.clientX),
-        Math.abs(startY - event.clientY),
-      );
+      const deltaX = startX - event.clientX;
+      const deltaY = startY - event.clientY;
+      const totalDelta = Math.max(Math.abs(deltaX), Math.abs(deltaY));
+
       if (totalDelta < axisLockPx) {
         suppressClick = false;
+        clearPointerDrag();
+        return;
+      }
+
+      if (dragAxis && totalDelta >= SWIPE_COMMIT_PX) {
+        const delta = dragAxis === "x" ? deltaX : deltaY;
+        const direction = delta > 0 ? 1 : -1;
+        const currentIndex = frameIndexRef.current;
+        const nextIndex =
+          direction > 0
+            ? currentIndex >= frameCount - 1
+              ? 0
+              : currentIndex + 1
+            : currentIndex <= 0
+              ? frameCount - 1
+              : currentIndex - 1;
+
+        clearPointerDrag();
+        suppressClick = false;
+        snapToIndex(nextIndex, "scroll");
+        return;
       }
 
       clearPointerDrag();
@@ -501,6 +603,13 @@ export function useScrollSlider() {
 
     const onClickCapture = (event: MouseEvent) => {
       if (!suppressClick) return;
+      if (
+        event.target instanceof Element &&
+        event.target.closest(SLIDER_INTERACTIVE_SELECTOR)
+      ) {
+        suppressClick = false;
+        return;
+      }
       event.preventDefault();
       event.stopImmediatePropagation();
       suppressClick = false;
