@@ -22,9 +22,15 @@ import {
 const content = SALTMINE_BOOKINGS_DASHBOARD_CONTENT;
 const HAIRLINE = SALTMINE_HAIRLINE;
 const ICON_STROKE = 1.65;
-const TEXT_XS = "text-[9px] leading-[13px]";
-const TEXT_2XS = "text-[8px] leading-[11px]";
-const TEXT_MICRO = "text-[7px] leading-[10px]";
+import {
+  SALTMINE_DECK_TEXT_2XS,
+  SALTMINE_DECK_TEXT_MICRO,
+  SALTMINE_DECK_TEXT_XS,
+} from "@/lib/saltmine-deck-typography";
+
+const TEXT_XS = SALTMINE_DECK_TEXT_XS;
+const TEXT_2XS = SALTMINE_DECK_TEXT_2XS;
+const TEXT_MICRO = SALTMINE_DECK_TEXT_MICRO;
 
 function panelTextClasses(layout: "desktop" | "mobile") {
   if (layout === "mobile") {
@@ -83,6 +89,7 @@ export function OfficePresencePanel({
   onClose,
   onFloorPlan,
   layout = "desktop",
+  showSummary = true,
 }: {
   officeName: string;
   teamName: string;
@@ -92,6 +99,8 @@ export function OfficePresencePanel({
   onClose: () => void;
   onFloorPlan: () => void;
   layout?: "desktop" | "mobile";
+  /** When false, skips the summary banner (row already surfaced the count). */
+  showSummary?: boolean;
 }) {
   const text = panelTextClasses(layout);
   const iconStroke = layout === "mobile" ? SALTMINE_MOBILE_ICON.stroke : ICON_STROKE;
@@ -130,23 +139,25 @@ export function OfficePresencePanel({
         {dayTitle} · {teamName}
       </p>
 
-      <div
-        className={`mb-2 flex items-center gap-1.5 rounded-[8px] border ${layout === "mobile" ? "px-3 py-2.5" : "px-2 py-1.5"}`}
-        style={{
-          borderColor: HAIRLINE,
-          backgroundColor: SALTMINE_ONBOARDING.color.canvas,
-        }}
-      >
-        <Users
-          className={layout === "mobile" ? "h-4 w-4 shrink-0" : "h-2.5 w-2.5 shrink-0"}
-          strokeWidth={iconStroke}
-          style={{ color: SALTMINE.primary }}
-          aria-hidden
-        />
-        <p className={`m-0 font-semibold ${text.summary}`} style={{ color: SALTMINE.textSecondary }}>
-          {summary}
-        </p>
-      </div>
+      {showSummary && summary ? (
+        <div
+          className={`mb-2 flex items-center gap-1.5 rounded-[8px] border ${layout === "mobile" ? "px-3 py-2.5" : "px-2 py-1.5"}`}
+          style={{
+            borderColor: HAIRLINE,
+            backgroundColor: SALTMINE_ONBOARDING.color.canvas,
+          }}
+        >
+          <Users
+            className={layout === "mobile" ? "h-4 w-4 shrink-0" : "h-2.5 w-2.5 shrink-0"}
+            strokeWidth={iconStroke}
+            style={{ color: SALTMINE.primary }}
+            aria-hidden
+          />
+          <p className={`m-0 font-semibold ${text.summary}`} style={{ color: SALTMINE.textSecondary }}>
+            {summary}
+          </p>
+        </div>
+      ) : null}
 
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain">
         {people.length === 0 ? (

@@ -38,6 +38,11 @@ const SLIDE_SCOPED_VARIANTS = new Set<SlideScopedEmbedVariant>([
   "slide-23",
   "slide-24",
   "slide-25-mobile",
+  "slide-39",
+  "slide-40",
+  "slide-41",
+  "slide-44",
+  "slide-45",
 ]);
 
 export function isSlideScopedEmbedVariant(
@@ -59,6 +64,11 @@ const FRAMED_SLIDE_VARIANTS = new Set<SlideScopedEmbedVariant>([
   "slide-23",
   "slide-24",
   "slide-25-mobile",
+  "slide-39",
+  "slide-40",
+  "slide-41",
+  "slide-44",
+  "slide-45",
 ]);
 
 /** Renders a slide-scoped embed — each slide 17–24 has its own component file. */

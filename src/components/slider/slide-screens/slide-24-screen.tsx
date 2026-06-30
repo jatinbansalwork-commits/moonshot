@@ -9,6 +9,9 @@ import { SLIDE_24_SCREEN_CONFIG } from "@/lib/slide-screens/slide-24-config";
  */
 export function Slide24Screen() {
   return (
-    <SaltmineHelpSupportSlideEmbed displayName={SLIDE_24_SCREEN_CONFIG.displayName} />
+    <SaltmineHelpSupportSlideEmbed
+      displayName={SLIDE_24_SCREEN_CONFIG.displayName}
+      showWorkspaceNav={false}
+    />
   );
 }

@@ -2,7 +2,7 @@ import type { SlideDefinition } from "@/types/slide-content";
 
 export const slide24: SlideDefinition = {
   id: "slide-24",
-  label: "Help & Support",
+  label: "Help & support",
   backgroundColor: "#F2F0F6",
   align: "center",
   blockGap: "gap-4",

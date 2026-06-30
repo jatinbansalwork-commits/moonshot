@@ -1,4 +1,4 @@
-/** iPhone 17 logical viewport — default device frame for Kalash prototype. */
+/** iPhone 17 logical viewport — default device frame for mobile prototypes. */
 export const IPHONE_17 = {
   width: 393,
   height: 852,

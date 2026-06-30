@@ -15,6 +15,11 @@ import {
   type InboxNotification,
 } from "@/lib/saltmine-inbox-data";
 import {
+  SALTMINE_DECK_TEXT_2XS,
+  SALTMINE_DECK_TEXT_MICRO,
+  SALTMINE_DECK_TEXT_XS,
+} from "@/lib/saltmine-deck-typography";
+import {
   SALTMINE,
   SALTMINE_HAIRLINE,
   SALTMINE_ONBOARDING,
@@ -28,6 +33,9 @@ const ICON_STROKE = 1.65;
 const TEXT_XS = "text-[9px] leading-[13px]";
 const TEXT_2XS = "text-[8px] leading-[11px]";
 const TEXT_MICRO = "text-[7px] leading-[10px]";
+const DETAIL_TEXT_XS = SALTMINE_DECK_TEXT_XS;
+const DETAIL_TEXT_2XS = SALTMINE_DECK_TEXT_2XS;
+const DETAIL_TEXT_MICRO = SALTMINE_DECK_TEXT_MICRO;
 const MENU_SHADOW = "0 8px 24px rgba(28, 37, 46, 0.12), 0 2px 6px rgba(28, 37, 46, 0.06)";
 const POPUP_PANEL_SHADOW =
   "0 16px 40px rgba(28, 37, 46, 0.16), 0 4px 12px rgba(28, 37, 46, 0.08)";
@@ -447,8 +455,8 @@ export function InboxDetailPanel({
 }) {
   if (!notification) {
     return (
-      <div className="flex h-full items-center justify-center px-2 text-center">
-        <p className={`m-0 font-medium ${TEXT_XS}`} style={{ color: SALTMINE.textMuted }}>
+      <div className="flex min-h-[120px] items-center justify-center px-1 text-center">
+        <p className={`m-0 font-medium ${DETAIL_TEXT_XS}`} style={{ color: SALTMINE.textMuted }}>
           {content.inboxDetailEmptyLabel}
         </p>
       </div>
@@ -458,13 +466,13 @@ export function InboxDetailPanel({
   const accent = KIND_ACCENT[notification.kind];
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
-      <div className="mb-2 flex items-start justify-between gap-1">
-        <div className="flex min-w-0 flex-1 items-center gap-1.5">
-          <NotificationAvatar notification={notification} size={28} />
-          <div className="min-w-0">
+    <div className="flex flex-col">
+      <div className="mb-3 flex items-start justify-between gap-2">
+        <div className="flex min-w-0 flex-1 items-start gap-2">
+          <NotificationAvatar notification={notification} size={32} />
+          <div className="min-w-0 flex-1">
             <span
-              className={`mb-0.5 inline-flex rounded-full px-1.5 py-px font-bold uppercase tracking-[0.06em] ${TEXT_MICRO}`}
+              className={`mb-1 inline-flex rounded-full px-2 py-0.5 font-bold uppercase tracking-[0.06em] ${DETAIL_TEXT_MICRO}`}
               style={{
                 backgroundColor: `${accent}18`,
                 color: accent,
@@ -473,7 +481,7 @@ export function InboxDetailPanel({
               {notification.typeLabel}
             </span>
             <p
-              className={`m-0 truncate font-bold tracking-[-0.02em] ${TEXT_XS}`}
+              className={`m-0 break-words font-bold tracking-[-0.02em] ${DETAIL_TEXT_XS}`}
               style={{ color: SALTMINE.text }}
             >
               {notification.title}
@@ -485,38 +493,44 @@ export function InboxDetailPanel({
             type="button"
             aria-label={content.inboxDetailCloseLabel}
             onClick={onClose}
-            className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md transition-colors duration-150 hover:bg-[rgba(145,158,171,0.1)] ${FOCUS_RING}`}
+            className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors duration-150 hover:bg-[rgba(145,158,171,0.1)] ${FOCUS_RING}`}
             style={{ color: SALTMINE.textMuted }}
           >
-            <X className="h-3 w-3" strokeWidth={ICON_STROKE} />
+            <X className="h-3.5 w-3.5" strokeWidth={ICON_STROKE} />
           </button>
         ) : null}
       </div>
 
-      <p className={`m-0 mb-2 font-medium ${TEXT_2XS}`} style={{ color: SALTMINE.textSecondary }}>
+      <p
+        className={`m-0 mb-3 font-medium ${DETAIL_TEXT_2XS}`}
+        style={{ color: SALTMINE.textSecondary }}
+      >
         {notification.detailSummary}
       </p>
 
       <div
-        className="mb-2 rounded-[8px] border px-2 py-1.5"
+        className="mb-3 rounded-[10px] border px-3 py-2.5"
         style={{
           borderColor: HAIRLINE,
           backgroundColor: SALTMINE_ONBOARDING.color.canvas,
         }}
       >
         <p
-          className={`m-0 mb-1 font-bold uppercase tracking-[0.06em] ${TEXT_MICRO}`}
+          className={`m-0 mb-1.5 font-bold uppercase tracking-[0.06em] ${DETAIL_TEXT_MICRO}`}
           style={{ color: SALTMINE.textMuted }}
         >
           {content.inboxDetailFieldsLabel}
         </p>
-        <dl className="m-0 space-y-1">
+        <dl className="m-0 space-y-1.5">
           {notification.detailFields.map((field) => (
             <div key={`${field.label}-${field.value}`}>
-              <dt className={`m-0 font-medium ${TEXT_MICRO}`} style={{ color: SALTMINE.textMuted }}>
+              <dt
+                className={`m-0 font-medium ${DETAIL_TEXT_MICRO}`}
+                style={{ color: SALTMINE.textMuted }}
+              >
                 {field.label}
               </dt>
-              <dd className={`m-0 font-semibold ${TEXT_2XS}`} style={{ color: SALTMINE.text }}>
+              <dd className={`m-0 font-semibold ${DETAIL_TEXT_2XS}`} style={{ color: SALTMINE.text }}>
                 {field.value}
               </dd>
             </div>
@@ -524,36 +538,38 @@ export function InboxDetailPanel({
         </dl>
       </div>
 
-      <div className="mt-auto space-y-1">
-        {notification.primaryAction ? (
-          <button
-            type="button"
-            onClick={() => onAction(notification.primaryAction!)}
-            className={`flex min-h-7 w-full items-center justify-center rounded-[8px] border px-2 font-semibold leading-none ${TEXT_MICRO} ${FOCUS_RING}`}
-            style={{
-              borderColor: "rgba(0, 111, 236, 0.32)",
-              color: SALTMINE.primary,
-              backgroundColor: "rgba(0, 111, 236, 0.08)",
-            }}
-          >
-            {notification.primaryAction}
-          </button>
-        ) : null}
-        {notification.secondaryAction ? (
-          <button
-            type="button"
-            onClick={() => onAction(notification.secondaryAction!)}
-            className={`flex min-h-7 w-full items-center justify-center rounded-[8px] border px-2 font-semibold leading-none ${TEXT_MICRO} ${FOCUS_RING}`}
-            style={{
-              borderColor: HAIRLINE,
-              color: SALTMINE.textSecondary,
-              backgroundColor: "#FFFFFF",
-            }}
-          >
-            {notification.secondaryAction}
-          </button>
-        ) : null}
-      </div>
+      {(notification.primaryAction || notification.secondaryAction) ? (
+        <div className="flex flex-col gap-1.5">
+          {notification.primaryAction ? (
+            <button
+              type="button"
+              onClick={() => onAction(notification.primaryAction!)}
+              className={`flex min-h-8 w-full items-center justify-center rounded-[8px] border px-3 font-semibold leading-none ${DETAIL_TEXT_2XS} ${FOCUS_RING}`}
+              style={{
+                borderColor: "rgba(0, 111, 236, 0.32)",
+                color: SALTMINE.primary,
+                backgroundColor: "rgba(0, 111, 236, 0.08)",
+              }}
+            >
+              {notification.primaryAction}
+            </button>
+          ) : null}
+          {notification.secondaryAction ? (
+            <button
+              type="button"
+              onClick={() => onAction(notification.secondaryAction!)}
+              className={`flex min-h-8 w-full items-center justify-center rounded-[8px] border px-3 font-semibold leading-none ${DETAIL_TEXT_2XS} ${FOCUS_RING}`}
+              style={{
+                borderColor: HAIRLINE,
+                color: SALTMINE.textSecondary,
+                backgroundColor: "#FFFFFF",
+              }}
+            >
+              {notification.secondaryAction}
+            </button>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

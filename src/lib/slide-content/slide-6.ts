@@ -4,7 +4,7 @@ import { INDEX_SLIDE_DEFAULT_TITLE } from "@/lib/index-typography";
 
 export const slide6: SlideDefinition = {
   id: "slide-6",
-  label: "Slide 6",
+  label: "Context",
   backgroundColor: "#F2F0F6",
   presentation: {
     rhythm: "statement",

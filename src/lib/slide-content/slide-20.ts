@@ -2,7 +2,7 @@ import type { SlideDefinition } from "@/types/slide-content";
 
 export const slide20: SlideDefinition = {
   id: "slide-20",
-  label: "Office Presence",
+  label: "Office presence",
   layout: "horizontal-split",
   backgroundColor: "#F2F0F6",
   presentation: { rhythm: "framework", sectionLabel: "Presence" },

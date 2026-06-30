@@ -19,7 +19,7 @@ import { IndexSlidePanel } from "@/components/slider/index-slide-panel";
 
 function IndexCanvas() {
   const {
-    springTrackX,
+    slideTrackX,
     springScaleValue,
     playClick,
     frameCount,
@@ -66,7 +66,7 @@ function IndexCanvas() {
             <motion.div
               className="relative overflow-visible"
               style={{
-                x: springTrackX,
+                x: slideTrackX,
                 width: FRAME_WIDTH,
                 height: trackHeight,
               }}

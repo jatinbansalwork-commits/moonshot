@@ -10,7 +10,7 @@ const ICON_STROKE = 2;
 export function SaltmineMobileStatusBar({ time = "10:21" }: { time?: string }) {
   return (
     <div
-      className="relative z-10 flex shrink-0 items-center justify-between px-4"
+      className="relative z-10 flex shrink-0 items-center justify-between px-5"
       style={{ height: SALTMINE_MOBILE_STATUS_BAR_HEIGHT }}
       aria-hidden
     >
@@ -20,10 +20,16 @@ export function SaltmineMobileStatusBar({ time = "10:21" }: { time?: string }) {
       >
         {time}
       </span>
-      <div className="flex items-center gap-1" style={{ color: SALTMINE.text }}>
-        <Signal className="h-3 w-3" strokeWidth={ICON_STROKE} />
-        <Wifi className="h-3 w-3" strokeWidth={ICON_STROKE} />
-        <Battery className="h-3.5 w-4" strokeWidth={ICON_STROKE} />
+
+      <span
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[22px] w-[76px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+        style={{ backgroundColor: "#1C252E" }}
+      />
+
+      <div className="flex items-center gap-1.5" style={{ color: SALTMINE.text }}>
+        <Signal className="h-3.5 w-3.5" strokeWidth={ICON_STROKE} />
+        <Wifi className="h-3.5 w-3.5" strokeWidth={ICON_STROKE} />
+        <Battery className="h-3.5 w-[18px]" strokeWidth={ICON_STROKE} />
       </div>
     </div>
   );

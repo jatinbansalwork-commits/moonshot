@@ -9,7 +9,6 @@ import {
 import { SaltmineMobileBookingsView } from "@/components/slider/saltmine-mobile-bookings-view";
 import { SaltmineMobileHelpView } from "@/components/slider/saltmine-mobile-help-view";
 import { SaltmineMobileHubSheet } from "@/components/slider/saltmine-mobile-hub-sheet";
-import { SaltmineMobileInboxView } from "@/components/slider/saltmine-mobile-inbox-view";
 import { SaltmineMobileOnboarding } from "@/components/slider/saltmine-mobile-onboarding";
 import { SaltmineMobileOverlayScreen } from "@/components/slider/saltmine-mobile-overlay-screen";
 import { SaltmineMobileProfileView } from "@/components/slider/saltmine-mobile-profile-view";
@@ -17,15 +16,10 @@ import { SaltmineMobileSearchOverlay } from "@/components/slider/saltmine-mobile
 import {
   SaltmineMobileBookingGridView,
   SaltmineMobileConferenceGridView,
-  SaltmineMobileFindView,
-  SaltmineMobileTeamsView,
 } from "@/components/slider/saltmine-mobile-segment-views";
 import { SaltmineMobileTabBar } from "@/components/slider/saltmine-mobile-tab-bar";
 import { SALTMINE_DEMO_USER } from "@/lib/saltmine-demo-personas";
-import {
-  SALTMINE_MOBILE_TAB_BY_ID,
-  type SaltmineMobileTabId,
-} from "@/lib/saltmine-mobile-nav";
+import { SALTMINE_MOBILE_TAB_BAR_VISIBLE } from "@/lib/saltmine-mobile-nav";
 import {
   SALTMINE_MOBILE_CAPTION_CLASS,
   SALTMINE_MOBILE_CONTENT_BOTTOM_PADDING,
@@ -54,30 +48,17 @@ function MobileToast({ message }: { message: string | null }) {
   );
 }
 
-function SaltmineMobileAppRoutes({ displayName }: { displayName: string }) {
-  const {
-    activeTab,
-    setActiveTab,
-    overlayRoute,
-    closeOverlay,
-    inboxBadge,
-    showToast,
-  } = useSaltmineMobileApp();
-
-  const tabLabel = SALTMINE_MOBILE_TAB_BY_ID[activeTab].label;
+function SaltmineMobileAppRoutes({
+  displayName,
+}: {
+  displayName: string;
+}) {
+  const { overlayRoute, closeOverlay, showToast } = useSaltmineMobileApp();
 
   return (
     <>
-      <div className="flex h-full min-h-0 flex-col" role="main" aria-label={tabLabel}>
-        {activeTab === "bookings" ? (
-          <SaltmineMobileBookingsView displayName={displayName} showToast={showToast} />
-        ) : null}
-
-        {activeTab === "find" ? <SaltmineMobileFindView showToast={showToast} /> : null}
-
-        {activeTab === "inbox" ? <SaltmineMobileInboxView showToast={showToast} /> : null}
-
-        {activeTab === "teams" ? <SaltmineMobileTeamsView showToast={showToast} /> : null}
+      <div className="flex h-full min-h-0 flex-col" role="main" aria-label="My bookings">
+        <SaltmineMobileBookingsView displayName={displayName} showToast={showToast} />
       </div>
 
       <SaltmineMobileSearchOverlay />
@@ -112,14 +93,10 @@ function SaltmineMobileAppRoutes({ displayName }: { displayName: string }) {
 
 export function SaltmineMobileApp({
   displayName = SALTMINE_DEMO_USER.name,
-  initialTab = "bookings",
   showOnboarding = true,
-  showInboxNotificationPopup = false,
 }: {
   displayName?: string;
-  initialTab?: SaltmineMobileTabId;
   showOnboarding?: boolean;
-  showInboxNotificationPopup?: boolean;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<"onboarding" | "app">(
@@ -145,17 +122,8 @@ export function SaltmineMobileApp({
   }
 
   return (
-    <SaltmineMobileAppProvider
-      displayName={displayName}
-      initialTab={initialTab}
-      showToast={showToast}
-    >
-      <SaltmineMobileAppInner
-        rootRef={rootRef}
-        displayName={displayName}
-        showInboxNotificationPopup={showInboxNotificationPopup}
-        toast={toast}
-      />
+    <SaltmineMobileAppProvider displayName={displayName} showToast={showToast}>
+      <SaltmineMobileAppInner rootRef={rootRef} displayName={displayName} toast={toast} />
     </SaltmineMobileAppProvider>
   );
 }
@@ -163,25 +131,19 @@ export function SaltmineMobileApp({
 function SaltmineMobileAppInner({
   rootRef,
   displayName,
-  showInboxNotificationPopup,
   toast,
 }: {
   rootRef: RefObject<HTMLDivElement | null>;
   displayName: string;
-  showInboxNotificationPopup: boolean;
   toast: string | null;
 }) {
-  const { activeTab, setActiveTab, inboxBadge } = useSaltmineMobileApp();
-
   return (
     <div ref={rootRef} className="relative h-full w-full overflow-hidden" data-saltmine-mobile>
       <SaltmineMobileAppShell
         bottomNav={
-          <SaltmineMobileTabBar
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            inboxBadge={inboxBadge}
-          />
+          SALTMINE_MOBILE_TAB_BAR_VISIBLE ? (
+            <SaltmineMobileTabBar activeTab="bookings" onTabChange={() => {}} />
+          ) : undefined
         }
       >
         <SaltmineMobileAppRoutes displayName={displayName} />

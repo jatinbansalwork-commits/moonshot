@@ -14,6 +14,16 @@ export type SlideDashboardScreenConfig = Pick<
   | "initialAddedBookings"
   | "initialFilterValues"
   | "disabledNavIds"
+  | "deckCustomMainContent"
+  | "deckCustomOverlay"
+  | "deckCustomOverlayLabel"
+  | "deckCustomOverlayPlacement"
+  | "deckCustomHeaderTitle"
+  | "deckTimelineDays"
+  | "deckCustomOverlayOnClose"
+  | "onLastMinuteAlternative"
+  | "onLastMinuteWaitlist"
+  | "onDeckBookingAction"
 >;
 
 export type SlideHelpScreenConfig = {

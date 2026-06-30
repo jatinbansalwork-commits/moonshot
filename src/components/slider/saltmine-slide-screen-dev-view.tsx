@@ -58,10 +58,10 @@ export function SaltmineSlideScreenDevView({ entry }: { entry: SaltmineSlideScre
           ) : null}
         </p>
         <Link
-          href="/dev/saltmine-slide"
+          href="/dev/saltmine"
           className="text-[12px] font-medium text-[#006FEC] underline-offset-2 hover:underline"
         >
-          All Saltmine screens
+          All Saltmine flows
         </Link>
       </div>
       <SlideScreenPreview entry={entry} />
@@ -73,7 +73,13 @@ export function SaltmineSlideScreenIndexDevView() {
   return (
     <div className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 bg-[#EEF2F6] p-8">
       <div>
-        <h1 className="m-0 text-xl font-bold text-[#1C252E]">Saltmine slide screens</h1>
+        <Link
+          href="/dev/saltmine"
+          className="text-[12px] font-medium text-[#006FEC] underline-offset-2 hover:underline"
+        >
+          ← All Saltmine flows
+        </Link>
+        <h1 className="m-0 mt-3 text-xl font-bold text-[#1C252E]">Saltmine slide screens</h1>
         <p className="mt-2 text-[13px] leading-relaxed text-[#637381]">
           Each screen is isolated under{" "}
           <code className="rounded bg-white px-1.5 py-0.5 text-[11px]">slide-screens/</code> so

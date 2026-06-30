@@ -11,7 +11,6 @@ import {
   HERO_SLIDE_BG,
   SITE_NAME,
 } from "@/lib/constants";
-import { springScrollSnap } from "@/lib/spring";
 import { useSliderContext } from "@/context/slider-context";
 
 const LINE_STEP = 10;
@@ -109,7 +108,6 @@ function MinimapTrack({
                 }
               : {}),
           }}
-          transition={springScrollSnap}
         />
       </div>
     </div>

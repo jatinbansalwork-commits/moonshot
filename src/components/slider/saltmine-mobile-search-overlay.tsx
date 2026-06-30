@@ -15,7 +15,7 @@ import {
 import { SALTMINE, SALTMINE_HAIRLINE } from "@/lib/saltmine-onboarding-tokens";
 
 export function SaltmineMobileSearchOverlay() {
-  const { searchOpen, setSearchOpen, showToast, setActiveTab } = useSaltmineMobileApp();
+  const { searchOpen, setSearchOpen, showToast } = useSaltmineMobileApp();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -25,11 +25,6 @@ export function SaltmineMobileSearchOverlay() {
   if (!searchOpen) return null;
 
   function handleSelect(term: string) {
-    const lower = term.toLowerCase();
-    if (lower.includes("inbox")) setActiveTab("inbox");
-    else if (lower.includes("find")) setActiveTab("find");
-    else if (lower.includes("team")) setActiveTab("teams");
-    else setActiveTab("bookings");
     setSearchOpen(false);
     showToast(`Opening ${term}`);
   }

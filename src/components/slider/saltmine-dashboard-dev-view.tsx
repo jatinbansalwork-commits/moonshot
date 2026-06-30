@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { SaltmineBookingsDashboard } from "@/components/slider/saltmine-bookings-dashboard";
 import { SALTMINE_BOOKINGS_DASHBOARD_CONTENT } from "@/lib/saltmine-bookings-dashboard-content";
 
@@ -10,7 +11,14 @@ export function SaltmineDashboardDevView() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-5 bg-[#EEF2F6] p-8">
       <p className="m-0 text-center text-[13px] font-medium text-[#637381]">
-        Dev preview — edit{" "}
+        Dev preview —{" "}
+        <Link
+          href="/dev/saltmine"
+          className="font-medium text-[#006FEC] underline-offset-2 hover:underline"
+        >
+          all Saltmine flows
+        </Link>
+        {" · edit "}
         <code className="rounded-md border border-[#DFE3E8] bg-white px-2 py-1 text-[11px] font-semibold text-[#1C252E] shadow-sm">
           src/lib/saltmine-bookings-dashboard-content.ts
         </code>

@@ -5,12 +5,16 @@ import { Check, Map, Share2, Video, X } from "lucide-react";
 import { FOCUS_RING } from "@/lib/a11y";
 import { SaltmineDeckAvatar, SALTMINE_AVATAR_SCALE } from "@/components/slider/saltmine-initial-avatar";
 import { SALTMINE_BOOKINGS_DASHBOARD_CONTENT } from "@/lib/saltmine-bookings-dashboard-content";
-import type {
-  DeckBookingAttendee,
-  DeckBookingItem,
-  DeckTimelineDay,
+import {
+  deckBookingActionLabel,
+  deckBookingActionStyle,
+  resolveDeckBookingAction,
+  deckDayDateBadge,
+  type DeckBookingAttendee,
+  type DeckBookingItem,
+  type DeckTimelineDay,
 } from "@/lib/saltmine-deck-bookings-data";
-import { deckDayDateBadge } from "@/lib/saltmine-deck-bookings-data";
+import { saltmineBookingLocationLine } from "@/lib/saltmine-ui-copy";
 import {
   SALTMINE,
   SALTMINE_HAIRLINE,
@@ -28,9 +32,15 @@ import {
 const content = SALTMINE_BOOKINGS_DASHBOARD_CONTENT;
 const HAIRLINE = SALTMINE_HAIRLINE;
 const ICON_STROKE = 1.65;
-const TEXT_XS = "text-[9px] leading-[13px]";
-const TEXT_2XS = "text-[8px] leading-[11px]";
-const TEXT_MICRO = "text-[7px] leading-[10px]";
+import {
+  SALTMINE_DECK_TEXT_2XS,
+  SALTMINE_DECK_TEXT_MICRO,
+  SALTMINE_DECK_TEXT_XS,
+} from "@/lib/saltmine-deck-typography";
+
+const TEXT_XS = SALTMINE_DECK_TEXT_XS;
+const TEXT_2XS = SALTMINE_DECK_TEXT_2XS;
+const TEXT_MICRO = SALTMINE_DECK_TEXT_MICRO;
 const ATTENDEE_SIZE_DESKTOP = 20;
 const ATTENDEE_SIZE_MOBILE = 28;
 const PARKING_HERO_SRC = "/assets/saltmine/booking-parking-hero.svg";
@@ -97,22 +107,11 @@ export function DeckBookingDetailPanel({
   const { weekday, dayNumber } = deckDayDateBadge(day);
   const isMeeting = booking.kind === "meeting";
   const titleColor = isMeeting ? "#F59E0B" : SALTMINE.text;
-  const actionLabel = booking.action === "check-out" ? "Check out" : "Check in";
+  const actionLabel = deckBookingActionLabel(resolveDeckBookingAction(booking));
   const isMobile = layout === "mobile";
   const attendeeSize = isMobile ? ATTENDEE_SIZE_MOBILE : ATTENDEE_SIZE_DESKTOP;
   const iconStroke = isMobile ? SALTMINE_MOBILE_ICON.stroke : ICON_STROKE;
-  const actionStyle =
-    booking.action === "check-out"
-      ? {
-          backgroundColor: "rgba(239, 68, 68, 0.1)",
-          color: "#DC2626",
-          borderColor: "rgba(239, 68, 68, 0.24)",
-        }
-      : {
-          backgroundColor: "rgba(245, 158, 11, 0.12)",
-          color: "#D97706",
-          borderColor: "rgba(245, 158, 11, 0.28)",
-        };
+  const actionStyle = deckBookingActionStyle(resolveDeckBookingAction(booking));
 
   return (
     <div className={`flex h-full min-h-0 flex-col ${isMobile ? "px-4 py-3" : ""}`}>
@@ -193,16 +192,12 @@ export function DeckBookingDetailPanel({
             className={`m-0 font-medium ${isMobile ? SALTMINE_MOBILE_SECONDARY_CLASS : TEXT_MICRO}`}
             style={{ color: SALTMINE.textMuted }}
           >
-            {booking.duration} • {booking.location}
+            {saltmineBookingLocationLine({
+              duration: booking.duration,
+              location: booking.location,
+              floor: booking.floor,
+            })}
           </p>
-          {booking.floor ? (
-            <p
-              className={`m-0 font-medium ${isMobile ? SALTMINE_MOBILE_SECONDARY_CLASS : TEXT_MICRO}`}
-              style={{ color: SALTMINE.textMuted }}
-            >
-              {booking.floor}
-            </p>
-          ) : null}
         </div>
       </div>
 
@@ -270,6 +265,7 @@ export function DeckBookingDetailPanel({
 
       <div className="mb-3 h-px shrink-0" style={{ backgroundColor: HAIRLINE }} aria-hidden />
 
+      {!isMeeting ? (
       <div className="mt-auto pt-1">
         <button
           type="button"
@@ -280,6 +276,7 @@ export function DeckBookingDetailPanel({
           {actionLabel}
         </button>
       </div>
+      ) : null}
     </div>
   );
 }

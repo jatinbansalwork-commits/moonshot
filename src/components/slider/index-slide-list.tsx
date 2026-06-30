@@ -1,6 +1,7 @@
 "use client";
 
 import { FOCUS_RING, TARGET_HIT_AREA } from "@/lib/a11y";
+import { getSlideDeckIndex } from "@/lib/slide-content";
 import { formatSlideText } from "@/lib/text-case";
 import type { SlideListBlock } from "@/types/slide-content";
 
@@ -19,14 +20,18 @@ export function IndexSlideList({ block, onGoToSlide }: IndexSlideListProps) {
           text: item.label,
           textCase: "preserve",
         });
+        const slideIndex =
+          item.slideId !== undefined
+            ? getSlideDeckIndex(item.slideId)
+            : item.slideIndex;
         const rowClass = "index-slide-row group w-full text-left";
 
         return (
           <li key={item.id}>
-            {item.slideIndex !== undefined ? (
+            {slideIndex !== undefined ? (
               <button
                 type="button"
-                onClick={() => onGoToSlide?.(item.slideIndex!)}
+                onClick={() => onGoToSlide?.(slideIndex)}
                 className={`${rowClass} ${TARGET_HIT_AREA} ${FOCUS_RING}`}
               >
                 <span className="index-slide-row__title">{label}</span>

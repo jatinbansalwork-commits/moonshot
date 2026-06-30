@@ -615,13 +615,17 @@ function BookingGridBookingPopup({
         <button
           type="button"
           onClick={() => {
-            showToast(`${content.bookingGridPopupCancelToast}: ${block.title}`);
+            showToast(`${content.bookingGridPopupCheckInToast}: ${block.title}`);
             onClose();
           }}
-          className={`inline-flex h-6 items-center rounded-md px-1.5 font-semibold ${TEXT_MICRO} ${FOCUS_RING}`}
-          style={{ color: "#DC2626" }}
+          className={`inline-flex h-6 items-center rounded-md border px-1.5 font-semibold ${TEXT_MICRO} ${FOCUS_RING}`}
+          style={{
+            color: "#D97706",
+            borderColor: "rgba(245, 158, 11, 0.28)",
+            backgroundColor: "rgba(245, 158, 11, 0.12)",
+          }}
         >
-          {content.bookingGridPopupCancelLabel}
+          {content.bookingGridPopupCheckInLabel}
         </button>
       </div>
     </div>

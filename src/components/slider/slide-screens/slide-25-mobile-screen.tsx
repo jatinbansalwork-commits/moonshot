@@ -11,9 +11,7 @@ export function Slide25MobileScreen() {
   return (
     <SaltmineMobileApp
       displayName={SLIDE_25_MOBILE_SCREEN_CONFIG.displayName}
-      initialTab={SLIDE_25_MOBILE_SCREEN_CONFIG.initialTab}
       showOnboarding={SLIDE_25_MOBILE_SCREEN_CONFIG.showOnboarding}
-      showInboxNotificationPopup={SLIDE_25_MOBILE_SCREEN_CONFIG.showInboxNotificationPopup}
     />
   );
 }

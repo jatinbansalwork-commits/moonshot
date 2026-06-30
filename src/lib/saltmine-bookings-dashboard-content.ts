@@ -1,6 +1,6 @@
 /**
  * Dashboard mockup content — edit copy and demo data here.
- * Preview at: http://localhost:3000/dev/saltmine-dashboard
+ * Preview at: http://localhost:3000/dev/saltmine
  */
 
 import {
@@ -47,7 +47,7 @@ export const SALTMINE_BOOKINGS_DASHBOARD_CONTENT = {
   pageTitle: "My bookings",
 
   inboxPageTitle: "Inbox",
-  inboxMobilePageTitle: "Your inbox",
+  inboxMobilePageTitle: "Inbox",
   inboxShowLabel: "Show",
   inboxFilterLabel: "Filter",
   inboxEmptyLabel: "No notifications match these filters — try Show all",
@@ -77,9 +77,6 @@ export const SALTMINE_BOOKINGS_DASHBOARD_CONTENT = {
   findSpaceViewFloor: "Floor",
   findSpaceViewList: "List",
   findSpaceEmptyLabel: "No spaces match these filters.",
-  repeatDeskLabel: "Repeat desk",
-  repeatDeskCta: "Repeat yesterday's desk",
-  tomorrowEmptyLabel: "Nothing booked yet",
 
   bookingGridPageTitle: "Booking grid",
   bookingGridLocationLabel: "Your default location",
@@ -92,12 +89,12 @@ export const SALTMINE_BOOKINGS_DASHBOARD_CONTENT = {
   bookingGridPopupAttendeesLabel: "Attendees",
   bookingGridPopupJoinLabel: "Join meeting",
   bookingGridPopupEditLabel: "Edit booking",
-  bookingGridPopupCancelLabel: "Cancel booking",
+  bookingGridPopupCheckInLabel: "Check in",
   bookingGridPopupCloseLabel: "Close booking details",
   bookingGridPopupAllDayValue: "All day",
   bookingGridPopupJoinToast: "Opening video meeting for",
   bookingGridPopupEditToast: "Edit booking — demo",
-  bookingGridPopupCancelToast: "Booking cancelled — demo",
+  bookingGridPopupCheckInToast: "Checked in — demo",
 
   conferenceGridPageTitle: "Conference grid",
   conferenceGridActiveGridLabel: "Active grid",
@@ -168,6 +165,14 @@ export const SALTMINE_BOOKINGS_DASHBOARD_CONTENT = {
 
   viewButtonLabel: "View",
   addBookingLabel: "Add booking",
+  addBookingPanelLabel: "Add booking",
+  addBookingPanelHint: "Choose what you want to book for this day.",
+  addBookingFirstTimeTitle: "Your first booking",
+  addBookingFirstTimeBody:
+    "Pick a desk, meeting room, parking bay, or team day — we'll add it to your timeline for this day.",
+  addBookingFirstTimeCta: "Get started",
+  addBookingFirstTimeSuccessBody:
+    "You're booked in. Your reservation now appears on today's timeline.",
   addBookingMenuCloseLabel: "Close add booking menu",
   addBookingMenuItems: [
     { id: "team-day", label: "Create a team day" },
@@ -175,6 +180,23 @@ export const SALTMINE_BOOKINGS_DASHBOARD_CONTENT = {
     { id: "meeting-space", label: "Find a meeting space" },
     { id: "desk", label: "Find a desk" },
   ],
+  addBookingResultLabels: {
+    "team-day": "Team day — Floor 21",
+    "car-parking": "Car Park B2.113",
+    "meeting-space": "Meeting — Conf Room A",
+    desk: "Desk — Floor 21",
+  },
+  addBookingFlowBackLabel: "Back",
+  addBookingFlowConfirmLabel: "Confirm booking",
+  addBookingFlowProcessingLabel: "Booking…",
+  addBookingFlowSuccessTitle: "Booking confirmed",
+  addBookingFlowSuccessBody: "Added to your timeline.",
+  addBookingFlowSuccessDoneLabel: "Done",
+  addBookingFlowErrorTitle: "Could not complete booking",
+  addBookingFlowErrorBody:
+    "This space was just taken. Pick another option or try again in a moment.",
+  addBookingFlowRetryLabel: "Try another",
+  addBookingFlowStepLabel: "Step {current} of {total}",
   addedBookingToast: "Booking added for",
 
   calendar: {

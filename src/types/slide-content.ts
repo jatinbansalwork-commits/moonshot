@@ -13,7 +13,12 @@ export type SlideScopedEmbedVariant =
   | "slide-22"
   | "slide-23"
   | "slide-24"
-  | "slide-25-mobile";
+  | "slide-25-mobile"
+  | "slide-39"
+  | "slide-40"
+  | "slide-41"
+  | "slide-44"
+  | "slide-45";
 
 export type SlidePlaceholderVariant =
   | SlideScopedEmbedVariant
@@ -77,6 +82,8 @@ export interface SlideImageBlock extends SlideBlockBase {
 export interface SlideListItem {
   id: string;
   label: string;
+  /** Prefer `slideId` — resolved at render time from the deck. */
+  slideId?: string;
   slideIndex?: number;
 }
 
@@ -94,7 +101,6 @@ export type SlideBlock =
 export type SlideLayout =
   | "default"
   | "stints-three-column"
-  | "iphone-home"
   | "saltmine-sync"
   | "saltmine-bento"
   | "vertical-split"

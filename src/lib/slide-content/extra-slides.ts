@@ -6,10 +6,12 @@ import { slide8 } from "@/lib/slide-content/slide-8";
 import { slide9 } from "@/lib/slide-content/slide-9";
 import { slide10 } from "@/lib/slide-content/slide-10";
 import { slide11 } from "@/lib/slide-content/slide-11";
+import { slide12 } from "@/lib/slide-content/slide-12";
 import { slide13 } from "@/lib/slide-content/slide-13";
 import { slide14 } from "@/lib/slide-content/slide-14";
 import { slide15 } from "@/lib/slide-content/slide-15";
 import { slide16 } from "@/lib/slide-content/slide-16";
+import { slide28 } from "@/lib/slide-content/slide-28";
 import { slide17 } from "@/lib/slide-content/slide-17";
 import { slide18 } from "@/lib/slide-content/slide-18";
 import { slide19 } from "@/lib/slide-content/slide-19";
@@ -22,11 +24,9 @@ import { slide25Mobile } from "@/lib/slide-content/slide-25-mobile";
 import { slide25 } from "@/lib/slide-content/slide-25";
 import { slide26 } from "@/lib/slide-content/slide-26";
 
-const EXTRA_SLIDE_BACKGROUNDS = ["#ffffff", "#F6FE03", "#F6FE03"] as const;
-
-/** Deck order for slides 6+ — skips removed slide 12. */
+/** Deck order — value (28) after What I Learned (27); onboarding (17) before future plan. */
 const EXTRA_SLIDE_ORDER = [
-  6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+  6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 17,
 ] as const;
 
 export const extraSlides: SlideDefinition[] = [
@@ -57,6 +57,10 @@ export const extraSlides: SlideDefinition[] = [
       return slide11;
     }
 
+    if (slideNumber === 12) {
+      return slide12;
+    }
+
     if (slideNumber === 13) {
       return slide13;
     }
@@ -73,12 +77,16 @@ export const extraSlides: SlideDefinition[] = [
       return slide16;
     }
 
-    if (slideNumber === 18) {
-      return slide18;
+    if (slideNumber === 28) {
+      return slide28;
     }
 
     if (slideNumber === 17) {
       return slide17;
+    }
+
+    if (slideNumber === 18) {
+      return slide18;
     }
 
     if (slideNumber === 19) {
@@ -120,8 +128,7 @@ export const extraSlides: SlideDefinition[] = [
     return {
       id: `slide-${slideNumber}`,
       label: `Slide ${slideNumber}`,
-      backgroundColor:
-        EXTRA_SLIDE_BACKGROUNDS[(index + 1) % EXTRA_SLIDE_BACKGROUNDS.length],
+      backgroundColor: "#ffffff",
       blocks: [
         {
           id: `slide-${slideNumber}-title`,

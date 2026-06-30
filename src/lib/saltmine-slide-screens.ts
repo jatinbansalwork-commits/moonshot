@@ -19,7 +19,7 @@ export const SALTMINE_SLIDE_SCREENS: readonly SaltmineSlideScreenEntry[] = [
   {
     slug: "17",
     variant: "slide-17",
-    label: "Sign-in & onboarding",
+    label: "Onboarding",
     screenFile: "src/components/slider/slide-screens/slide-17-screen.tsx",
     configFile: "src/lib/slide-screens/slide-17-config.ts",
     framed: true,
@@ -27,7 +27,7 @@ export const SALTMINE_SLIDE_SCREENS: readonly SaltmineSlideScreenEntry[] = [
   {
     slug: "18",
     variant: "slide-18",
-    label: "My bookings start screen",
+    label: "My bookings hub",
     screenFile: "src/components/slider/slide-screens/slide-18-screen.tsx",
     configFile: "src/lib/slide-screens/slide-18-config.ts",
     framed: true,
@@ -43,21 +43,21 @@ export const SALTMINE_SLIDE_SCREENS: readonly SaltmineSlideScreenEntry[] = [
   {
     slug: "20-deck-day",
     variant: "slide-20-deck-day",
-    label: "Slide 20 — office presence row",
+    label: "Office presence — timeline",
     screenFile: "src/components/slider/slide-screens/slide-20-deck-day-screen.tsx",
     framed: false,
   },
   {
     slug: "20-pod-cluster",
     variant: "slide-20-pod-cluster",
-    label: "Slide 20 — pod cluster",
+    label: "Office presence — floor plan",
     screenFile: "src/components/slider/slide-screens/slide-20-pod-cluster-screen.tsx",
     framed: false,
   },
   {
     slug: "20-team-list",
     variant: "slide-20-team-list",
-    label: "Slide 20 — team list",
+    label: "Office presence — team filter",
     screenFile: "src/components/slider/slide-screens/slide-20-team-list-screen.tsx",
     framed: false,
   },
@@ -80,7 +80,7 @@ export const SALTMINE_SLIDE_SCREENS: readonly SaltmineSlideScreenEntry[] = [
   {
     slug: "23",
     variant: "slide-23",
-    label: "Inbox notifications",
+    label: "Inbox",
     screenFile: "src/components/slider/slide-screens/slide-23-screen.tsx",
     configFile: "src/lib/slide-screens/slide-23-config.ts",
     framed: true,
@@ -103,6 +103,41 @@ export const SALTMINE_SLIDE_SCREENS: readonly SaltmineSlideScreenEntry[] = [
     frameSize: { width: 360, height: 780 },
     frameClassName:
       "mx-auto max-w-full overflow-hidden rounded-[28px] border-[5px] border-[#1C252E] bg-white shadow-[0_12px_40px_rgba(28,37,46,0.14)]",
+  },
+  {
+    slug: "39",
+    variant: "slide-39",
+    label: "Future — last-minute lane & waitlist",
+    screenFile: "src/components/slider/slide-screens/slide-39-screen.tsx",
+    framed: true,
+  },
+  {
+    slug: "40",
+    variant: "slide-40",
+    label: "Future — safety booking",
+    screenFile: "src/components/slider/slide-screens/slide-40-screen.tsx",
+    framed: true,
+  },
+  {
+    slug: "41",
+    variant: "slide-41",
+    label: "Future — Move in Sync",
+    screenFile: "src/components/slider/slide-screens/slide-41-screen.tsx",
+    framed: true,
+  },
+  {
+    slug: "44",
+    variant: "slide-44",
+    label: "Future — commute sync",
+    screenFile: "src/components/slider/slide-screens/slide-44-screen.tsx",
+    framed: true,
+  },
+  {
+    slug: "45",
+    variant: "slide-45",
+    label: "Future — waitlist",
+    screenFile: "src/components/slider/slide-screens/slide-45-screen.tsx",
+    framed: true,
   },
 ] as const;
 

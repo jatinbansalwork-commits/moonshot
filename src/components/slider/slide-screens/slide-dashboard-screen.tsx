@@ -20,6 +20,16 @@ export function SlideDashboardScreen({
         initialAddedBookings={config.initialAddedBookings}
         initialFilterValues={config.initialFilterValues}
         disabledNavIds={config.disabledNavIds}
+        deckCustomMainContent={config.deckCustomMainContent}
+        deckCustomOverlay={config.deckCustomOverlay}
+        deckCustomOverlayLabel={config.deckCustomOverlayLabel}
+        deckCustomOverlayPlacement={config.deckCustomOverlayPlacement}
+        deckCustomHeaderTitle={config.deckCustomHeaderTitle}
+        deckTimelineDays={config.deckTimelineDays}
+        deckCustomOverlayOnClose={config.deckCustomOverlayOnClose}
+        onLastMinuteAlternative={config.onLastMinuteAlternative}
+        onLastMinuteWaitlist={config.onLastMinuteWaitlist}
+        onDeckBookingAction={config.onDeckBookingAction}
       />
     </div>
   );

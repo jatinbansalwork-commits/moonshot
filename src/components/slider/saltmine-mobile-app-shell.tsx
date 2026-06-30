@@ -13,7 +13,7 @@ export function SaltmineMobileAppShell({
   bottomNav,
 }: {
   children: ReactNode;
-  bottomNav: ReactNode;
+  bottomNav?: ReactNode;
 }) {
   return (
     <div

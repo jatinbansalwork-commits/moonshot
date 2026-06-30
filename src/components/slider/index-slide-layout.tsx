@@ -52,6 +52,7 @@ export function IndexSlideLayout({
           <div
             className={`relative z-10 flex flex-col ${blockGap} ${contentAlign} ${fullBleedRight ? "justify-center" : ""}`}
           >
+            <DeckPresentationHeader presentation={presentation} />
             {children}
           </div>
           <div

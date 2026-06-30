@@ -1,16 +1,20 @@
+import { DeckPresentationHeader } from "@/components/slider/deck-presentation-chrome";
 import { DEFAULT_PROBLEM_SPLIT } from "@/lib/slide-content/problem-split-defaults";
 import { DECK_SECTION_LABEL } from "@/lib/deck-presentation";
+import type { DeckPresentation } from "@/lib/deck-presentation";
 import type { ProblemSplitSlideContent } from "@/types/slide-content";
 
 interface SaltmineProblemSlideLayoutProps {
   content?: ProblemSplitSlideContent;
   backgroundColor?: string;
+  presentation?: DeckPresentation;
 }
 
 /** Saltmine problem / solution split layout. */
 export function SaltmineProblemSlideLayout({
   content = DEFAULT_PROBLEM_SPLIT,
   backgroundColor = "#F2F0F6",
+  presentation,
 }: SaltmineProblemSlideLayoutProps) {
   const showRightColumn = content.showRightColumn !== false;
 
@@ -19,6 +23,11 @@ export function SaltmineProblemSlideLayout({
       className={`relative grid h-full w-full select-none text-black antialiased ${showRightColumn ? "grid-cols-2" : "grid-cols-1"}`}
       style={{ backgroundColor }}
     >
+      {presentation?.sectionLabel ? (
+        <div className="pointer-events-none absolute top-8 left-14 z-10">
+          <DeckPresentationHeader presentation={presentation} />
+        </div>
+      ) : null}
       <div
         className={`flex min-h-0 flex-col justify-center px-14 py-14 ${showRightColumn ? "text-left" : "items-center text-center"}`}
         data-cursor-surface="light"

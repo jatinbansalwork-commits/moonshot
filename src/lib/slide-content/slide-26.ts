@@ -11,11 +11,9 @@ export const slide26: SlideDefinition = {
   layout: "saltmine-example",
   exampleBento: {
     eyebrow: "What I Learned",
-    statement:
-      "Quick role play validation can uncover real friction faster than long research cycles",
-    topQuestion:
-      "Sometimes, the best strategy is not to add intelligence, but to eliminate uncertainty.",
-    bottomQuestion: "Clarity drives adoption more than feature depth.",
+    statement: "A quick role play found real problems faster than weeks of research.",
+    topQuestion: "Sometimes the answer is not more AI — just less guesswork.",
+    bottomQuestion: "People use tools that are clear — not tools that do the most.",
     colors: {
       main: "#FFF5D6",
       topRight: "#E8EDFF",

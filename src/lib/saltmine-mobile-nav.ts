@@ -1,19 +1,13 @@
-import {
-  Bell,
-  CalendarDays,
-  LampDesk,
-  Users,
-  type LucideIcon,
-} from "lucide-react";
+import { CalendarDays, type LucideIcon } from "lucide-react";
 
 export const SALTMINE_MOBILE_TABS = [
   { id: "bookings", label: "My bookings", icon: CalendarDays },
-  { id: "find", label: "Find a space", icon: LampDesk },
-  { id: "inbox", label: "Inbox", icon: Bell },
-  { id: "teams", label: "My teams", icon: Users },
 ] as const;
 
 export type SaltmineMobileTabId = (typeof SALTMINE_MOBILE_TABS)[number]["id"];
+
+/** Hide bottom tab bar when a single tab would be pointless chrome. */
+export const SALTMINE_MOBILE_TAB_BAR_VISIBLE = SALTMINE_MOBILE_TABS.length > 1;
 
 /** Secondary flows reachable from the hub / profile menu (desktop sidebar parity). */
 export type SaltmineMobileOverlayRoute =

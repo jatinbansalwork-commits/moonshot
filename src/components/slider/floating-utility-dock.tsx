@@ -8,15 +8,16 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { FOCUS_RING, TARGET_HIT_AREA } from "@/lib/a11y";
+import { getSlideDeckIndex } from "@/lib/slide-content";
 
 type DockNavItem =
-  | { kind: "avatar"; src: string; label: string; slideIndex?: number }
-  | { kind: "logo"; src: string; label: string; slideIndex?: number }
-  | { kind: "icon"; icon: LucideIcon; label: string; slideIndex?: number };
+  | { kind: "avatar"; src: string; label: string; slideId?: string }
+  | { kind: "logo"; src: string; label: string; slideId?: string }
+  | { kind: "icon"; icon: LucideIcon; label: string; slideId?: string };
 
 const FULL_DOCK_NAV_ITEMS: DockNavItem[] = [
-  { kind: "avatar", src: "/assets/jb-avatar.png", label: "JB", slideIndex: 0 },
-  { kind: "logo", src: "/assets/saltmine-logo.png", label: "Saltmine", slideIndex: 4 },
+  { kind: "avatar", src: "/assets/jb-avatar.png", label: "JB", slideId: "hero" },
+  { kind: "logo", src: "/assets/saltmine-logo.png", label: "Saltmine", slideId: "slide-5" },
 ];
 
 const PRIMARY_DOCK_NAV_ITEMS: DockNavItem[] = [];
@@ -89,19 +90,20 @@ export function FloatingUtilityDock({
 
         {navItems.map((item, index) => {
           const isHovered = hoveredIndex === index;
+          const slideIndex = item.slideId ? getSlideDeckIndex(item.slideId) : undefined;
 
           return (
             <button
               key={`${dockId}-${item.label}-${index}`}
               type="button"
               aria-label={
-                item.slideIndex !== undefined
-                  ? `${item.label}, go to slide ${item.slideIndex + 1}`
+                slideIndex !== undefined
+                  ? `${item.label}, go to slide ${slideIndex + 1}`
                   : item.label
               }
               onClick={() => {
-                if (item.slideIndex !== undefined) {
-                  onGoToSlide?.(item.slideIndex);
+                if (slideIndex !== undefined) {
+                  onGoToSlide?.(slideIndex);
                 }
               }}
               onMouseEnter={() => setHoveredIndex(index)}

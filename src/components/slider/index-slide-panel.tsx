@@ -7,7 +7,6 @@ import { SaltmineBentoSlideLayout } from "@/components/slider/saltmine-bento-sli
 import { SaltmineExampleSlideLayout } from "@/components/slider/saltmine-example-slide-layout";
 import { SaltmineProblemSlideLayout } from "@/components/slider/saltmine-problem-slide-layout";
 import { SaltmineSyncSlideLayout } from "@/components/slider/saltmine-sync-slide-layout";
-import { KalashIphoneHomeLayout } from "@/components/slider/kalash-iphone-home-layout";
 import { HorizontalSplitSlideLayout } from "@/components/slider/horizontal-split-slide-layout";
 import { VerticalSplitSlideLayout } from "@/components/slider/vertical-split-slide-layout";
 import { FrameShell } from "@/components/slider/frame-shell";
@@ -40,8 +39,6 @@ export function IndexSlidePanel({
     >
       {slide.layout === "stints-three-column" ? (
         <ManifestStintsLayout />
-      ) : slide.layout === "iphone-home" ? (
-        <KalashIphoneHomeLayout />
       ) : slide.layout === "saltmine-sync" ? (
         <SaltmineSyncSlideLayout presentation={slide.presentation} />
       ) : slide.layout === "saltmine-bento" ? (
@@ -54,6 +51,7 @@ export function IndexSlidePanel({
         <SaltmineProblemSlideLayout
           content={slide.problemSplit}
           backgroundColor={slide.backgroundColor}
+          presentation={slide.presentation}
         />
       ) : slide.layout === "saltmine-example" ? (
         <SaltmineExampleSlideLayout content={slide.exampleBento} />

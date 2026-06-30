@@ -2,7 +2,7 @@ import type { SlideDefinition } from "@/types/slide-content";
 
 export const slide23: SlideDefinition = {
   id: "slide-23",
-  label: "Notification",
+  label: "Inbox",
   backgroundColor: "#F2F0F6",
   align: "center",
   blockGap: "gap-4",

@@ -22,7 +22,6 @@ import {
   SALTMINE_MOBILE_MENU_ITEM_CLASS,
   SALTMINE_MOBILE_PRESS_CLASS,
   SALTMINE_MOBILE_SECONDARY_CLASS,
-  SALTMINE_MOBILE_SEGMENTED_TAB_CLASS,
 } from "@/lib/saltmine-mobile-tokens";
 import {
   filterBookingsByKind,
@@ -195,18 +194,20 @@ export function SaltmineMobileBookingsFilters({
       <div className="flex items-center gap-2">
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
           <span
-            className={`inline-flex h-8 max-w-[48%] items-center truncate rounded-full px-2.5 ${SALTMINE_MOBILE_CAPTION_CLASS} font-semibold`}
+            className={`inline-flex h-8 max-w-[48%] items-center truncate rounded-full border px-2.5 ${SALTMINE_MOBILE_CAPTION_CLASS} font-semibold`}
             style={{
-              backgroundColor: SALTMINE.neutral,
+              backgroundColor: "#FFFFFF",
+              borderColor: "rgba(145, 158, 171, 0.18)",
               color: SALTMINE.textSecondary,
             }}
           >
             {bookingType}
           </span>
           <span
-            className={`inline-flex h-8 min-w-0 flex-1 items-center truncate rounded-full px-2.5 ${SALTMINE_MOBILE_CAPTION_CLASS} font-semibold`}
+            className={`inline-flex h-8 min-w-0 flex-1 items-center truncate rounded-full border px-2.5 ${SALTMINE_MOBILE_CAPTION_CLASS} font-semibold`}
             style={{
-              backgroundColor: SALTMINE.neutral,
+              backgroundColor: "#FFFFFF",
+              borderColor: "rgba(145, 158, 171, 0.18)",
               color: SALTMINE.textSecondary,
             }}
           >
@@ -283,17 +284,29 @@ export function SaltmineMobileViewModeToggle({
   onChange: (mode: "Daily" | "Weekly" | "Monthly") => void;
 }) {
   const modes = content.viewModes;
+  const activeIndex = modes.indexOf(value);
 
   return (
     <div
-      className="flex gap-1 rounded-[12px] p-1"
+      className="relative mx-auto grid w-full max-w-[260px] grid-cols-3 rounded-[12px] p-1"
       style={{
-        borderColor: "rgba(145, 158, 171, 0.2)",
+        border: "1px solid rgba(145, 158, 171, 0.2)",
         backgroundColor: "rgba(145, 158, 171, 0.06)",
       }}
       role="tablist"
       aria-label="Calendar view"
     >
+      <span
+        aria-hidden
+        className="pointer-events-none absolute bottom-1 top-1 rounded-[10px] transition-transform duration-200 ease-out"
+        style={{
+          width: "calc((100% - 8px) / 3)",
+          left: 4,
+          transform: `translateX(${activeIndex * 100}%)`,
+          backgroundColor: "#FFFFFF",
+          boxShadow: "0 1px 3px rgba(28, 37, 46, 0.08)",
+        }}
+      />
       {modes.map((mode) => {
         const selected = value === mode;
         return (
@@ -303,11 +316,9 @@ export function SaltmineMobileViewModeToggle({
             role="tab"
             aria-selected={selected}
             onClick={() => onChange(mode)}
-            className={SALTMINE_MOBILE_SEGMENTED_TAB_CLASS}
+            className={`relative z-[1] flex min-h-9 items-center justify-center rounded-[10px] px-1 text-[13px] font-semibold leading-none ${FOCUS_RING}`}
             style={{
               color: selected ? SALTMINE.primaryDark : SALTMINE.textSecondary,
-              backgroundColor: selected ? "#FFFFFF" : "transparent",
-              boxShadow: selected ? "0 1px 2px rgba(28, 37, 46, 0.06)" : undefined,
             }}
           >
             {mode}

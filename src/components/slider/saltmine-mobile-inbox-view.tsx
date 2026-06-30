@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { Check, ChevronLeft, ListFilter, MoreHorizontal, Search } from "lucide-react";
 import { FOCUS_RING } from "@/lib/a11y";
 import { InboxDetailPanel } from "@/components/slider/saltmine-inbox-view";
+import { SaltmineMobileInboxNotificationPopup } from "@/components/slider/saltmine-mobile-inbox-notification-popup";
 import {
   SaltmineMobileEmptyState,
   SaltmineMobilePageHeader,
@@ -197,8 +198,10 @@ function MobileInboxNotificationCard({
 
 export function SaltmineMobileInboxView({
   showToast,
+  showNotificationPopup = false,
 }: {
   showToast: (message: string) => void;
+  showNotificationPopup?: boolean;
 }) {
   const { setSearchOpen, openOverlay } = useSaltmineMobileApp();
   const [showTab, setShowTab] = useState<string>(INBOX_SHOW_OPTIONS[0]);
@@ -301,7 +304,11 @@ export function SaltmineMobileInboxView({
 
       <div
         className={`${SALTMINE_MOBILE_SCROLL_Y_CLASS} ${SALTMINE_MOBILE_CONTENT_X_CLASS} pt-3`}
-        style={{ paddingBottom: SALTMINE_MOBILE_CONTENT_BOTTOM_PADDING }}
+        style={{
+          paddingBottom: showNotificationPopup
+            ? SALTMINE_MOBILE_CONTENT_BOTTOM_PADDING + 220
+            : SALTMINE_MOBILE_CONTENT_BOTTOM_PADDING,
+        }}
       >
         {notifications.length === 0 ? (
           <SaltmineMobileEmptyState>{content.inboxEmptyLabel}</SaltmineMobileEmptyState>
@@ -350,6 +357,17 @@ export function SaltmineMobileInboxView({
             />
           </div>
         </div>
+      ) : null}
+
+      {showNotificationPopup ? (
+        <SaltmineMobileInboxNotificationPopup
+          notifications={INBOX_NOTIFICATIONS}
+          selectedId={selectedId}
+          onSelect={handleSelect}
+          onBookings={() => {
+            showToast(content.inboxNotificationPopupBookingsToast);
+          }}
+        />
       ) : null}
     </div>
   );

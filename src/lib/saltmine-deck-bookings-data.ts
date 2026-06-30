@@ -3,6 +3,8 @@
  * Does not affect the onboarding empty-state dashboard.
  */
 
+import { createDeckBookingFromAddFlow } from "@/lib/saltmine-last-minute-booking";
+
 /** Single source of truth for the primary team name across dashboard views. */
 export const SALTMINE_PROJECT_SYNC = {
   id: "project-sync",
@@ -29,7 +31,6 @@ export const DECK_FILTER_DEFAULTS = {
 
 export const DECK_OFFICE_PRESENCE = {
   officeName: "St Mary Axe",
-  commuteLabel: "45m",
   workLocation: "St Mary Axe",
 } as const;
 
@@ -76,8 +77,77 @@ export interface DeckBookingItem {
   floor: string;
   status: DeckBookingStatus;
   teamId: string;
-  action: "check-out" | "check-in";
+  action: DeckBookingAction;
   attendees?: readonly DeckBookingAttendee[];
+  /** Optional status line under the title row (e.g. waitlist position). */
+  statusNote?: string;
+}
+
+export type DeckBookingAction = "check-out" | "check-in" | "withdraw";
+
+/** Resource bookings users can release before arrival — not timed meetings. */
+const WITHDRAWABLE_RESOURCE_KINDS = new Set<DeckBookingKind>(["desk", "parking"]);
+
+/**
+ * Primary card action by lifecycle: active → check out;
+ * upcoming desk/parking/cab → withdraw (release hold, not check in).
+ */
+export function resolveDeckBookingAction(booking: DeckBookingItem): DeckBookingAction {
+  if (booking.status === "active") return "check-out";
+  if (
+    booking.status === "upcoming" &&
+    WITHDRAWABLE_RESOURCE_KINDS.has(booking.kind)
+  ) {
+    return "withdraw";
+  }
+  return booking.action;
+}
+
+export function deckBookingActionLabel(action: DeckBookingAction): string {
+  if (action === "check-out") return "Check out";
+  if (action === "withdraw") return "Withdraw";
+  return "Check in";
+}
+
+export function deckBookingActionStyle(action: DeckBookingAction): {
+  backgroundColor: string;
+  color: string;
+  borderColor: string;
+} {
+  if (action === "check-out") {
+    return {
+      backgroundColor: "rgba(239, 68, 68, 0.1)",
+      color: "#DC2626",
+      borderColor: "rgba(239, 68, 68, 0.24)",
+    };
+  }
+  if (action === "withdraw") {
+    return {
+      backgroundColor: "rgba(145, 158, 171, 0.08)",
+      color: "#637381",
+      borderColor: "rgba(145, 158, 171, 0.32)",
+    };
+  }
+  return {
+    backgroundColor: "rgba(245, 158, 11, 0.12)",
+    color: "#D97706",
+    borderColor: "rgba(245, 158, 11, 0.28)",
+  };
+}
+
+export interface DeckLastMinuteAlternative {
+  kind: "desk" | "parking" | "meeting";
+  label: string;
+  detail: string;
+}
+
+export interface DeckLastMinuteContext {
+  waitlist?: {
+    resource: string;
+    position: number;
+    estRelease: string;
+  };
+  alternatives: readonly DeckLastMinuteAlternative[];
 }
 
 export type DeckWeatherIcon = "cloud" | "sun" | "rain";
@@ -91,12 +161,14 @@ export interface DeckTimelineDay {
   weatherIcon: DeckWeatherIcon;
   bookings: readonly DeckBookingItem[];
   isToday?: boolean;
-  showCommutePill?: boolean;
+  /** Override work-location badge (defaults to office). */
+  workLocationLabel?: string;
+  /** Last-minute lane — waitlist and alternatives on My bookings. */
+  lastMinute?: DeckLastMinuteContext;
   /** Uses a single ghost avatar in the presence strip. */
   presenceMode?: "team" | "ghost";
   /** Replaces the team count label (e.g. “Best day for the office!”). */
   occupancyHighlight?: string;
-  emptyState?: "repeat-desk";
 }
 
 const DESIGN_REVIEW_ATTENDEES: readonly DeckBookingAttendee[] = [
@@ -134,7 +206,6 @@ export const DECK_TIMELINE_DAYS: readonly DeckTimelineDay[] = [
     weatherLabel: "14°",
     weatherIcon: "cloud",
     isToday: true,
-    showCommutePill: true,
     bookings: [
       {
         id: "parking-b2",
@@ -227,7 +298,6 @@ export const DECK_TIMELINE_DAYS: readonly DeckTimelineDay[] = [
     weatherLabel: "13°",
     weatherIcon: "cloud",
     bookings: [],
-    emptyState: "repeat-desk",
   },
   {
     id: "sat-4",
@@ -263,7 +333,7 @@ export const DECK_TIMELINE_DAYS: readonly DeckTimelineDay[] = [
         floor: "Basement 2",
         status: "upcoming",
         teamId: SALTMINE_PROJECT_SYNC.id,
-        action: "check-in",
+        action: "withdraw",
       },
       {
         id: "desk-21-mon",
@@ -275,7 +345,7 @@ export const DECK_TIMELINE_DAYS: readonly DeckTimelineDay[] = [
         floor: "Floor 21",
         status: "upcoming",
         teamId: SALTMINE_PROJECT_SYNC.id,
-        action: "check-in",
+        action: "withdraw",
       },
     ],
   },
@@ -304,6 +374,27 @@ export function findDeckTimelineDay(
   return DECK_TIMELINE_DAYS.find(
     (entry) => entry.calendar.monthIndex === monthIndex && entry.calendar.day === day,
   );
+}
+
+/** Resolve a calendar day against any timeline (e.g. future-plan slide state). */
+export function findTimelineDay(
+  timeline: readonly DeckTimelineDay[],
+  monthIndex: number,
+  day: number,
+): DeckTimelineDay | undefined {
+  return timeline.find(
+    (entry) => entry.calendar.monthIndex === monthIndex && entry.calendar.day === day,
+  );
+}
+
+/** Booking dots for the mini calendar from the active timeline. */
+export function deckBookingDaysFromTimeline(
+  timeline: readonly DeckTimelineDay[],
+  monthIndex: number,
+): readonly number[] {
+  return timeline
+    .filter((day) => day.calendar.monthIndex === monthIndex && day.bookings.length > 0)
+    .map((day) => day.calendar.day);
 }
 
 /** Days in a month that appear on the booking timeline (for calendar dots). */
@@ -383,4 +474,26 @@ export function resolveTeamNameFromFilter(teamFilter: string): string {
   if (teamFilter.includes("Design Team")) return "Design Team";
   if (teamFilter.includes(SALTMINE_PROJECT_SYNC.name)) return SALTMINE_PROJECT_SYNC.name;
   return SALTMINE_PROJECT_SYNC.name;
+}
+
+/** Turn add-booking flow labels into timeline cards (onboarding / first booking). */
+export function addedBookingLabelsToDeckItems(
+  labels: readonly string[],
+  dayId: string,
+  day?: Pick<DeckTimelineDay, "isToday" | "calendar" | "id">,
+): DeckBookingItem[] {
+  const dayContext =
+    day ??
+    ({
+      id: dayId,
+      isToday: dayId === "today",
+      calendar: {
+        monthIndex: DECK_CALENDAR.monthIndex,
+        day: dayId === "today" ? DECK_CALENDAR.todayDay : DECK_CALENDAR.todayDay + 1,
+      },
+    } satisfies Pick<DeckTimelineDay, "isToday" | "calendar" | "id">);
+
+  return labels.map((label, index) =>
+    createDeckBookingFromAddFlow({ label, dayId, day: dayContext, index }).booking,
+  );
 }

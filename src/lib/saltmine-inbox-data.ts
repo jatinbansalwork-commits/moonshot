@@ -128,7 +128,7 @@ export const INBOX_NOTIFICATIONS: readonly InboxNotification[] = [
       { label: "Time", value: "09:00 AM – All day" },
       { label: "Floor", value: "Floor 21" },
     ],
-    primaryAction: "View booking",
+    primaryAction: "Check in",
     avatar: {
       initials: "R",
       color: "#4D9BF7",

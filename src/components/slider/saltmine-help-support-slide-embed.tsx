@@ -41,9 +41,15 @@ const content = SALTMINE_HELP_SUPPORT_CONTENT;
 const HAIRLINE = SALTMINE_HAIRLINE;
 const ICON_STROKE = 1.65;
 const RAIL_WIDTH = 148;
-const TEXT_XS = "text-[9px] leading-[13px]";
-const TEXT_2XS = "text-[8px] leading-[11px]";
-const TEXT_MICRO = "text-[7px] leading-[10px]";
+import {
+  SALTMINE_DECK_TEXT_2XS,
+  SALTMINE_DECK_TEXT_MICRO,
+  SALTMINE_DECK_TEXT_XS,
+} from "@/lib/saltmine-deck-typography";
+
+const TEXT_XS = SALTMINE_DECK_TEXT_XS;
+const TEXT_2XS = SALTMINE_DECK_TEXT_2XS;
+const TEXT_MICRO = SALTMINE_DECK_TEXT_MICRO;
 
 const WORKSPACE_NAV: { id: string; label: string; icon: LucideIcon }[] = [
   { id: "bookings", label: "My bookings", icon: CalendarDays },
@@ -606,9 +612,12 @@ function HelpSupportToast({
 export function SaltmineHelpSupportSlideEmbed({
   displayName = SALTMINE_DEMO_USER.name,
   layout = "desktop",
+  showWorkspaceNav = true,
 }: {
   displayName?: string;
   layout?: "desktop" | "mobile";
+  /** When false, help content fills the frame (slide 24). */
+  showWorkspaceNav?: boolean;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -697,25 +706,27 @@ export function SaltmineHelpSupportSlideEmbed({
       }
       tabIndex={-1}
     >
-      <HelpSupportSidebar
-        displayName={displayName}
-        searchOpen={searchOpen}
-        activeWorkspaceNav={activeWorkspaceNav}
-        onOpenSearch={() => setSearchOpen(true)}
-        onNavToWorkspace={(id) => {
-          setSearchOpen(false);
-          setSearchQuery("");
-          setActiveWorkspaceNav(id);
-        }}
-        onHelp={() => {
-          setSearchOpen(false);
-          setSearchQuery("");
-          setActiveWorkspaceNav(null);
-        }}
-        onLocale={() => showToast("Region set to India")}
-        onLanguage={() => showToast("Language set to English")}
-        onProfileClick={() => showToast(`Opening profile for ${SALTMINE_DEMO_USER.name}`)}
-      />
+      {showWorkspaceNav ? (
+        <HelpSupportSidebar
+          displayName={displayName}
+          searchOpen={searchOpen}
+          activeWorkspaceNav={activeWorkspaceNav}
+          onOpenSearch={() => setSearchOpen(true)}
+          onNavToWorkspace={(id) => {
+            setSearchOpen(false);
+            setSearchQuery("");
+            setActiveWorkspaceNav(id);
+          }}
+          onHelp={() => {
+            setSearchOpen(false);
+            setSearchQuery("");
+            setActiveWorkspaceNav(null);
+          }}
+          onLocale={() => showToast("Region set to India")}
+          onLanguage={() => showToast("Language set to English")}
+          onProfileClick={() => showToast(`Opening profile for ${SALTMINE_DEMO_USER.name}`)}
+        />
+      ) : null}
 
       {searchOpen ? (
         <main className="relative min-w-0 flex-1 overflow-hidden">

@@ -3,10 +3,7 @@
 import { useState } from "react";
 import { Plus, Search } from "lucide-react";
 import { FOCUS_RING } from "@/lib/a11y";
-import {
-  SaltmineDeckAvatar,
-  scaleSaltmineAvatarSize,
-} from "@/components/slider/saltmine-initial-avatar";
+import { SaltmineAvatarStack } from "@/components/slider/saltmine-avatar-stack";
 import { useSaltmineMobileApp } from "@/components/slider/saltmine-mobile-app-context";
 import {
   SaltmineMobilePageHeader,
@@ -17,16 +14,14 @@ import {
   SALTMINE_MOBILE_CARD_BORDER_COLOR,
   SALTMINE_MOBILE_CARD_CLASS,
   SALTMINE_MOBILE_CARD_PAD_CLASS,
+  SALTMINE_MOBILE_CARD_SHADOW_STYLE,
   SALTMINE_MOBILE_CARD_TITLE_CLASS,
   SALTMINE_MOBILE_CONTENT_BOTTOM_PADDING,
   SALTMINE_MOBILE_CONTENT_X_CLASS,
-  SALTMINE_MOBILE_FAB_BOTTOM_OFFSET,
-  SALTMINE_MOBILE_FAB_CLASS,
   SALTMINE_MOBILE_ICON,
   SALTMINE_MOBILE_ICON_BUTTON_CLASS,
   SALTMINE_MOBILE_LIST_GAP_CLASS,
   SALTMINE_MOBILE_OUTLINE_BUTTON_CLASS,
-  SALTMINE_MOBILE_PRESS_CLASS,
   SALTMINE_MOBILE_SCROLL_Y_CLASS,
   SALTMINE_MOBILE_SECONDARY_CLASS,
 } from "@/lib/saltmine-mobile-tokens";
@@ -37,7 +32,6 @@ import { SALTMINE } from "@/lib/saltmine-onboarding-tokens";
 
 const content = SALTMINE_BOOKINGS_DASHBOARD_CONTENT;
 const AVATAR_SIZE = 24;
-const AVATAR_RENDERED = scaleSaltmineAvatarSize(AVATAR_SIZE);
 
 /** Mobile deck label for slide 25 — matches reference mock. */
 const MOBILE_TEAM_DISPLAY_NAMES: Record<string, string> = {
@@ -49,26 +43,17 @@ function mobileTeamLabel(team: TeamGroup): string {
 }
 
 function MobileTeamAvatarGrid({ members }: { members: TeamGroup["members"] }) {
-  const columns = members.length > 6 ? 8 : members.length;
-
   return (
-    <div
-      className="grid gap-1"
-      style={{
-        gridTemplateColumns: `repeat(${columns}, minmax(0, ${AVATAR_RENDERED}px))`,
-        justifyContent: members.length <= 6 ? "start" : "start",
-      }}
-    >
-      {members.map((member) => (
-        <SaltmineDeckAvatar
-          key={member.id}
-          memberId={member.id}
-          letter={member.floorLetter}
-          color={member.color}
-          size={AVATAR_SIZE}
-        />
-      ))}
-    </div>
+    <SaltmineAvatarStack
+      people={members.map((member) => ({
+        memberId: member.id,
+        letter: member.floorLetter,
+        color: member.color,
+      }))}
+      size={AVATAR_SIZE}
+      maxVisible={8}
+      overflowClassName="text-[10px] font-bold leading-none"
+    />
   );
 }
 
@@ -86,7 +71,7 @@ function MobileTeamCard({
   return (
     <article
       className={`${SALTMINE_MOBILE_CARD_CLASS} ${SALTMINE_MOBILE_CARD_PAD_CLASS}`}
-      style={{ borderColor: SALTMINE_MOBILE_CARD_BORDER_COLOR }}
+      style={{ borderColor: SALTMINE_MOBILE_CARD_BORDER_COLOR, ...SALTMINE_MOBILE_CARD_SHADOW_STYLE }}
       aria-label={label}
     >
       <div className="mb-3 flex items-start justify-between gap-2">
@@ -169,7 +154,7 @@ export function SaltmineMobileTeamsView({
 
       <div
         className={`${SALTMINE_MOBILE_SCROLL_Y_CLASS} ${SALTMINE_MOBILE_CONTENT_X_CLASS} pt-3 ${SALTMINE_MOBILE_LIST_GAP_CLASS}`}
-        style={{ paddingBottom: SALTMINE_MOBILE_CONTENT_BOTTOM_PADDING + 64 }}
+        style={{ paddingBottom: SALTMINE_MOBILE_CONTENT_BOTTOM_PADDING + 16 }}
       >
         {teams.map((team) => (
           <MobileTeamCard
@@ -186,30 +171,23 @@ export function SaltmineMobileTeamsView({
           type="button"
           aria-label="Create a team"
           onClick={() => showToast("Create a team — demo")}
-          className={`flex min-h-14 w-full items-center justify-center rounded-[12px] bg-white transition-colors hover:bg-[#F4F6F8] ${FOCUS_RING}`}
-          style={{ borderColor: SALTMINE_MOBILE_CARD_BORDER_COLOR, borderWidth: 1, borderStyle: "solid" }}
+          className={`flex min-h-14 w-full items-center justify-center gap-2 rounded-[16px] border border-dashed bg-white transition-colors hover:bg-[#F8FAFC] ${FOCUS_RING}`}
+          style={{
+            borderColor: "rgba(145, 158, 171, 0.32)",
+            ...SALTMINE_MOBILE_CARD_SHADOW_STYLE,
+          }}
         >
           <Plus
             className="h-5 w-5"
             strokeWidth={1.75}
-            style={{ color: "rgba(99, 115, 129, 0.72)" }}
+            style={{ color: SALTMINE.primary }}
             aria-hidden
           />
+          <span className={`${SALTMINE_MOBILE_SECONDARY_CLASS} font-semibold`} style={{ color: SALTMINE.text }}>
+            Add team
+          </span>
         </button>
       </div>
-
-      <button
-        type="button"
-        aria-label="Add team"
-        onClick={() => showToast("Add team — demo")}
-        className={`absolute right-4 z-20 ${SALTMINE_MOBILE_FAB_CLASS} ${SALTMINE_MOBILE_PRESS_CLASS}`}
-        style={{
-          bottom: SALTMINE_MOBILE_FAB_BOTTOM_OFFSET,
-          backgroundColor: SALTMINE.primary,
-        }}
-      >
-        <Plus className="h-[22px] w-[22px]" strokeWidth={2.25} aria-hidden />
-      </button>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import {
 } from "@/lib/constants";
 import { aboutSlide } from "@/lib/slide-content/about";
 import { extraSlides } from "@/lib/slide-content/extra-slides";
+import { FUTURE_PLAN_SLIDES } from "@/lib/slide-content/future-slides";
 import { heroSlide } from "@/lib/slide-content/hero";
 import { manifestSlide } from "@/lib/slide-content/manifest";
 import { preIndexSlide } from "@/lib/slide-content/pre-index";
@@ -21,6 +22,7 @@ export const SLIDES: SlideDefinition[] = [
   preIndexSlide,
   manifestSlide,
   ...extraSlides,
+  ...FUTURE_PLAN_SLIDES,
 ];
 
 export const FRAMES = SLIDES.map((slide, index) => ({
@@ -42,4 +44,10 @@ export const TRACK_WIDTH = FRAME_WIDTH + (SLIDE_COUNT - 1) * FRAME_STRIDE;
 
 export function getSlideById(id: string): SlideDefinition | undefined {
   return SLIDES.find((slide) => slide.id === id);
+}
+
+/** Zero-based deck index for dock links and deep navigation. */
+export function getSlideDeckIndex(slideId: string): number | undefined {
+  const index = SLIDES.findIndex((slide) => slide.id === slideId);
+  return index === -1 ? undefined : index;
 }

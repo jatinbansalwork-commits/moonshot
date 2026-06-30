@@ -129,13 +129,14 @@ export function IndexSlideBlock({
           );
       } else {
         const isGif = block.src?.toLowerCase().endsWith(".gif") ?? false;
+        const isSvg = block.src?.toLowerCase().endsWith(".svg") ?? false;
         element = (
           <Image
             src={block.src ?? ""}
             alt={block.alt}
             width={block.width ?? 1200}
             height={block.height ?? 720}
-            unoptimized={isGif}
+            unoptimized={isGif || isSvg}
             className={
               block.className ?? "h-auto w-full max-w-full object-contain"
             }

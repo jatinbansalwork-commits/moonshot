@@ -46,7 +46,6 @@ export function DeckDaySectionSlideEmbed() {
           occupancyLabel={teamOccupancyLabel(coworkers.length, SALTMINE_PROJECT_SYNC.name)}
           bookings={[]}
           isToday={day.isToday}
-          showCommutePill={day.showCommutePill}
           hideDayHeader
           hideBookings
           presenceRowOnly

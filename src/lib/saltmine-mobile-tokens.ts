@@ -2,6 +2,7 @@ import { FOCUS_RING, TARGET_HIT_AREA } from "@/lib/a11y";
 import {
   SALTMINE_MOBILE_BOTTOM_NAV_HEIGHT,
   SALTMINE_MOBILE_STATUS_BAR_HEIGHT,
+  SALTMINE_MOBILE_TAB_BAR_VISIBLE,
 } from "@/lib/saltmine-mobile-nav";
 
 /**
@@ -16,22 +17,23 @@ export const SALTMINE_MOBILE_FRAME = {
 export const SALTMINE_MOBILE_SPACING = {
   /** Horizontal page padding — 16px */
   pageX: 16,
-  /** Gap between major sections — 16px */
-  sectionGap: 16,
-  /** Card inner padding — 14px horizontal, 12px vertical */
-  cardPadX: 14,
-  cardPadY: 12,
-  /** Gap between list items — 12px */
-  listGap: 12,
+  /** Gap between major sections — 18px */
+  sectionGap: 18,
+  /** Card inner padding — 16px horizontal, 14px vertical */
+  cardPadX: 16,
+  cardPadY: 14,
+  /** Gap between list items — 14px */
+  listGap: 14,
   /** Extra safe area above bottom nav + home indicator */
   safeBottomExtra: 24,
   /** Sheet horizontal padding */
   sheetX: 16,
 } as const;
 
-/** Scrollable content clearance above bottom tab bar + home indicator. */
+/** Scrollable content clearance above bottom tab bar (when visible) + home indicator. */
 export const SALTMINE_MOBILE_CONTENT_BOTTOM_PADDING =
-  SALTMINE_MOBILE_BOTTOM_NAV_HEIGHT + SALTMINE_MOBILE_SPACING.safeBottomExtra;
+  (SALTMINE_MOBILE_TAB_BAR_VISIBLE ? SALTMINE_MOBILE_BOTTOM_NAV_HEIGHT : 0) +
+  SALTMINE_MOBILE_SPACING.safeBottomExtra;
 
 /** FAB sits above tab bar with comfortable margin. */
 export const SALTMINE_MOBILE_FAB_BOTTOM_OFFSET =
@@ -57,6 +59,15 @@ export const SALTMINE_MOBILE_ICON = {
   lg: 20,
 } as const;
 
+/** Elevation — keep shadows subtle and consistent across atoms. */
+export const SALTMINE_MOBILE_ELEVATION = {
+  card: "0 1px 2px rgba(28, 37, 46, 0.04), 0 4px 12px rgba(28, 37, 46, 0.03)",
+  chrome: "0 1px 0 rgba(28, 37, 46, 0.06)",
+  fab: "0 4px 14px rgba(0, 111, 236, 0.32), 0 2px 4px rgba(0, 111, 236, 0.12)",
+  popup: "0 16px 40px rgba(28, 37, 46, 0.14), 0 4px 12px rgba(28, 37, 46, 0.06)",
+  sheet: "0 -8px 32px rgba(28, 37, 46, 0.12), 0 -1px 0 rgba(28, 37, 46, 0.04)",
+} as const;
+
 // ── Layout class constants ───────────────────────────────────────────────────
 
 export const SALTMINE_MOBILE_PAGE_X_CLASS = "px-4";
@@ -77,8 +88,14 @@ export const SALTMINE_MOBILE_PAGE_HEADER_ON_CANVAS_CLASS =
 export const SALTMINE_MOBILE_PAGE_TITLE_CLASS =
   "m-0 text-[22px] font-extrabold leading-7 tracking-[-0.03em]";
 
+export const SALTMINE_MOBILE_PAGE_SUBTITLE_CLASS =
+  "m-0 text-[13px] font-medium leading-[18px] tracking-[-0.01em]";
+
 export const SALTMINE_MOBILE_SECTION_TITLE_CLASS =
   "m-0 text-[16px] font-bold leading-[22px] tracking-[-0.02em]";
+
+export const SALTMINE_MOBILE_SECTION_EYEBROW_CLASS =
+  "m-0 text-[11px] font-semibold uppercase tracking-[0.08em]";
 
 export const SALTMINE_MOBILE_CARD_TITLE_CLASS =
   "text-[15px] font-bold leading-5 tracking-[-0.02em]";
@@ -118,14 +135,31 @@ export const SALTMINE_MOBILE_ICON_BUTTON_CLASS =
   `${TARGET_HIT_AREA} rounded-full hover:bg-[rgba(145,158,171,0.08)] ${FOCUS_RING}`;
 
 export const SALTMINE_MOBILE_CARD_CLASS =
-  "rounded-[16px] border bg-white shadow-[0_1px_2px_rgba(28,37,46,0.05)]";
+  "rounded-[16px] border bg-white";
 
-export const SALTMINE_MOBILE_CARD_PAD_CLASS = "px-3.5 py-3";
+export const SALTMINE_MOBILE_CARD_PAD_CLASS = "px-4 py-3.5";
 
-export const SALTMINE_MOBILE_LIST_GAP_CLASS = "space-y-3";
+export const SALTMINE_MOBILE_CARD_SHADOW_STYLE = {
+  boxShadow: SALTMINE_MOBILE_ELEVATION.card,
+} as const;
+
+export const SALTMINE_MOBILE_KIND_BADGE_CLASS =
+  "inline-flex h-5 shrink-0 items-center rounded-[6px] px-1.5 text-[10px] font-bold uppercase tracking-[0.04em] leading-none";
+
+export const SALTMINE_MOBILE_PRIMARY_CTA_CLASS =
+  `flex min-h-11 w-full items-center justify-center rounded-[12px] border ${SALTMINE_MOBILE_BUTTON_LABEL_CLASS} leading-none transition-[transform,background-color,box-shadow] duration-150 active:scale-[0.98] ${FOCUS_RING}`;
+
+export const SALTMINE_MOBILE_SURFACE_CHIP_CLASS =
+  "inline-flex h-8 items-center gap-1.5 rounded-full border px-2.5 text-[12px] font-medium tabular-nums leading-none";
+
+export const SALTMINE_MOBILE_LIST_GAP_CLASS = "space-y-3.5";
 
 export const SALTMINE_MOBILE_FAB_CLASS =
-  `inline-flex h-14 w-14 items-center justify-center rounded-full text-white shadow-[0_4px_14px_rgba(0,111,236,0.35)] transition-transform duration-150 active:scale-95 ${FOCUS_RING}`;
+  `inline-flex h-14 w-14 items-center justify-center rounded-full border-2 border-white text-white transition-transform duration-150 active:scale-95 ${FOCUS_RING}`;
+
+export const SALTMINE_MOBILE_FAB_SHADOW_STYLE = {
+  boxShadow: SALTMINE_MOBILE_ELEVATION.fab,
+} as const;
 
 export const SALTMINE_MOBILE_CHIP_CLASS =
   "inline-flex h-8 items-center gap-1 rounded-full px-2.5 text-[12px] font-medium tabular-nums leading-none";
@@ -140,7 +174,14 @@ export const SALTMINE_MOBILE_OVERLAY_HEADER_CLASS =
   "flex shrink-0 items-center gap-1 border-b px-2 py-2";
 
 export const SALTMINE_MOBILE_SHEET_CLASS =
-  "relative rounded-t-[20px] bg-white px-4 pb-6 pt-3 shadow-[0_-8px_32px_rgba(28,37,46,0.12)]";
+  "relative rounded-t-[20px] bg-white px-4 pb-6 pt-2";
+
+export const SALTMINE_MOBILE_SHEET_SHADOW_STYLE = {
+  boxShadow: SALTMINE_MOBILE_ELEVATION.sheet,
+} as const;
+
+export const SALTMINE_MOBILE_TAB_BAR_CLASS =
+  "shrink-0 border-t bg-white/95 backdrop-blur-md supports-[backdrop-filter]:bg-white/90";
 
 /** Matches web preview frame canvas (`#EEF2F6`). */
 export const SALTMINE_MOBILE_CANVAS_BG = "#EEF2F6";
@@ -153,7 +194,11 @@ export const SALTMINE_MOBILE_PRESS_CLASS =
   "transition-[transform,opacity,background-color] duration-150 active:scale-[0.98]";
 
 export const SALTMINE_MOBILE_STICKY_CHROME_CLASS =
-  "sticky top-0 z-10 shrink-0 border-b bg-white";
+  "sticky top-0 z-10 shrink-0 border-b bg-white/95 backdrop-blur-md supports-[backdrop-filter]:bg-white/90";
+
+export const SALTMINE_MOBILE_STICKY_CHROME_SHADOW_STYLE = {
+  boxShadow: SALTMINE_MOBILE_ELEVATION.chrome,
+} as const;
 
 /** Hide scrollbars while keeping touch / wheel scroll — pair with overflow-auto/y. */
 export const SALTMINE_MOBILE_SCROLL_Y_CLASS =

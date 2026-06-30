@@ -51,7 +51,6 @@ export function Slide20DeckDayScreen() {
           )}
           bookings={[]}
           isToday={day.isToday}
-          showCommutePill={day.showCommutePill}
           hideDayHeader
           hideBookings
           presenceRowOnly

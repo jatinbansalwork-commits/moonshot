@@ -66,11 +66,25 @@ export function SaltmineMobilePageHeader({
   );
 }
 
+export function SaltmineMobileSheetHandle() {
+  return (
+    <div className="mb-3 flex justify-center pt-1" aria-hidden>
+      <span
+        className="h-1 w-10 rounded-full"
+        style={{ backgroundColor: "rgba(145, 158, 171, 0.32)" }}
+      />
+    </div>
+  );
+}
+
 export function SaltmineMobileEmptyState({ children }: { children: ReactNode }) {
   return (
     <div
       className="rounded-[16px] border border-dashed px-4 py-10 text-center"
-      style={{ borderColor: "rgba(145, 158, 171, 0.36)" }}
+      style={{
+        borderColor: "rgba(145, 158, 171, 0.28)",
+        backgroundColor: "rgba(255, 255, 255, 0.72)",
+      }}
     >
       <p className={`m-0 ${SALTMINE_MOBILE_BODY_CLASS}`} style={{ color: SALTMINE.textMuted }}>
         {children}

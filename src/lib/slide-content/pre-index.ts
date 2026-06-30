@@ -7,7 +7,7 @@ import {
 /** Favourite quote slide — matches About slide layout and typography. */
 export const preIndexSlide: SlideDefinition = {
   id: "slide-4",
-  label: "Slide 4",
+  label: "Favourite quote",
   blockGap: "gap-10",
   blocks: [
     {
