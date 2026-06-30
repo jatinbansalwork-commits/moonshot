@@ -33,16 +33,6 @@ export const slide5: SlideDefinition = {
       reveal: true,
     },
     {
-      id: "slide-5-detail",
-      type: "body",
-      text: "Saltmine is a B2B SaaS company helping organisations manage their workspaces efficiently.",
-      textCase: "preserve",
-      fontSize: 19,
-      className: "m-0 max-w-[21rem] !leading-[1.62] font-normal text-black/56",
-      reveal: true,
-      revealDelay: 0.06,
-    },
-    {
       id: "slide-5-services",
       type: "body",
       text: "UX Research · Design Systems · UX / UI for Desktop + Mobile",

@@ -4,23 +4,23 @@ import { INDEX_SLIDE_DEFAULT_TITLE } from "@/lib/index-typography";
 
 export const slide6: SlideDefinition = {
   id: "slide-6",
-  label: "Context",
+  label: "Saltmine",
   backgroundColor: "#F2F0F6",
   presentation: {
     rhythm: "statement",
-    sectionLabel: "Context",
+    sectionLabel: "About Saltmine",
   },
   align: "center",
-  blockGap: "gap-10",
+  blockGap: "gap-8",
   blocks: [
     {
-      id: "slide-6-lead",
-      type: "title",
-      text: "Every day, hybrid workflows were slowing down because people lacked simple things — visibility, quick coordination, and easy access to help.",
+      id: "slide-6-body",
+      type: "body",
+      text: "Saltmine is a cloud-based enterprise software company that specialises in workplace performance, design, and space optimisation for corporate real estate teams.",
       textCase: "preserve",
       fontSize: 52,
       typography: INDEX_SLIDE_DEFAULT_TITLE,
-      className: `${DECK_STATEMENT} !font-normal`,
+      className: `${DECK_STATEMENT} !font-normal max-w-4xl !leading-[1.15]`,
     },
   ],
 };
